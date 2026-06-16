@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-🟢 Project Foundation Completed
+🟢 Approval Workflow Module Completed
 
 ---
 
 # Current Phase
 
-## Phase 1 - Project Foundation
+## Phase 4 - Approval Workflow
 
 **Status:**
 
@@ -165,11 +165,140 @@ Completed
 
 ---
 
+# Phase 2 - User Management, Staff Profiles, and Skills Foundation
+
+Completed
+
+* User profile database fields added according to `DATABASE_PLAN.md`
+* User soft deletes enabled for historical preservation
+* Staff profile table added
+* Skills table added
+* Staff-skill pivot table added
+* User, StaffProfile, and Skill relationships added
+* API user management endpoints added under `/api/v1/users`
+* API staff profile endpoints added under `/api/v1/staff`
+* API skill endpoints added under `/api/v1/skills`
+* Staff skill sync endpoint added:
+  * `PUT /api/v1/staff/{staffProfile}/skills`
+* Form Requests added for user, staff profile, skill, and staff-skill validation
+* API Resources added for user, staff profile, and skill responses
+* Policies added and registered for users, staff profiles, and skills
+* Service classes added for user management, staff profile management, and skill management
+* FMO skill seeder added
+* Role permissions expanded for FMO Head, Campus Director, Director for Instruction, FMO Staff, and requestor roles
+* Feature tests added for user creation, authorization denial, staff profile creation, skill assignment, and skill seeding
+* Full test suite verified
+
+---
+
+# Phase 2.5 - Master Data Foundation
+
+Completed
+
+* Master data tables added:
+  * Buildings
+  * Floors
+  * Rooms
+  * Departments/Offices
+  * Work Order Categories
+  * Priorities
+  * Work Order Statuses
+  * Asset Categories
+  * Maintenance Types
+  * Inventory Categories
+* UUID support added to master data records for future mobile reference use
+* Soft deletes added to master data records
+* Models and relationships added for building, floor, and room hierarchy
+* Idempotent master data seeder added
+* `manage_master_data` and `manage_work_order_settings` permissions added
+* Protected REST API endpoints added under `/api/v1`
+* Form Requests added for master data validation
+* API Resources added for master data responses
+* Master data policy and service support added
+* Feature tests added for seeding, CRUD, hierarchy creation, search, authorization, and uniqueness
+* `migrate --seed`, repeated master data seeding, full tests, and Pint verified
+
+---
+
+# Phase 3 - Work Order Module
+
+Completed
+
+* Work order core table added
+* Work order attachment metadata table added
+* Work order model and attachment model added
+* Work order relationships added for:
+  * Requestor
+  * Department/Office
+  * Building
+  * Floor
+  * Room
+  * Category
+  * Priority
+  * Status
+  * Preferred Staff
+  * Attachments
+* Work order repository added for scoped querying and visibility rules
+* Work order service added for transactions, numbering, default status, updates, and deletion
+* Work order Form Requests added
+* Work order API Resources added
+* Work order policy added
+* Work order permissions added:
+  * `manage_work_orders`
+  * `view_work_orders`
+  * `create_work_orders`
+  * `update_work_orders`
+  * `delete_work_orders`
+* Protected work order REST API endpoints added under `/api/v1/work-orders`
+* Requestors can only see their own requests unless operationally authorized
+* FMO Head, Campus Director, Director for Instruction, and Super Admin can see operational requests through permissions
+* Preferred staff is stored only as a recommendation
+* Feature tests added for creation, attachment metadata, scoped visibility, operational visibility, status update protection, and deletion
+* `migrate --seed`, full tests, Pint, and route checks verified
+
+---
+
+# Phase 4 - Approval Workflow
+
+Completed
+
+* Work order approval history table added
+* Work order approval status tracking added for API filtering and mobile sync compatibility
+* Work order model relationships added for approval history
+* User model relationship added for approval actions
+* Approval API Resources added
+* Approval and rejection Form Requests added
+* Work order service expanded with transactional approve and reject operations
+* Approval workflow records approver, action, remarks, and timestamp
+* Approval workflow moves work orders to `Approved` status
+* Rejection workflow records `rejected` history and moves work orders to `Cancelled` using the existing status structure
+* Approval history endpoint added:
+  * `GET /api/v1/work-orders/{workOrder}/approvals`
+* Approval action endpoints added:
+  * `POST /api/v1/work-orders/{workOrder}/approve`
+  * `POST /api/v1/work-orders/{workOrder}/reject`
+* Approval permissions added:
+  * `approve_work_orders`
+  * `reject_work_orders`
+  * `view_work_order_approvals`
+* Authorized approval roles configured:
+  * Super Admin
+  * FMO Head
+  * Campus Director
+  * Director for Instruction
+* Requestors without explicit approval permission cannot approve their own requests
+* Completed approval workflows cannot be approved or rejected again
+* Approval history has no delete endpoint and is preserved as an audit trail
+* Feature tests added for approval, rejection, authorization denial, repeat-action protection, and approval history retrieval
+* `migrate --seed`, full tests, Pint, and route checks verified
+
+---
+
 # Pending Tasks for Current Phase
 
-No remaining Phase 1 implementation tasks.
+No remaining Phase 4 implementation tasks.
 
-Next pending phase: Phase 2 - User Management.
+Next pending phase: Phase 5 - Staff Assignment.
 
 ---
 
@@ -183,7 +312,7 @@ Project Foundation
 
 Status:
 
-🟡 In Progress
+🟢 Completed
 
 Includes:
 
@@ -202,7 +331,7 @@ User Management
 
 Status:
 
-⚪ Pending
+🟢 Completed
 
 Includes:
 
@@ -214,13 +343,36 @@ Includes:
 
 ---
 
+## Phase 2.5
+
+Master Data Foundation
+
+Status:
+
+🟢 Completed
+
+Includes:
+
+* Buildings
+* Floors
+* Rooms
+* Departments/Offices
+* Work Order Categories
+* Priorities
+* Work Order Statuses
+* Asset Categories
+* Maintenance Types
+* Inventory Categories
+
+---
+
 ## Phase 3
 
 Work Order Module
 
 Status:
 
-⚪ Pending
+🟢 Completed
 
 Includes:
 
@@ -239,14 +391,15 @@ Approval Workflow
 
 Status:
 
-⚪ Pending
+🟢 Completed
 
 Includes:
 
 * FMO Head Approval
 * Campus Director Approval
 * Director for Instruction Approval
-* Direct Assignment Workflow
+* Approval History
+* Rejection Workflow
 
 ---
 
@@ -496,18 +649,18 @@ Includes:
 
 # Current Priority
 
-Complete Phase 1.
+Proceed to Phase 5 - Staff Assignment only after user confirmation.
 
-Do not begin any succeeding phase until the following are completed:
+Do not begin Phase 5 until the Phase 4 approval workflow has been reviewed and accepted.
 
-* Laravel installation verified
-* Docker verified
-* Laravel Sail verified
-* GitHub repository connected
-* Authentication installed
-* Sanctum installed
-* Spatie Permission installed
-* Roles and permissions configured
+Recommended Phase 5 scope:
+
+* Assignment table and history
+* Assigned staff relationship on work orders
+* Assignment permissions and policies
+* Assignment API endpoints
+* Staff availability and skill-aware assignment foundation
+* No daily progress, inventory usage, notifications, or Flutter sync yet
 
 ---
 

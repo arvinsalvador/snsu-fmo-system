@@ -33,10 +33,17 @@ class RoleAndPermissionSeeder extends Seeder
         'manage_permissions',
         'manage_staff_profiles',
         'manage_skills',
+        'manage_master_data',
         'manage_locations',
+        'manage_work_order_settings',
         'create_work_orders',
         'view_work_orders',
+        'update_work_orders',
+        'delete_work_orders',
+        'manage_work_orders',
         'approve_work_orders',
+        'reject_work_orders',
+        'view_work_order_approvals',
         'assign_work_orders',
         'update_work_order_progress',
         'evaluate_work_orders',
@@ -63,6 +70,45 @@ class RoleAndPermissionSeeder extends Seeder
 
             if ($roleName === 'Super Admin') {
                 $role->syncPermissions($permissions);
+            }
+
+            if (in_array($roleName, ['FMO Head', 'Campus Director', 'Director for Instruction'], true)) {
+                $role->syncPermissions([
+                    'view_dashboard',
+                    'manage_staff_profiles',
+                    'manage_skills',
+                    'manage_master_data',
+                    'manage_locations',
+                    'manage_work_order_settings',
+                    'create_work_orders',
+                    'view_work_orders',
+                    'update_work_orders',
+                    'delete_work_orders',
+                    'manage_work_orders',
+                    'approve_work_orders',
+                    'reject_work_orders',
+                    'view_work_order_approvals',
+                    'assign_work_orders',
+                    'view_reports',
+                ]);
+            }
+
+            if ($roleName === 'FMO Staff') {
+                $role->syncPermissions([
+                    'view_dashboard',
+                    'view_work_orders',
+                    'update_work_order_progress',
+                    'sync_mobile_data',
+                ]);
+            }
+
+            if (in_array($roleName, ['Faculty', 'Admin/Staff', 'Student'], true)) {
+                $role->syncPermissions([
+                    'view_dashboard',
+                    'create_work_orders',
+                    'view_work_orders',
+                    'evaluate_work_orders',
+                ]);
             }
         }
 
