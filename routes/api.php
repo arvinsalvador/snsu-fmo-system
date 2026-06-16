@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\MasterData\WorkOrderStatusController;
 use App\Http\Controllers\Api\V1\SkillController;
 use App\Http\Controllers\Api\V1\StaffProfileController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\WorkOrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
@@ -59,5 +60,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::apiResource('inventory-categories', InventoryCategoryController::class)
             ->parameters(['inventory-categories' => 'inventoryCategory'])
             ->only(['index', 'store', 'show', 'update']);
+
+        Route::apiResource('work-orders', WorkOrderController::class)
+            ->only(['index', 'store', 'show', 'update', 'destroy']);
     });
 });

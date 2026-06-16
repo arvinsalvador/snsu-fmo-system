@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-🟢 Master Data Foundation Completed
+🟢 Work Order Core Module Completed
 
 ---
 
 # Current Phase
 
-## Phase 2.5 - Master Data Foundation
+## Phase 3 - Work Order Module
 
 **Status:**
 
@@ -167,9 +167,9 @@ Completed
 
 # Pending Tasks for Current Phase
 
-No remaining Phase 2.5 implementation tasks.
+No remaining Phase 3 implementation tasks.
 
-Next pending phase: Phase 3 - Work Order Module.
+Next pending phase: Phase 4 - Approval Workflow.
 
 ---
 
@@ -225,6 +225,44 @@ Completed
 * Master data policy and service support added
 * Feature tests added for seeding, CRUD, hierarchy creation, search, authorization, and uniqueness
 * `migrate --seed`, repeated master data seeding, full tests, and Pint verified
+
+---
+
+# Phase 3 - Work Order Module
+
+Completed
+
+* Work order core table added
+* Work order attachment metadata table added
+* Work order model and attachment model added
+* Work order relationships added for:
+  * Requestor
+  * Department/Office
+  * Building
+  * Floor
+  * Room
+  * Category
+  * Priority
+  * Status
+  * Preferred Staff
+  * Attachments
+* Work order repository added for scoped querying and visibility rules
+* Work order service added for transactions, numbering, default status, updates, and deletion
+* Work order Form Requests added
+* Work order API Resources added
+* Work order policy added
+* Work order permissions added:
+  * `manage_work_orders`
+  * `view_work_orders`
+  * `create_work_orders`
+  * `update_work_orders`
+  * `delete_work_orders`
+* Protected work order REST API endpoints added under `/api/v1/work-orders`
+* Requestors can only see their own requests unless operationally authorized
+* FMO Head, Campus Director, Director for Instruction, and Super Admin can see operational requests through permissions
+* Preferred staff is stored only as a recommendation
+* Feature tests added for creation, attachment metadata, scoped visibility, operational visibility, status update protection, and deletion
+* `migrate --seed`, full tests, Pint, and route checks verified
 
 ---
 
@@ -298,7 +336,7 @@ Work Order Module
 
 Status:
 
-⚪ Pending
+🟢 Completed
 
 Includes:
 
