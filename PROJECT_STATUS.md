@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-🟢 Work Order Core Module Completed
+🟢 Approval Workflow Module Completed
 
 ---
 
 # Current Phase
 
-## Phase 3 - Work Order Module
+## Phase 4 - Approval Workflow
 
 **Status:**
 
@@ -165,14 +165,6 @@ Completed
 
 ---
 
-# Pending Tasks for Current Phase
-
-No remaining Phase 3 implementation tasks.
-
-Next pending phase: Phase 4 - Approval Workflow.
-
----
-
 # Phase 2 - User Management, Staff Profiles, and Skills Foundation
 
 Completed
@@ -266,6 +258,50 @@ Completed
 
 ---
 
+# Phase 4 - Approval Workflow
+
+Completed
+
+* Work order approval history table added
+* Work order approval status tracking added for API filtering and mobile sync compatibility
+* Work order model relationships added for approval history
+* User model relationship added for approval actions
+* Approval API Resources added
+* Approval and rejection Form Requests added
+* Work order service expanded with transactional approve and reject operations
+* Approval workflow records approver, action, remarks, and timestamp
+* Approval workflow moves work orders to `Approved` status
+* Rejection workflow records `rejected` history and moves work orders to `Cancelled` using the existing status structure
+* Approval history endpoint added:
+  * `GET /api/v1/work-orders/{workOrder}/approvals`
+* Approval action endpoints added:
+  * `POST /api/v1/work-orders/{workOrder}/approve`
+  * `POST /api/v1/work-orders/{workOrder}/reject`
+* Approval permissions added:
+  * `approve_work_orders`
+  * `reject_work_orders`
+  * `view_work_order_approvals`
+* Authorized approval roles configured:
+  * Super Admin
+  * FMO Head
+  * Campus Director
+  * Director for Instruction
+* Requestors without explicit approval permission cannot approve their own requests
+* Completed approval workflows cannot be approved or rejected again
+* Approval history has no delete endpoint and is preserved as an audit trail
+* Feature tests added for approval, rejection, authorization denial, repeat-action protection, and approval history retrieval
+* `migrate --seed`, full tests, Pint, and route checks verified
+
+---
+
+# Pending Tasks for Current Phase
+
+No remaining Phase 4 implementation tasks.
+
+Next pending phase: Phase 5 - Staff Assignment.
+
+---
+
 # Planned Development Roadmap
 
 ---
@@ -355,14 +391,15 @@ Approval Workflow
 
 Status:
 
-⚪ Pending
+🟢 Completed
 
 Includes:
 
 * FMO Head Approval
 * Campus Director Approval
 * Director for Instruction Approval
-* Direct Assignment Workflow
+* Approval History
+* Rejection Workflow
 
 ---
 
@@ -612,18 +649,18 @@ Includes:
 
 # Current Priority
 
-Complete Phase 1.
+Proceed to Phase 5 - Staff Assignment only after user confirmation.
 
-Do not begin any succeeding phase until the following are completed:
+Do not begin Phase 5 until the Phase 4 approval workflow has been reviewed and accepted.
 
-* Laravel installation verified
-* Docker verified
-* Laravel Sail verified
-* GitHub repository connected
-* Authentication installed
-* Sanctum installed
-* Spatie Permission installed
-* Roles and permissions configured
+Recommended Phase 5 scope:
+
+* Assignment table and history
+* Assigned staff relationship on work orders
+* Assignment permissions and policies
+* Assignment API endpoints
+* Staff availability and skill-aware assignment foundation
+* No daily progress, inventory usage, notifications, or Flutter sync yet
 
 ---
 

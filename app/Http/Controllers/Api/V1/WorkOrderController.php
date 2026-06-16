@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\WorkOrders\ApproveWorkOrderRequest;
+use App\Http\Requests\Api\V1\WorkOrders\RejectWorkOrderRequest;
 use App\Http\Requests\Api\V1\WorkOrders\StoreWorkOrderRequest;
 use App\Http\Requests\Api\V1\WorkOrders\UpdateWorkOrderRequest;
+use App\Http\Resources\Api\V1\WorkOrderApprovalResource;
 use App\Http\Resources\Api\V1\WorkOrderResource;
 use App\Models\WorkOrder;
 use App\Services\WorkOrderService;
@@ -25,6 +28,7 @@ class WorkOrderController extends Controller
             $request->only([
                 'search',
                 'status_id',
+                'approval_status',
                 'priority_id',
                 'category_id',
                 'department_id',
@@ -104,6 +108,43 @@ class WorkOrderController extends Controller
             'success' => true,
             'message' => 'Work order deleted successfully.',
             'data' => null,
+        ]);
+    }
+
+    public function approve(ApproveWorkOrderRequest $request, WorkOrder $workOrder): JsonResponse
+    {
+        Gate::authorize('approve', $workOrder);
+
+        $workOrder = $this->workOrders->approve($workOrder, $request->user(), $request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Work order approved successfully.',
+            'data' => ['work_order' => new WorkOrderResource($workOrder)],
+        ]);
+    }
+
+    public function reject(RejectWorkOrderRequest $request, WorkOrder $workOrder): JsonResponse
+    {
+        Gate::authorize('reject', $workOrder);
+
+        $workOrder = $this->workOrders->reject($workOrder, $request->user(), $request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Work order rejected successfully.',
+            'data' => ['work_order' => new WorkOrderResource($workOrder)],
+        ]);
+    }
+
+    public function approvals(WorkOrder $workOrder): JsonResponse
+    {
+        Gate::authorize('viewApprovals', $workOrder);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Work order approvals retrieved successfully.',
+            'data' => WorkOrderApprovalResource::collection($this->workOrders->approvals($workOrder)),
         ]);
     }
 }

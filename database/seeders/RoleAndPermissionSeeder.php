@@ -42,6 +42,8 @@ class RoleAndPermissionSeeder extends Seeder
         'delete_work_orders',
         'manage_work_orders',
         'approve_work_orders',
+        'reject_work_orders',
+        'view_work_order_approvals',
         'assign_work_orders',
         'update_work_order_progress',
         'evaluate_work_orders',
@@ -84,6 +86,8 @@ class RoleAndPermissionSeeder extends Seeder
                     'delete_work_orders',
                     'manage_work_orders',
                     'approve_work_orders',
+                    'reject_work_orders',
+                    'view_work_order_approvals',
                     'assign_work_orders',
                     'view_reports',
                 ]);

@@ -63,5 +63,11 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::apiResource('work-orders', WorkOrderController::class)
             ->only(['index', 'store', 'show', 'update', 'destroy']);
+        Route::post('work-orders/{workOrder}/approve', [WorkOrderController::class, 'approve'])
+            ->name('work-orders.approve');
+        Route::post('work-orders/{workOrder}/reject', [WorkOrderController::class, 'reject'])
+            ->name('work-orders.reject');
+        Route::get('work-orders/{workOrder}/approvals', [WorkOrderController::class, 'approvals'])
+            ->name('work-orders.approvals.index');
     });
 });

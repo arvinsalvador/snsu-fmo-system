@@ -37,12 +37,15 @@ class WorkOrderFactory extends Factory
             'category_id' => WorkOrderCategory::factory(),
             'priority_id' => Priority::factory(),
             'status_id' => WorkOrderStatus::factory(),
+            'approval_status' => 'pending',
             'preferred_staff_id' => null,
             'title' => fake()->sentence(4),
             'description' => fake()->paragraph(),
             'requested_at' => now(),
             'target_completion_date' => now()->addDays(7)->toDateString(),
             'completed_at' => null,
+            'approved_at' => null,
+            'rejected_at' => null,
         ];
     }
 }

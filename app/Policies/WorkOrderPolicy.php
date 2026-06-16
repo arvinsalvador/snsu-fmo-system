@@ -45,4 +45,23 @@ class WorkOrderPolicy
         return $user->can('manage_work_orders')
             || $user->can('delete_work_orders');
     }
+
+    public function approve(User $user, WorkOrder $workOrder): bool
+    {
+        return $user->can('manage_work_orders')
+            || $user->can('approve_work_orders');
+    }
+
+    public function reject(User $user, WorkOrder $workOrder): bool
+    {
+        return $user->can('manage_work_orders')
+            || $user->can('reject_work_orders');
+    }
+
+    public function viewApprovals(User $user, WorkOrder $workOrder): bool
+    {
+        return $user->can('manage_work_orders')
+            || $user->can('view_work_order_approvals')
+            || ($user->can('view_work_orders') && $workOrder->requestor_id === $user->id);
+    }
 }

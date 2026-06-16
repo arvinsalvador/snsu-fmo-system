@@ -134,6 +134,119 @@ class WorkOrderApiTest extends TestCase
         $this->assertSoftDeleted($workOrder);
     }
 
+    public function test_authorized_approver_can_approve_work_order_and_history_is_recorded(): void
+    {
+        $this->seedFoundation();
+        $requestor = $this->userWithRole('Faculty');
+        $approver = $this->userWithRole('Campus Director');
+        $workOrder = $this->createWorkOrderFor($requestor);
+        $approvedStatus = WorkOrderStatus::query()->where('name', 'Approved')->first();
+
+        Sanctum::actingAs($approver);
+
+        $this->postJson("/api/v1/work-orders/{$workOrder->id}/approve", [
+            'remarks' => 'Approved for repair.',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.work_order.approval_status', 'approved')
+            ->assertJsonPath('data.work_order.status_id', $approvedStatus->id)
+            ->assertJsonPath('data.work_order.approvals.0.action', 'approved')
+            ->assertJsonPath('data.work_order.approvals.0.remarks', 'Approved for repair.');
+
+        $this->assertDatabaseHas('work_order_approvals', [
+            'work_order_id' => $workOrder->id,
+            'approver_id' => $approver->id,
+            'action' => 'approved',
+            'remarks' => 'Approved for repair.',
+        ]);
+    }
+
+    public function test_authorized_approver_can_reject_work_order_and_history_is_recorded(): void
+    {
+        $this->seedFoundation();
+        $requestor = $this->userWithRole('Faculty');
+        $approver = $this->userWithRole('FMO Head');
+        $workOrder = $this->createWorkOrderFor($requestor);
+        $cancelledStatus = WorkOrderStatus::query()->where('name', 'Cancelled')->first();
+
+        Sanctum::actingAs($approver);
+
+        $this->postJson("/api/v1/work-orders/{$workOrder->id}/reject", [
+            'remarks' => 'Duplicate request.',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.work_order.approval_status', 'rejected')
+            ->assertJsonPath('data.work_order.status_id', $cancelledStatus->id)
+            ->assertJsonPath('data.work_order.approvals.0.action', 'rejected')
+            ->assertJsonPath('data.work_order.approvals.0.remarks', 'Duplicate request.');
+
+        $this->assertDatabaseHas('work_order_approvals', [
+            'work_order_id' => $workOrder->id,
+            'approver_id' => $approver->id,
+            'action' => 'rejected',
+        ]);
+    }
+
+    public function test_requestor_without_approval_permission_cannot_approve_own_work_order(): void
+    {
+        $this->seedFoundation();
+        $requestor = $this->userWithRole('Faculty');
+        $workOrder = $this->createWorkOrderFor($requestor);
+
+        Sanctum::actingAs($requestor);
+
+        $this->postJson("/api/v1/work-orders/{$workOrder->id}/approve", [
+            'remarks' => 'Self approved.',
+        ])->assertForbidden();
+
+        $this->assertDatabaseMissing('work_order_approvals', [
+            'work_order_id' => $workOrder->id,
+            'action' => 'approved',
+        ]);
+    }
+
+    public function test_completed_approval_workflow_cannot_be_repeated(): void
+    {
+        $this->seedFoundation();
+        $requestor = $this->userWithRole('Faculty');
+        $approver = $this->userWithRole('Director for Instruction');
+        $workOrder = $this->createWorkOrderFor($requestor);
+
+        Sanctum::actingAs($approver);
+
+        $this->postJson("/api/v1/work-orders/{$workOrder->id}/approve", [
+            'remarks' => 'Approved.',
+        ])->assertOk();
+
+        $this->postJson("/api/v1/work-orders/{$workOrder->id}/reject", [
+            'remarks' => 'Changed mind.',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('work_order');
+
+        $this->assertDatabaseCount('work_order_approvals', 1);
+    }
+
+    public function test_approval_history_endpoint_returns_records_to_authorized_users(): void
+    {
+        $this->seedFoundation();
+        $requestor = $this->userWithRole('Faculty');
+        $approver = $this->userWithRole('FMO Head');
+        $workOrder = $this->createWorkOrderFor($requestor);
+
+        Sanctum::actingAs($approver);
+
+        $this->postJson("/api/v1/work-orders/{$workOrder->id}/approve", [
+            'remarks' => 'Approved.',
+        ])->assertOk();
+
+        $this->getJson("/api/v1/work-orders/{$workOrder->id}/approvals")
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.action', 'approved')
+            ->assertJsonPath('data.0.approver_id', $approver->id);
+    }
+
     private function seedFoundation(): void
     {
         $this->seed(RoleAndPermissionSeeder::class);
@@ -178,6 +291,7 @@ class WorkOrderApiTest extends TestCase
             'category_id' => $this->tableId('work_order_categories', 'name', 'Electrical'),
             'priority_id' => $this->tableId('priorities', 'name', 'Normal'),
             'status_id' => $this->tableId('work_order_statuses', 'name', 'Submitted'),
+            'approval_status' => 'pending',
             'title' => fake()->sentence(4),
             'description' => fake()->paragraph(),
             'requested_at' => now(),

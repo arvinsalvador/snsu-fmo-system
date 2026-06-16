@@ -24,6 +24,7 @@ class WorkOrderRepository
                 });
             })
             ->when($filters['status_id'] ?? null, fn (Builder $query, int $id) => $query->where('status_id', $id))
+            ->when($filters['approval_status'] ?? null, fn (Builder $query, string $status) => $query->where('approval_status', $status))
             ->when($filters['priority_id'] ?? null, fn (Builder $query, int $id) => $query->where('priority_id', $id))
             ->when($filters['category_id'] ?? null, fn (Builder $query, int $id) => $query->where('category_id', $id))
             ->when($filters['department_id'] ?? null, fn (Builder $query, int $id) => $query->where('department_id', $id))
@@ -94,6 +95,7 @@ class WorkOrderRepository
             'status',
             'preferredStaff.user',
             'attachments.uploader',
+            'approvals.approver',
         ];
     }
 

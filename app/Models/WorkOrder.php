@@ -22,12 +22,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'category_id',
     'priority_id',
     'status_id',
+    'approval_status',
     'preferred_staff_id',
     'title',
     'description',
     'requested_at',
     'target_completion_date',
     'completed_at',
+    'approved_at',
+    'rejected_at',
 ])]
 class WorkOrder extends Model
 {
@@ -40,6 +43,8 @@ class WorkOrder extends Model
             'requested_at' => 'datetime',
             'target_completion_date' => 'date',
             'completed_at' => 'datetime',
+            'approved_at' => 'datetime',
+            'rejected_at' => 'datetime',
         ];
     }
 
@@ -91,5 +96,10 @@ class WorkOrder extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(WorkOrderAttachment::class);
+    }
+
+    public function approvals(): HasMany
+    {
+        return $this->hasMany(WorkOrderApproval::class);
     }
 }
