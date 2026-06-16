@@ -7,24 +7,59 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['uuid', 'name', 'email', 'password', 'is_active', 'last_login_at'])]
+#[Fillable([
+    'uuid',
+    'employee_no',
+    'student_no',
+    'name',
+    'first_name',
+    'middle_name',
+    'last_name',
+    'suffix',
+    'email',
+    'username',
+    'mobile_number',
+    'password',
+    'is_active',
+    'last_login_at',
+])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     protected static function booted(): void
     {
         static::creating(function (User $user): void {
             $user->uuid ??= (string) Str::uuid();
+            $user->name = self::resolveDisplayName($user);
         });
+    }
+
+    public function staffProfile(): HasOne
+    {
+        return $this->hasOne(StaffProfile::class);
+    }
+
+    public static function resolveDisplayName(User $user): string
+    {
+        $nameParts = array_filter([
+            $user->first_name,
+            $user->middle_name,
+            $user->last_name,
+            $user->suffix,
+        ]);
+
+        return $nameParts === [] ? $user->name : implode(' ', $nameParts);
     }
 
     /**

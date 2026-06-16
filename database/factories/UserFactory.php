@@ -26,8 +26,16 @@ class UserFactory extends Factory
     {
         return [
             'uuid' => (string) Str::uuid(),
+            'employee_no' => fake()->unique()->bothify('EMP-####'),
+            'student_no' => null,
             'name' => fake()->name(),
+            'first_name' => fake()->firstName(),
+            'middle_name' => fake()->optional()->firstName(),
+            'last_name' => fake()->lastName(),
+            'suffix' => null,
             'email' => fake()->unique()->safeEmail(),
+            'username' => fake()->unique()->userName(),
+            'mobile_number' => fake()->optional()->phoneNumber(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'is_active' => true,

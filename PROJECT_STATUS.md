@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-🟢 Project Foundation Completed
+🟢 Master Data Foundation Completed
 
 ---
 
 # Current Phase
 
-## Phase 1 - Project Foundation
+## Phase 2.5 - Master Data Foundation
 
 **Status:**
 
@@ -167,9 +167,64 @@ Completed
 
 # Pending Tasks for Current Phase
 
-No remaining Phase 1 implementation tasks.
+No remaining Phase 2.5 implementation tasks.
 
-Next pending phase: Phase 2 - User Management.
+Next pending phase: Phase 3 - Work Order Module.
+
+---
+
+# Phase 2 - User Management, Staff Profiles, and Skills Foundation
+
+Completed
+
+* User profile database fields added according to `DATABASE_PLAN.md`
+* User soft deletes enabled for historical preservation
+* Staff profile table added
+* Skills table added
+* Staff-skill pivot table added
+* User, StaffProfile, and Skill relationships added
+* API user management endpoints added under `/api/v1/users`
+* API staff profile endpoints added under `/api/v1/staff`
+* API skill endpoints added under `/api/v1/skills`
+* Staff skill sync endpoint added:
+  * `PUT /api/v1/staff/{staffProfile}/skills`
+* Form Requests added for user, staff profile, skill, and staff-skill validation
+* API Resources added for user, staff profile, and skill responses
+* Policies added and registered for users, staff profiles, and skills
+* Service classes added for user management, staff profile management, and skill management
+* FMO skill seeder added
+* Role permissions expanded for FMO Head, Campus Director, Director for Instruction, FMO Staff, and requestor roles
+* Feature tests added for user creation, authorization denial, staff profile creation, skill assignment, and skill seeding
+* Full test suite verified
+
+---
+
+# Phase 2.5 - Master Data Foundation
+
+Completed
+
+* Master data tables added:
+  * Buildings
+  * Floors
+  * Rooms
+  * Departments/Offices
+  * Work Order Categories
+  * Priorities
+  * Work Order Statuses
+  * Asset Categories
+  * Maintenance Types
+  * Inventory Categories
+* UUID support added to master data records for future mobile reference use
+* Soft deletes added to master data records
+* Models and relationships added for building, floor, and room hierarchy
+* Idempotent master data seeder added
+* `manage_master_data` and `manage_work_order_settings` permissions added
+* Protected REST API endpoints added under `/api/v1`
+* Form Requests added for master data validation
+* API Resources added for master data responses
+* Master data policy and service support added
+* Feature tests added for seeding, CRUD, hierarchy creation, search, authorization, and uniqueness
+* `migrate --seed`, repeated master data seeding, full tests, and Pint verified
 
 ---
 
@@ -183,7 +238,7 @@ Project Foundation
 
 Status:
 
-🟡 In Progress
+🟢 Completed
 
 Includes:
 
@@ -202,7 +257,7 @@ User Management
 
 Status:
 
-⚪ Pending
+🟢 Completed
 
 Includes:
 
@@ -211,6 +266,29 @@ Includes:
 * Permissions
 * Staff Profiles
 * Staff Skills
+
+---
+
+## Phase 2.5
+
+Master Data Foundation
+
+Status:
+
+🟢 Completed
+
+Includes:
+
+* Buildings
+* Floors
+* Rooms
+* Departments/Offices
+* Work Order Categories
+* Priorities
+* Work Order Statuses
+* Asset Categories
+* Maintenance Types
+* Inventory Categories
 
 ---
 
