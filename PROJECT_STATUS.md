@@ -1,0 +1,525 @@
+# PROJECT_STATUS.md
+
+# SNSU Facilities Management Office (FMO) Management System
+
+## Current Project Status
+
+**Project Name:**
+
+SNSU Facilities Management Office (FMO) Management System
+
+**Architecture:**
+
+Laravel API + Laravel Web + Flutter Offline Mobile App
+
+**Development Methodology:**
+
+Phase-Based Modular Development
+
+**Current Status:**
+
+🟢 Project Initialization
+
+---
+
+# Current Phase
+
+## Phase 1 - Project Foundation
+
+**Status:**
+
+🟡 In Progress
+
+---
+
+# Project Repository
+
+GitHub Repository
+
+https://github.com/arvinsalvador/snsu-fmo-system
+
+---
+
+# Development Environment
+
+## Backend
+
+* Laravel 13+
+* PHP 8.4+
+* MySQL
+
+## API
+
+* Laravel Sanctum
+
+## Authorization
+
+* Spatie Laravel Permission
+
+## Queue
+
+* Redis
+
+## Web
+
+* Blade
+* Tailwind CSS
+* Alpine.js
+
+## Mobile
+
+* Flutter
+* SQLite (Drift)
+
+## Development
+
+* Windows 11
+* WSL2
+* Docker Desktop
+* Laravel Sail
+
+---
+
+# Completed Tasks
+
+## Project Planning
+
+* Project concept finalized
+* System scope finalized
+* User roles identified
+* Technology stack selected
+* API-first architecture selected
+* Offline mobile architecture selected
+* Modular development strategy established
+
+---
+
+## System Design
+
+* Work Order concept finalized
+* Approval workflow finalized
+* Preferred staff selection finalized
+* Staff skill assignment finalized
+* Daily progress concept finalized
+* Inventory concept finalized
+* Asset management concept finalized
+* Maintenance history concept finalized
+* Preventive maintenance concept finalized
+* Evaluation module concept finalized
+
+---
+
+## Documentation
+
+Completed
+
+* PROJECT_CONTEXT.md
+* PROJECT_STATUS.md
+
+Pending
+
+* DEVELOPMENT_RULES.md
+* DATABASE_PLAN.md
+* API_SPECIFICATION.md
+* MOBILE_SYNC.md
+* MODULES.md
+
+---
+
+# Pending Tasks for Current Phase
+
+## Environment
+
+* Install Laravel
+* Configure Docker
+* Configure Laravel Sail
+* Configure GitHub repository
+* Verify project runs successfully
+
+---
+
+## Authentication
+
+* Install Laravel Breeze
+* Install Sanctum
+* Configure authentication
+
+---
+
+## Authorization
+
+* Install Spatie Permission
+* Create roles
+* Create permissions
+* Seed default roles
+
+---
+
+## Initial Layout
+
+* Dashboard
+* Login
+* Navigation
+* User Profile
+
+---
+
+# Planned Development Roadmap
+
+---
+
+## Phase 1
+
+Project Foundation
+
+Status:
+
+🟡 In Progress
+
+Includes:
+
+* Laravel Installation
+* Docker
+* GitHub
+* Breeze
+* Sanctum
+* Spatie Permission
+
+---
+
+## Phase 2
+
+User Management
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Users
+* Roles
+* Permissions
+* Staff Profiles
+* Staff Skills
+
+---
+
+## Phase 3
+
+Work Order Module
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Work Order Creation
+* Categories
+* Priority
+* Attachments
+* Preferred Staff
+* Tracking
+
+---
+
+## Phase 4
+
+Approval Workflow
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* FMO Head Approval
+* Campus Director Approval
+* Director for Instruction Approval
+* Direct Assignment Workflow
+
+---
+
+## Phase 5
+
+Staff Assignment
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Skill Matching
+* Assignment Engine
+* Workload Monitoring
+* Availability
+
+---
+
+## Phase 6
+
+Daily Progress
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Daily Updates
+* Photos
+* Notes
+* Progress Timeline
+
+---
+
+## Phase 7
+
+Follow-up and Evaluation
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Follow-up Messages
+* Notifications
+* Evaluation Forms
+* Satisfaction Ratings
+
+---
+
+## Phase 8
+
+Consumable Inventory
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Materials
+* Stock
+* Stock Movement
+* Material Usage
+
+---
+
+## Phase 9
+
+Tools and Equipment
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Tool Assignment
+* Borrowing
+* Return History
+
+---
+
+## Phase 10
+
+Campus Asset Inventory
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Air Conditioners
+* Fire Extinguishers
+* Emergency Lights
+* Smoke Detectors
+* Fire Alarms
+* Electric Fans
+* Wall Fans
+* Water Dispensers
+* Other Assets
+
+---
+
+## Phase 11
+
+Maintenance Management
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Maintenance History
+* Preventive Maintenance
+* Maintenance Scheduling
+* Auto-generated Work Orders
+
+---
+
+## Phase 12
+
+Reports and Dashboard
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Work Order Reports
+* Staff Reports
+* Inventory Reports
+* Asset Reports
+* Evaluation Reports
+
+---
+
+## Phase 13
+
+Notification System
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Web Notifications
+* Mobile Notifications
+* Email Notifications
+
+---
+
+## Phase 14
+
+API Stabilization
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* REST API
+* Authentication
+* Versioning
+* Documentation
+
+---
+
+## Phase 15
+
+Flutter Mobile Application
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Login
+* Assigned Tasks
+* Daily Progress
+* Photo Upload
+* Materials Used
+
+---
+
+## Phase 16
+
+Offline Synchronization
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Local Database
+* Offline Queue
+* Conflict Resolution
+* Auto Sync
+
+---
+
+## Phase 17
+
+Optimization and Security
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Performance Optimization
+* Security Audit
+* API Optimization
+* Database Optimization
+
+---
+
+## Phase 18
+
+Testing and Deployment
+
+Status:
+
+⚪ Pending
+
+Includes:
+
+* Unit Testing
+* Feature Testing
+* Integration Testing
+* User Acceptance Testing
+* Production Deployment
+
+---
+
+# Current Priority
+
+Complete Phase 1.
+
+Do not begin any succeeding phase until the following are completed:
+
+* Laravel installation verified
+* Docker verified
+* Laravel Sail verified
+* GitHub repository connected
+* Authentication installed
+* Sanctum installed
+* Spatie Permission installed
+* Roles and permissions configured
+
+---
+
+# Codex Instructions
+
+Before implementing any feature:
+
+1. Read PROJECT_CONTEXT.md.
+2. Read PROJECT_STATUS.md.
+3. Analyze the current codebase.
+4. Scan for architectural issues.
+5. Scan for duplicate logic.
+6. Scan for migration conflicts.
+7. Scan for security issues.
+8. Recommend the next implementation step.
+9. Wait for user confirmation before proceeding.
+
+Never skip phases.
+
+Never implement features from future phases unless explicitly instructed.
+
+Always preserve clean architecture, modularity, scalability, and API-first principles.
+
+Update this PROJECT_STATUS.md file after every completed phase so it accurately reflects the current state of development and the next recommended actions.
