@@ -61,6 +61,11 @@ class User extends Authenticatable
         return $this->hasMany(WorkOrderApproval::class, 'approver_id');
     }
 
+    public function workOrderAssignmentsMade(): HasMany
+    {
+        return $this->hasMany(WorkOrderAssignment::class, 'assigned_by');
+    }
+
     public static function resolveDisplayName(User $user): string
     {
         $nameParts = array_filter([

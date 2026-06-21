@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-🟢 Approval Workflow Module Completed
+🟢 Assignment Foundation Module Completed
 
 ---
 
 # Current Phase
 
-## Phase 4 - Approval Workflow
+## Phase 5A - Assignment Foundation
 
 **Status:**
 
@@ -294,11 +294,46 @@ Completed
 
 ---
 
+# Phase 5A - Assignment Foundation
+
+Completed
+
+* Immutable work order assignment history table added
+* UUID support added to assignment records
+* Individual assignment supported
+* Team assignment supported with one history record per staff member
+* Reassignment closes active records with `unassigned_at` before creating replacements
+* Assignment service added with transactional row locking and status transitions
+* Assignment Form Requests and API Resource added
+* Work order policy expanded for assignment actions
+* Assignment permissions added:
+  * `assign_work_orders`
+  * `reassign_work_orders`
+  * `view_assignments`
+* Authorized assignment roles configured:
+  * Super Admin
+  * FMO Head
+  * Campus Director
+  * Director for Instruction
+* Protected assignment endpoints added:
+  * `POST /api/v1/work-orders/{workOrder}/assign`
+  * `POST /api/v1/work-orders/{workOrder}/assign-team`
+  * `POST /api/v1/work-orders/{workOrder}/reassign`
+  * `GET /api/v1/work-orders/{workOrder}/assignments`
+* Active staff and active user accounts are required for assignment
+* Rejected and terminal work orders cannot be assigned
+* Active assignments cannot be overwritten through initial assignment endpoints
+* Preferred staff remains a recommendation and is never assigned automatically
+* Feature tests added for individual assignment, team assignment, reassignment, authorization, transition safety, and history
+* `migrate --seed`, full tests, Pint, and route checks verified
+
+---
+
 # Pending Tasks for Current Phase
 
-No remaining Phase 4 implementation tasks.
+No remaining Phase 5A implementation tasks.
 
-Next pending phase: Phase 5 - Staff Assignment.
+Next recommended phase: Phase 5B - Assignment Intelligence.
 
 ---
 
@@ -409,11 +444,13 @@ Staff Assignment
 
 Status:
 
-⚪ Pending
+🟡 Phase 5A Completed
 
 Includes:
 
 * Skill Matching
+* Assignment History
+* Individual, Team, and Reassignment APIs
 * Assignment Engine
 * Workload Monitoring
 * Availability
@@ -649,20 +686,19 @@ Includes:
 
 # Current Priority
 
-Proceed to Phase 5 - Staff Assignment only after user confirmation.
+Proceed to Phase 5B - Assignment Intelligence only after user confirmation.
 
-Do not begin Phase 5 until the Phase 4 approval workflow has been reviewed and accepted.
+Recommended Phase 5B scope:
 
-Recommended Phase 5 scope:
-
-* Assignment table and history
-* Assigned staff relationship on work orders
-* Assignment permissions and policies
-* Assignment API endpoints
-* Staff availability and skill-aware assignment foundation
-* No daily progress, inventory usage, notifications, or Flutter sync yet
+* Skill matching and staff recommendations
+* Availability-aware assignment checks
+* Active workload counts and filters
+* General pool assignment if required
+* Assigned-work visibility for FMO Staff
+* No daily progress, inventory usage, notifications, mobile sync, or evaluation yet
 
 ---
+
 
 # Codex Instructions
 

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -32,5 +33,15 @@ class StaffProfile extends Model
     public function skills(): BelongsToMany
     {
         return $this->belongsToMany(Skill::class, 'staff_skill')->withTimestamps();
+    }
+
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(WorkOrderAssignment::class, 'assigned_staff_id');
+    }
+
+    public function activeAssignments(): HasMany
+    {
+        return $this->assignments()->whereNull('unassigned_at');
     }
 }

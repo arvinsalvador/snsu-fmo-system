@@ -58,6 +58,24 @@ class WorkOrderPolicy
             || $user->can('reject_work_orders');
     }
 
+    public function assign(User $user, WorkOrder $workOrder): bool
+    {
+        return $user->can('manage_work_orders')
+            || $user->can('assign_work_orders');
+    }
+
+    public function reassign(User $user, WorkOrder $workOrder): bool
+    {
+        return $user->can('manage_work_orders')
+            || $user->can('reassign_work_orders');
+    }
+
+    public function viewAssignments(User $user, WorkOrder $workOrder): bool
+    {
+        return $user->can('manage_work_orders')
+            || $user->can('view_assignments');
+    }
+
     public function viewApprovals(User $user, WorkOrder $workOrder): bool
     {
         return $user->can('manage_work_orders')

@@ -44,6 +44,8 @@ class WorkOrderResource extends JsonResource
             'preferred_staff' => new StaffProfileResource($this->whenLoaded('preferredStaff')),
             'attachments' => WorkOrderAttachmentResource::collection($this->whenLoaded('attachments')),
             'approvals' => WorkOrderApprovalResource::collection($this->whenLoaded('approvals')),
+            'active_assignments' => WorkOrderAssignmentResource::collection($this->whenLoaded('activeAssignments')),
+            'assignments' => WorkOrderAssignmentResource::collection($this->whenLoaded('assignments')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\MasterData\WorkOrderStatusController;
 use App\Http\Controllers\Api\V1\SkillController;
 use App\Http\Controllers\Api\V1\StaffProfileController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\WorkOrderAssignmentController;
 use App\Http\Controllers\Api\V1\WorkOrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -69,5 +70,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->name('work-orders.reject');
         Route::get('work-orders/{workOrder}/approvals', [WorkOrderController::class, 'approvals'])
             ->name('work-orders.approvals.index');
+        Route::post('work-orders/{workOrder}/assign', [WorkOrderAssignmentController::class, 'assign'])->name('work-orders.assign');
+        Route::post('work-orders/{workOrder}/assign-team', [WorkOrderAssignmentController::class, 'assignTeam'])
+            ->name('work-orders.assign-team');
+        Route::post('work-orders/{workOrder}/reassign', [WorkOrderAssignmentController::class, 'reassign'])
+            ->name('work-orders.reassign');
+        Route::get('work-orders/{workOrder}/assignments', [WorkOrderAssignmentController::class, 'index'])
+            ->name('work-orders.assignments.index');
     });
 });

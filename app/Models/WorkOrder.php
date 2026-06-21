@@ -102,4 +102,14 @@ class WorkOrder extends Model
     {
         return $this->hasMany(WorkOrderApproval::class);
     }
+
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(WorkOrderAssignment::class);
+    }
+
+    public function activeAssignments(): HasMany
+    {
+        return $this->assignments()->whereNull('unassigned_at');
+    }
 }
