@@ -33,6 +33,14 @@
         @if ($user->hasRole('FMO Staff'))
             <a href="{{ route('work-orders.assigned-tasks') }}" class="{{ $link }} {{ request()->routeIs('work-orders.assigned-tasks') ? $active : $inactive }}">Assigned tasks</a>
         @endif
+        @if ($user->can('manage_users') || $user->can('manage_staff_profiles') || $user->can('manage_skills') || $user->can('manage_roles') || $user->can('manage_permissions'))
+            <div class="pt-4"><p class="px-3 pb-2 text-xs font-semibold uppercase text-gray-400">Administration</p></div>
+            @can('manage_users')<a href="{{ route('admin.users.index') }}" class="{{ $link }} {{ request()->routeIs('admin.users.*') ? $active : $inactive }}">Users</a>@endcan
+            @can('manage_staff_profiles')<a href="{{ route('admin.staff.index') }}" class="{{ $link }} {{ request()->routeIs('admin.staff.*') ? $active : $inactive }}">Staff profiles</a>@endcan
+            @can('manage_skills')<a href="{{ route('admin.skills.index') }}" class="{{ $link }} {{ request()->routeIs('admin.skills.*') ? $active : $inactive }}">Skills</a>@endcan
+            @can('manage_roles')<a href="{{ route('admin.roles.index') }}" class="{{ $link }} {{ request()->routeIs('admin.roles.*') ? $active : $inactive }}">Roles</a>@endcan
+            @can('manage_permissions')<a href="{{ route('admin.permissions.index') }}" class="{{ $link }} {{ request()->routeIs('admin.permissions.*') ? $active : $inactive }}">Permissions</a>@endcan
+        @endif
         @if ($user->can('manage_master_data') || $user->can('manage_locations') || $user->can('manage_work_order_settings'))
             <div class="pt-4"><p class="px-3 pb-2 text-xs font-semibold uppercase text-gray-400">Master data</p></div>
             <a href="{{ route('admin.master-data.buildings.index') }}" class="{{ $link }} {{ request()->routeIs('admin.master-data.*') ? $active : $inactive }}">Manage master data</a>
