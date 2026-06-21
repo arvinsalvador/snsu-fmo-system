@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AssignmentIntelligenceController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\MasterData\AssetCategoryController;
 use App\Http\Controllers\Api\V1\MasterData\BuildingController;
@@ -32,6 +33,11 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::apiResource('users', UserController::class)->only(['index', 'store', 'show', 'update']);
         Route::patch('users/{user}/activate', [UserController::class, 'activate'])->name('users.activate');
         Route::patch('users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
+
+        Route::get('staff/workload-summary', [AssignmentIntelligenceController::class, 'workloadSummary'])
+            ->name('staff.workload-summary');
+        Route::get('staff/available', [AssignmentIntelligenceController::class, 'available'])
+            ->name('staff.available');
 
         Route::apiResource('staff', StaffProfileController::class)
             ->parameters(['staff' => 'staffProfile'])
@@ -77,5 +83,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->name('work-orders.reassign');
         Route::get('work-orders/{workOrder}/assignments', [WorkOrderAssignmentController::class, 'index'])
             ->name('work-orders.assignments.index');
+        Route::get('work-orders/{workOrder}/assignment-recommendations', [AssignmentIntelligenceController::class, 'recommendations'])
+            ->name('work-orders.assignment-recommendations');
     });
 });

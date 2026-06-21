@@ -78,7 +78,8 @@ class WorkOrderRepository
             || $user->can('approve_work_orders')
             || $user->can('assign_work_orders')
             || $user->can('reassign_work_orders')
-            || $user->can('view_assignments');
+            || $user->can('view_assignments')
+            || $user->can('view_assignment_recommendations');
     }
 
     /**

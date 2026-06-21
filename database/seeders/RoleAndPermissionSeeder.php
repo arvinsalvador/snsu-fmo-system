@@ -47,6 +47,8 @@ class RoleAndPermissionSeeder extends Seeder
         'assign_work_orders',
         'reassign_work_orders',
         'view_assignments',
+        'view_assignment_recommendations',
+        'view_staff_workload',
         'update_work_order_progress',
         'evaluate_work_orders',
         'manage_inventory',
@@ -93,6 +95,8 @@ class RoleAndPermissionSeeder extends Seeder
                     'assign_work_orders',
                     'reassign_work_orders',
                     'view_assignments',
+                    'view_assignment_recommendations',
+                    'view_staff_workload',
                     'view_reports',
                 ]);
             }

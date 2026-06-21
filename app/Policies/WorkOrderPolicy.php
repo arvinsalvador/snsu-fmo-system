@@ -76,6 +76,12 @@ class WorkOrderPolicy
             || $user->can('view_assignments');
     }
 
+    public function viewAssignmentRecommendations(User $user, WorkOrder $workOrder): bool
+    {
+        return $user->can('manage_work_orders')
+            || $user->can('view_assignment_recommendations');
+    }
+
     public function viewApprovals(User $user, WorkOrder $workOrder): bool
     {
         return $user->can('manage_work_orders')

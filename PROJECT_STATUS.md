@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-🟢 Assignment Foundation Module Completed
+🟢 Assignment Intelligence Module Completed
 
 ---
 
 # Current Phase
 
-## Phase 5A - Assignment Foundation
+## Phase 5B - Assignment Intelligence
 
 **Status:**
 
@@ -329,11 +329,38 @@ Completed
 
 ---
 
+# Phase 5B - Assignment Intelligence
+
+Completed
+
+* Read-only assignment intelligence service added
+* Work-order assignment recommendations endpoint added
+* Staff workload summary endpoint added
+* Available staff lookup endpoint added
+* Work order categories matched to active staff skills by normalized name
+* `Others` category mapped to `General Maintenance`
+* Recommendation responses include staff profile, user name, availability, matched skills, workload counts, preferred-staff flag, and score
+* Recommendation scoring includes skill match, preferred staff, availability, and active workload
+* Active assignment count uses open assignment records and excludes completed, evaluated, closed, and cancelled work orders
+* Pending assignment count defined by `Assigned` work-order status
+* In-progress assignment count defined by `In Progress` work-order status
+* Available staff lookup filters active staff and users marked `available`
+* Availability remains advisory and is not enforced during assignment
+* Preferred staff remains advisory and is never assigned automatically
+* Staff search, skill, availability, and pagination filters added
+* Assignment intelligence permissions added:
+  * `view_assignment_recommendations`
+  * `view_staff_workload`
+* Feature tests added for recommendations, scoring, workload counts, availability filtering, lookup filters, authorization, and no automatic assignment
+* Permission seeding, full tests, Pint, and route checks verified
+
+---
+
 # Pending Tasks for Current Phase
 
-No remaining Phase 5A implementation tasks.
+No remaining Phase 5B implementation tasks.
 
-Next recommended phase: Phase 5B - Assignment Intelligence.
+Next recommended phase: Phase 6 - Daily Progress.
 
 ---
 
@@ -444,7 +471,7 @@ Staff Assignment
 
 Status:
 
-🟡 Phase 5A Completed
+🟢 Completed
 
 Includes:
 
@@ -686,18 +713,20 @@ Includes:
 
 # Current Priority
 
-Proceed to Phase 5B - Assignment Intelligence only after user confirmation.
+Proceed to Phase 6 - Daily Progress only after user confirmation.
 
-Recommended Phase 5B scope:
+Recommended Phase 6 scope:
 
-* Skill matching and staff recommendations
-* Availability-aware assignment checks
-* Active workload counts and filters
-* General pool assignment if required
-* Assigned-work visibility for FMO Staff
-* No daily progress, inventory usage, notifications, mobile sync, or evaluation yet
+* Immutable daily progress updates
+* Progress notes and timestamps
+* Work-order progress status transitions
+* Remaining-work estimates
+* Progress photo metadata foundation
+* Assigned FMO Staff authorization
+* No inventory consumption, notifications, mobile sync, or evaluation yet
 
 ---
+
 
 
 # Codex Instructions
