@@ -1,15 +1,33 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\WorkOrderController;
+use App\Http\Controllers\Web\WorkOrderWorkflowController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', fn () => view('welcome'));
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('/work-orders', [WorkOrderController::class, 'index'])->name('work-orders.index');
+    Route::get('/my-requests', [WorkOrderController::class, 'myRequests'])->name('my-requests');
+    Route::get('/work-orders/create', [WorkOrderController::class, 'create'])->name('work-orders.create');
+    Route::post('/work-orders', [WorkOrderController::class, 'store'])->name('work-orders.store');
+    Route::get('/work-orders/approval-queue', [WorkOrderController::class, 'approvalQueue'])->name('work-orders.approval-queue');
+    Route::get('/work-orders/assignment-queue', [WorkOrderController::class, 'assignmentQueue'])->name('work-orders.assignment-queue');
+    Route::get('/assigned-tasks', [WorkOrderController::class, 'assignedTasks'])->name('work-orders.assigned-tasks');
+    Route::get('/work-orders/{workOrder}', [WorkOrderController::class, 'show'])->name('work-orders.show');
+    Route::get('/work-orders/{workOrder}/recommendations', [WorkOrderController::class, 'recommendations'])->name('work-orders.recommendations');
+    Route::get('/work-orders/{workOrder}/progress/create', [WorkOrderController::class, 'createProgress'])->name('work-orders.progress.create');
+
+    Route::post('/work-orders/{workOrder}/approve', [WorkOrderWorkflowController::class, 'approve'])->name('work-orders.approve');
+    Route::post('/work-orders/{workOrder}/reject', [WorkOrderWorkflowController::class, 'reject'])->name('work-orders.reject');
+    Route::post('/work-orders/{workOrder}/assign', [WorkOrderWorkflowController::class, 'assign'])->name('work-orders.assign');
+    Route::post('/work-orders/{workOrder}/reassign', [WorkOrderWorkflowController::class, 'reassign'])->name('work-orders.reassign');
+    Route::post('/work-orders/{workOrder}/progress', [WorkOrderWorkflowController::class, 'progress'])->name('work-orders.progress.store');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

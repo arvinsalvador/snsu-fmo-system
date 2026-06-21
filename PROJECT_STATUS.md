@@ -18,17 +18,17 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-🟢 Assignment Intelligence Module Completed
+Phase 6.5 Web Dashboard MVP Completed
 
 ---
 
 # Current Phase
 
-## Phase 5B - Assignment Intelligence
+## Phase 6.5 - Web Dashboard MVP
 
 **Status:**
 
-🟢 Completed
+Completed
 
 ---
 
@@ -356,11 +356,52 @@ Completed
 
 ---
 
+# Phase 6 - Daily Progress Updates
+
+Completed
+
+* Immutable work order progress history and photo metadata tables added
+* UUID support added to progress updates and photo records
+* Updates record status, notes, estimated remaining days, staff, creator, and timestamp
+* Safe JPEG, PNG, and WebP upload foundation added with size and count limits
+* Transactional service and row locking enforce status transition safety
+* First updates may move `Assigned` work orders to `In Progress`
+* Progress supports `In Progress`, `On Hold`, `Pending Materials`, and `Completed`
+* Completion records `completed_at` and prevents later progress updates
+* Assigned FMO staff and authorized operational roles can create updates
+* Requestors can view updates for their own work orders
+* Update and photo history have no delete endpoints and use restrictive foreign keys
+* Permissions added: `view_work_order_updates`, `create_work_order_updates`, `manage_work_order_updates`
+* Protected progress and photo endpoints added under `/api/v1/work-orders`
+* Feature tests cover transitions, completion, authorization, visibility, and photo metadata
+
+---
+
+# Phase 6.5 - Web Dashboard MVP
+
+Completed
+
+* Breeze/Tailwind application shell replaced with a responsive operational sidebar layout
+* Role-aware dashboard navigation and summary metrics added for all eight project roles
+* Web work-order dashboard and filtered work-order listing added
+* Requestor pages added for request history, creation, and work-order detail
+* Approval and assignment queue pages added for authorized operational roles
+* Assignment recommendation page displays preferred staff, skill matches, availability, workload, and score
+* Assigned-task page added for FMO Staff
+* Work-order detail page includes request data, approval actions, assignment history, and progress timeline
+* Progress update form delegates status transition rules to the existing progress service
+* Web write actions reuse work-order, approval, assignment, recommendation, and progress services
+* Policies and record-level scope allow assigned staff to access only their active tasks
+* Sail/Vite host configuration normalized for Windows and WSL browser access
+* Feature tests cover all roles, navigation visibility, request creation, queues, assigned-task access, and progress submission
+
+---
+
 # Pending Tasks for Current Phase
 
-No remaining Phase 5B implementation tasks.
+No remaining Phase 6.5 implementation tasks.
 
-Next recommended phase: Phase 6 - Daily Progress.
+Next recommended phase: Phase 7 - Follow-up and Evaluation.
 
 ---
 
@@ -490,7 +531,7 @@ Daily Progress
 
 Status:
 
-⚪ Pending
+Completed
 
 Includes:
 
@@ -713,21 +754,11 @@ Includes:
 
 # Current Priority
 
-Proceed to Phase 6 - Daily Progress only after user confirmation.
+Proceed to Phase 7 - Follow-up and Evaluation only after user confirmation.
 
-Recommended Phase 6 scope:
-
-* Immutable daily progress updates
-* Progress notes and timestamps
-* Work-order progress status transitions
-* Remaining-work estimates
-* Progress photo metadata foundation
-* Assigned FMO Staff authorization
-* No inventory consumption, notifications, mobile sync, or evaluation yet
+Recommended approach: split Phase 7 into follow-up/notification foundations and evaluation workflows so each authorization and history model remains independently testable.
 
 ---
-
-
 
 # Codex Instructions
 

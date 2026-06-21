@@ -66,6 +66,16 @@ class User extends Authenticatable
         return $this->hasMany(WorkOrderAssignment::class, 'assigned_by');
     }
 
+    public function workOrderUpdatesCreated(): HasMany
+    {
+        return $this->hasMany(WorkOrderUpdate::class, 'created_by');
+    }
+
+    public function workOrderUpdatePhotos(): HasMany
+    {
+        return $this->hasMany(WorkOrderUpdatePhoto::class, 'uploaded_by');
+    }
+
     public static function resolveDisplayName(User $user): string
     {
         $nameParts = array_filter([
