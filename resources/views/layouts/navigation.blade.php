@@ -33,6 +33,10 @@
         @if ($user->hasRole('FMO Staff'))
             <a href="{{ route('work-orders.assigned-tasks') }}" class="{{ $link }} {{ request()->routeIs('work-orders.assigned-tasks') ? $active : $inactive }}">Assigned tasks</a>
         @endif
+        @if ($user->can('manage_master_data') || $user->can('manage_locations') || $user->can('manage_work_order_settings'))
+            <div class="pt-4"><p class="px-3 pb-2 text-xs font-semibold uppercase text-gray-400">Master data</p></div>
+            <a href="{{ route('admin.master-data.buildings.index') }}" class="{{ $link }} {{ request()->routeIs('admin.master-data.*') ? $active : $inactive }}">Manage master data</a>
+        @endif
     </nav>
 
     <div class="border-t border-gray-200 p-4">

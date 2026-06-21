@@ -2,8 +2,16 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\MasterDataController;
 use App\Http\Controllers\Web\WorkOrderController;
 use App\Http\Controllers\Web\WorkOrderWorkflowController;
+use App\Models\Building;
+use App\Models\Department;
+use App\Models\Floor;
+use App\Models\Priority;
+use App\Models\Room;
+use App\Models\WorkOrderCategory;
+use App\Models\WorkOrderStatus;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'));
@@ -27,6 +35,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/work-orders/{workOrder}/assign', [WorkOrderWorkflowController::class, 'assign'])->name('work-orders.assign');
     Route::post('/work-orders/{workOrder}/reassign', [WorkOrderWorkflowController::class, 'reassign'])->name('work-orders.reassign');
     Route::post('/work-orders/{workOrder}/progress', [WorkOrderWorkflowController::class, 'progress'])->name('work-orders.progress.store');
+
+    $masterDataModules = [
+        'buildings' => ['building', 'storeBuilding', 'updateBuilding', Building::class],
+        'floors' => ['floor', 'storeFloor', 'updateFloor', Floor::class],
+        'rooms' => ['room', 'storeRoom', 'updateRoom', Room::class],
+        'departments' => ['department', 'storeDepartment', 'updateDepartment', Department::class],
+        'work-order-categories' => ['workOrderCategory', 'storeCategory', 'updateCategory', WorkOrderCategory::class],
+        'priorities' => ['priority', 'storePriority', 'updatePriority', Priority::class],
+        'work-order-statuses' => ['workOrderStatus', 'storeStatus', 'updateStatus', WorkOrderStatus::class],
+    ];
+
+    Route::prefix('admin/master-data')->name('admin.master-data.')->group(function () use ($masterDataModules) {
+        foreach ($masterDataModules as $module => [$parameter, $store, $update, $model]) {
+            Route::model($parameter, $model);
+            Route::get("/{$module}", [MasterDataController::class, 'index'])->defaults('module', $module)->name("{$module}.index");
+            Route::get("/{$module}/create", [MasterDataController::class, 'create'])->defaults('module', $module)->name("{$module}.create");
+            Route::get("/{$module}/export", [MasterDataController::class, 'export'])->defaults('module', $module)->name("{$module}.export");
+            Route::post("/{$module}", [MasterDataController::class, $store])->defaults('module', $module)->name("{$module}.store");
+            Route::get("/{$module}/{{$parameter}}", [MasterDataController::class, 'show'])->defaults('module', $module)->name("{$module}.show");
+            Route::get("/{$module}/{{$parameter}}/edit", [MasterDataController::class, 'edit'])->defaults('module', $module)->name("{$module}.edit");
+            Route::put("/{$module}/{{$parameter}}", [MasterDataController::class, $update])->defaults('module', $module)->name("{$module}.update");
+            Route::delete("/{$module}/{{$parameter}}", [MasterDataController::class, 'destroy'])->defaults('module', $module)->name("{$module}.destroy");
+        }
+    });
 });
 
 Route::middleware('auth')->group(function () {

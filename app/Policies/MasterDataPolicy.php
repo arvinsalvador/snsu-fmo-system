@@ -41,6 +41,11 @@ class MasterDataPolicy
         return $this->canManage($user, $model::class);
     }
 
+    public function delete(User $user, object $model): bool
+    {
+        return $this->canManage($user, $model::class);
+    }
+
     public function canManage(User $user, string $modelClass): bool
     {
         if ($user->can('manage_master_data')) {
