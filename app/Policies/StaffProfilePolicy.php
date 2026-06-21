@@ -31,4 +31,10 @@ class StaffProfilePolicy
     {
         return $user->can('manage_staff_profiles');
     }
+
+    public function viewWorkload(User $user): bool
+    {
+        return $user->can('manage_staff_profiles')
+            || $user->can('view_staff_workload');
+    }
 }
