@@ -108,6 +108,11 @@ class WorkOrder extends Model
         return $this->hasMany(WorkOrderAssignment::class);
     }
 
+    public function updates(): HasMany
+    {
+        return $this->hasMany(WorkOrderUpdate::class);
+    }
+
     public function activeAssignments(): HasMany
     {
         return $this->assignments()->whereNull('unassigned_at');

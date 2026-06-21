@@ -44,4 +44,9 @@ class StaffProfile extends Model
     {
         return $this->assignments()->whereNull('unassigned_at');
     }
+
+    public function workOrderUpdates(): HasMany
+    {
+        return $this->hasMany(WorkOrderUpdate::class, 'staff_id');
+    }
 }

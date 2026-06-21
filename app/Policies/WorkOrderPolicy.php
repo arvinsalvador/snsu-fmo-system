@@ -2,8 +2,10 @@
 
 namespace App\Policies;
 
+use App\Models\StaffProfile;
 use App\Models\User;
 use App\Models\WorkOrder;
+use App\Models\WorkOrderAssignment;
 
 class WorkOrderPolicy
 {
@@ -24,7 +26,8 @@ class WorkOrderPolicy
             || $user->can('approve_work_orders')
             || $user->can('assign_work_orders')
             || $user->can('update_work_orders')
-            || ($user->can('view_work_orders') && $workOrder->requestor_id === $user->id);
+            || ($user->can('view_work_orders') && $workOrder->requestor_id === $user->id)
+            || ($user->can('view_work_orders') && $this->isActivelyAssigned($user, $workOrder));
     }
 
     public function create(User $user): bool
@@ -82,10 +85,34 @@ class WorkOrderPolicy
             || $user->can('view_assignment_recommendations');
     }
 
+    public function viewUpdates(User $user, WorkOrder $workOrder): bool
+    {
+        return $user->hasAnyRole(['FMO Head', 'Campus Director', 'Director for Instruction'])
+            || $user->hasPermissionTo('view_work_order_updates');
+    }
+
+    public function createUpdate(User $user, WorkOrder $workOrder): bool
+    {
+        return $user->hasAnyRole(['FMO Head', 'Campus Director', 'Director for Instruction'])
+            || ($user->hasPermissionTo('create_work_order_updates') && $this->isActivelyAssigned($user, $workOrder));
+    }
+
+    private function isActivelyAssigned(User $user, WorkOrder $workOrder): bool
+    {
+        $staffId = StaffProfile::query()->where('user_id', $user->id)->whereNull('deleted_at')->value('id');
+
+        return $staffId !== null && WorkOrderAssignment::query()
+            ->where('work_order_id', $workOrder->id)
+            ->where('assigned_staff_id', $staffId)
+            ->whereNull('unassigned_at')
+            ->exists();
+    }
+
     public function viewApprovals(User $user, WorkOrder $workOrder): bool
     {
         return $user->can('manage_work_orders')
             || $user->can('view_work_order_approvals')
-            || ($user->can('view_work_orders') && $workOrder->requestor_id === $user->id);
+            || ($user->can('view_work_orders') && $workOrder->requestor_id === $user->id)
+            || ($user->can('view_work_orders') && $this->isActivelyAssigned($user, $workOrder));
     }
 }

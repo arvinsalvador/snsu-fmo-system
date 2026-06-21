@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\StaffProfileController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\WorkOrderAssignmentController;
 use App\Http\Controllers\Api\V1\WorkOrderController;
+use App\Http\Controllers\Api\V1\WorkOrderUpdateController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
@@ -85,5 +86,11 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->name('work-orders.assignments.index');
         Route::get('work-orders/{workOrder}/assignment-recommendations', [AssignmentIntelligenceController::class, 'recommendations'])
             ->name('work-orders.assignment-recommendations');
+        Route::get('work-orders/{workOrder}/updates', [WorkOrderUpdateController::class, 'index'])
+            ->name('work-orders.updates.index');
+        Route::post('work-orders/{workOrder}/updates', [WorkOrderUpdateController::class, 'store'])
+            ->name('work-orders.updates.store');
+        Route::post('work-orders/{workOrder}/updates/{update}/photos', [WorkOrderUpdateController::class, 'photos'])
+            ->name('work-orders.updates.photos.store');
     });
 });

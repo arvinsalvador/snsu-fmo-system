@@ -40,7 +40,7 @@ class WorkOrderRepository
     public function findVisibleTo(User $user, WorkOrder $workOrder): WorkOrder
     {
         abort_unless(
-            $this->canViewOperationalRequests($user) || $workOrder->requestor_id === $user->id,
+            $this->canViewOperationalRequests($user) || $workOrder->requestor_id === $user->id || $this->isAssignedTo($user, $workOrder),
             403,
         );
 
@@ -79,7 +79,16 @@ class WorkOrderRepository
             || $user->can('assign_work_orders')
             || $user->can('reassign_work_orders')
             || $user->can('view_assignments')
-            || $user->can('view_assignment_recommendations');
+            || $user->can('view_assignment_recommendations')
+            || $user->can('manage_work_order_updates');
+    }
+
+    public function isAssignedTo(User $user, WorkOrder $workOrder): bool
+    {
+        $staffId = $user->staffProfile?->id;
+
+        return $staffId !== null
+            && $workOrder->activeAssignments()->where('assigned_staff_id', $staffId)->exists();
     }
 
     /**

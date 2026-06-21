@@ -3,54 +3,29 @@
 namespace App\Services;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class MasterDataService
 {
-    /**
-     * @param  class-string<Model>  $modelClass
-     * @param  array<string, mixed>  $filters
-     * @param  array<int, string>  $with
-     */
     public function paginate(string $modelClass, array $filters = [], array $with = []): LengthAwarePaginator
     {
-        return $modelClass::query()
-            ->with($with)
-            ->when($filters['search'] ?? null, function ($query, string $search) use ($modelClass): void {
-                $columns = $this->searchableColumns($modelClass);
-
-                $query->where(function ($query) use ($columns, $search): void {
-                    foreach ($columns as $index => $column) {
-                        $method = $index === 0 ? 'where' : 'orWhere';
-                        $query->{$method}($column, 'like', "%{$search}%");
-                    }
-                });
-            })
-            ->when(array_key_exists('status', $filters), function ($query) use ($filters): void {
-                if ($filters['status'] === 'active') {
-                    $query->where('is_active', true);
-                }
-
-                if ($filters['status'] === 'inactive') {
-                    $query->where('is_active', false);
-                }
-            })
-            ->orderByRaw($this->orderExpression($modelClass))
-            ->paginate($filters['per_page'] ?? 15);
+        return $this->query($modelClass, $filters, $with)
+            ->paginate(min(max((int) ($filters['per_page'] ?? 15), 10), 100))
+            ->withQueryString();
     }
 
-    /**
-     * @param  class-string<Model>  $modelClass
-     * @param  array<string, mixed>  $data
-     */
+    public function records(string $modelClass, array $filters = [], array $with = []): Collection
+    {
+        return $this->query($modelClass, $filters, $with)->get();
+    }
+
     public function create(string $modelClass, array $data): Model
     {
         return $modelClass::query()->create($data);
     }
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
     public function update(Model $model, array $data): Model
     {
         $model->update($data);
@@ -58,48 +33,61 @@ class MasterDataService
         return $model->refresh();
     }
 
-    /**
-     * @param  class-string<Model>  $modelClass
-     */
+    public function delete(Model $model): void
+    {
+        $model->delete();
+    }
+
+    private function query(string $modelClass, array $filters, array $with): Builder
+    {
+        $query = $modelClass::query()->with($with)
+            ->when($filters['search'] ?? null, function (Builder $query, string $search) use ($modelClass): void {
+                $columns = $this->searchableColumns($modelClass);
+                $query->where(function (Builder $query) use ($columns, $search): void {
+                    foreach ($columns as $index => $column) {
+                        $query->{$index === 0 ? 'where' : 'orWhere'}($column, 'like', "%{$search}%");
+                    }
+                });
+            })
+            ->when(($filters['status'] ?? null) === 'active', fn (Builder $query) => $query->where('is_active', true))
+            ->when(($filters['status'] ?? null) === 'inactive', fn (Builder $query) => $query->where('is_active', false));
+
+        $sort = (string) ($filters['sort'] ?? '');
+        $direction = ($filters['direction'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
+        if (in_array($sort, $this->sortableColumns($modelClass), true)) {
+            return $query->orderBy($sort, $direction);
+        }
+
+        return $query->orderByRaw($this->orderExpression($modelClass));
+    }
+
     private function orderExpression(string $modelClass): string
     {
         $instance = new $modelClass;
-
-        if ($instance->getConnection()->getSchemaBuilder()->hasColumn($instance->getTable(), 'sort_order')) {
-            return 'sort_order asc';
-        }
-
-        if ($instance->getConnection()->getSchemaBuilder()->hasColumn($instance->getTable(), 'level')) {
-            return 'level asc';
-        }
-
-        if ($instance->getConnection()->getSchemaBuilder()->hasColumn($instance->getTable(), 'floor_name')) {
-            return 'floor_name asc';
-        }
-
-        if ($instance->getConnection()->getSchemaBuilder()->hasColumn($instance->getTable(), 'room_name')) {
-            return 'room_name asc';
-        }
-
-        if ($instance->getConnection()->getSchemaBuilder()->hasColumn($instance->getTable(), 'name')) {
-            return 'name asc';
+        foreach (['sort_order', 'level', 'floor_name', 'room_name', 'name'] as $column) {
+            if ($instance->getConnection()->getSchemaBuilder()->hasColumn($instance->getTable(), $column)) {
+                return "{$column} asc";
+            }
         }
 
         return 'id asc';
     }
 
-    /**
-     * @param  class-string<Model>  $modelClass
-     * @return array<int, string>
-     */
     private function searchableColumns(string $modelClass): array
+    {
+        return $this->existingColumns($modelClass, ['name', 'code', 'floor_name', 'room_name', 'room_code', 'description']);
+    }
+
+    private function sortableColumns(string $modelClass): array
+    {
+        return $this->existingColumns($modelClass, ['name', 'code', 'floor_name', 'room_name', 'room_code', 'level', 'sort_order', 'is_active', 'created_at']);
+    }
+
+    private function existingColumns(string $modelClass, array $columns): array
     {
         $instance = new $modelClass;
         $schema = $instance->getConnection()->getSchemaBuilder();
 
-        return array_values(array_filter(
-            ['name', 'code', 'floor_name', 'room_name', 'room_code', 'description'],
-            fn (string $column): bool => $schema->hasColumn($instance->getTable(), $column),
-        ));
+        return array_values(array_filter($columns, fn (string $column): bool => $schema->hasColumn($instance->getTable(), $column)));
     }
 }
