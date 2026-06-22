@@ -25,38 +25,34 @@
             <section>
                 <h2 class="mb-5 text-lg font-semibold text-gray-900">Progress timeline</h2>
                 <ol class="space-y-6 border-l-2 border-gray-200 pl-6">
-                    @forelse ($workOrder->updates->sortBy('created_at') as $update)
+                    @foreach ($timeline as $event)
                         <li class="relative">
-                            <span class="absolute -left-[31px] top-1 h-3 w-3 rounded-full bg-emerald-600 ring-4 ring-white"></span>
+                            <span class="absolute -left-[31px] top-1 h-3 w-3 rounded-full ring-4 ring-white {{ $event['type'] === 'followup' ? 'bg-blue-600' : ($event['type'] === 'approval' ? 'bg-amber-500' : 'bg-emerald-600') }}"></span>
                             <div class="flex flex-wrap items-start justify-between gap-2">
-                                <div>
-                                    <p class="font-semibold text-gray-900">{{ $update->status?->name }}</p>
-                                    <p class="text-sm text-gray-500">{{ $update->creator?->name }} · {{ $update->created_at->format('M j, Y g:i A') }}</p>
-                                </div>
-                                @if (! is_null($update->estimated_remaining_days))<span class="text-sm text-gray-600">{{ $update->estimated_remaining_days }} day(s) remaining</span>@endif
+                                <div><p class="font-semibold text-gray-900">{{ $event['title'] }}</p><p class="text-sm text-gray-500">{{ $event['actor'] ?: 'System' }} · {{ $event['occurred_at']?->format('M j, Y g:i A') }}</p></div>
+                                @if($event['meta'] ?? null)<span class="text-sm text-gray-600">{{ $event['meta'] }}</span>@endif
                             </div>
-                            <p class="mt-3 whitespace-pre-line text-gray-700">{{ $update->notes }}</p>
-                            @if ($update->photos->isNotEmpty())<p class="mt-2 text-sm text-gray-500">{{ $update->photos->count() }} photo attachment(s)</p>@endif
+                            @if($event['body'])<p class="mt-3 whitespace-pre-line text-gray-700">{{ $event['body'] }}</p>@endif
                         </li>
-                    @empty
-                        <li class="text-gray-500">No progress updates have been recorded.</li>
-                    @endforelse
+                    @endforeach
                 </ol>
             </section>
 
-            @if ($workOrder->assignments->isNotEmpty())
+            @can('viewFollowups', $workOrder)
                 <section class="border-t border-gray-200 pt-7">
-                    <h2 class="mb-4 text-lg font-semibold text-gray-900">Assignment history</h2>
+                    <div class="mb-4"><h2 class="text-lg font-semibold text-gray-900">Follow-up thread</h2><p class="mt-1 text-sm text-gray-500">Messages remain attached to this work order and cannot be deleted.</p></div>
                     <div class="divide-y divide-gray-100 border-y border-gray-200">
-                        @foreach ($workOrder->assignments->sortBy('assigned_at') as $assignment)
-                            <div class="flex flex-wrap justify-between gap-3 py-4 text-sm">
-                                <div><p class="font-semibold text-gray-900">{{ $assignment->assignedStaff?->user?->name }}</p><p class="text-gray-500">{{ ucfirst($assignment->assignment_type) }}</p></div>
-                                <div class="text-right text-gray-600"><p>{{ $assignment->assigned_at->format('M j, Y') }}</p><p>{{ $assignment->unassigned_at ? 'Reassigned' : 'Active' }}</p></div>
-                            </div>
-                        @endforeach
+                        @forelse($workOrder->followups as $followup)
+                            <article class="py-4"><div class="flex flex-wrap items-center justify-between gap-2"><p class="text-sm font-semibold text-gray-900">{{ $followup->user?->name }}</p><time class="text-xs text-gray-500">{{ $followup->created_at->format('M j, Y g:i A') }}</time></div><p class="mt-2 whitespace-pre-line text-gray-700">{{ $followup->message }}</p></article>
+                        @empty
+                            <p class="py-6 text-center text-sm text-gray-500">No follow-up messages yet.</p>
+                        @endforelse
                     </div>
+                    @can('createFollowup', $workOrder)
+                        <form method="POST" action="{{ route('work-orders.followups.store', $workOrder) }}" class="mt-5 space-y-3">@csrf<label for="followup-message" class="block text-sm font-semibold text-gray-900">Add follow-up</label><textarea id="followup-message" name="message" rows="4" maxlength="5000" required placeholder="Write a question or response" class="w-full rounded-md border-gray-300 text-sm">{{ old('message') }}</textarea>@error('message')<p class="text-sm text-red-600">{{ $message }}</p>@enderror<div class="flex justify-end"><button class="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white">Send message</button></div></form>
+                    @endcan
                 </section>
-            @endif
+            @endcan
         </div>
 
         <aside class="space-y-7">

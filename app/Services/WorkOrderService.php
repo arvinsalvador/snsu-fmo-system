@@ -14,7 +14,10 @@ use Illuminate\Validation\ValidationException;
 
 class WorkOrderService
 {
-    public function __construct(private readonly WorkOrderRepository $workOrders) {}
+    public function __construct(
+        private readonly WorkOrderRepository $workOrders,
+        private readonly NotificationService $notifications,
+    ) {}
 
     /**
      * @param  array<string, mixed>  $filters
@@ -104,7 +107,10 @@ class WorkOrderService
                 'rejected_at' => null,
             ]);
 
-            return $workOrder->refresh()->load($this->workOrders->relations());
+            $workOrder = $workOrder->refresh()->load($this->workOrders->relations());
+            $this->notifications->workOrderApproved($workOrder, $approver);
+
+            return $workOrder;
         });
     }
 
@@ -137,7 +143,10 @@ class WorkOrderService
                 'rejected_at' => $rejectedAt,
             ]);
 
-            return $workOrder->refresh()->load($this->workOrders->relations());
+            $workOrder = $workOrder->refresh()->load($this->workOrders->relations());
+            $this->notifications->workOrderRejected($workOrder, $approver);
+
+            return $workOrder;
         });
     }
 

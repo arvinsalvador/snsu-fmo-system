@@ -13,7 +13,10 @@ use Illuminate\Validation\ValidationException;
 
 class AssignmentService
 {
-    public function __construct(private readonly WorkOrderRepository $workOrders) {}
+    public function __construct(
+        private readonly WorkOrderRepository $workOrders,
+        private readonly NotificationService $notifications,
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data
@@ -142,7 +145,10 @@ class AssignmentService
                 $workOrder->update(['status_id' => $this->assignedStatusId()]);
             }
 
-            return $workOrder->refresh()->load($this->workOrders->relations());
+            $workOrder = $workOrder->refresh()->load($this->workOrders->relations());
+            $this->notifications->workOrderAssigned($workOrder, $assigner, $isReassignment);
+
+            return $workOrder;
         });
     }
 

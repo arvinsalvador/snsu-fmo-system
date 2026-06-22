@@ -10,7 +10,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="overflow-x-hidden font-sans antialiased text-gray-900">
-        <div class="min-h-screen bg-gray-50" x-data="{ sidebarOpen: false }">
+        <div class="min-h-screen bg-gray-50" x-data="{ sidebarOpen: false, notificationOpen: false }">
             @include('layouts.navigation')
             <div class="md:pl-64">
                 <header class="border-b border-gray-200 bg-white">
@@ -18,7 +18,8 @@
                         <button type="button" @click="sidebarOpen = true" class="mr-3 rounded-md border border-gray-300 p-2 text-gray-600 md:hidden" aria-label="Open navigation">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                         </button>
-                        @isset($header){{ $header }}@endisset
+                        <div class="min-w-0 flex-1">@isset($header){{ $header }}@endisset</div>
+                        @include('layouts.notifications')
                     </div>
                 </header>
                 <main class="mx-auto max-w-screen-2xl px-4 py-7 sm:px-6 lg:px-8">

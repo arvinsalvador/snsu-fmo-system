@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 6.75B-C Admin Management Completion Completed
+Phase 7A Follow-up & Notification Foundation Completed
 
 ---
 
 # Current Phase
 
-## Phase 6.75B-C - Admin Management Completion
+## Phase 7A - Follow-up & Notification Foundation
 
 **Status:**
 
@@ -399,7 +399,7 @@ Completed
 
 # Pending Tasks for Current Phase
 
-No remaining Phase 6.75B-C implementation tasks.
+No remaining Phase 7A implementation tasks.
 
 ---
 
@@ -444,6 +444,28 @@ Completed
 * Feature tests cover authorization, navigation, account lifecycle, staff status, skill synchronization, role permissions, exports, and lockout edge cases
 
 Next recommended phase: Phase 7A - Follow-up & Notification Foundation.
+
+# Phase 7A - Follow-up & Notification Foundation
+
+Completed
+
+* Immutable, UUID-backed work-order follow-up records added with no delete route
+* Requestors can follow up their own active requests; operational users can respond on managed requests
+* Follow-up API endpoints added under `/api/v1/work-orders/{workOrder}/followups`
+* Follow-up service, Form Request, API Resource, policy authorization, and thin API/web controllers added
+* Work-order detail pages now include a role-aware follow-up thread and message form
+* Unified chronological work-order timeline now includes creation, approval, assignment, progress, and follow-up events
+* Laravel database notification foundation added with owner-scoped list, read, and read-all APIs
+* Notification events integrated for approval, rejection, assignment, reassignment, progress, completion, and follow-up activity
+* Responsive notification bell, unread count, dropdown, mark-read, and mark-all-read actions added to the Blade shell
+* Notification recipients exclude the actor and include requestors, assigned staff, assignment history staff for reassignment, and authorized operational leaders where appropriate
+* Permissions added for follow-ups and notifications across the established role matrix
+* Feature tests cover authorization, immutable history, API/web actions, notification ownership, workflow hooks, and timeline integration
+* Route registration, Blade compilation, Pint, focused tests, and the full suite of 98 tests / 470 assertions verified
+
+Next recommended phase: Phase 7B - Evaluation Workflow.
+
+---
 
 # Planned Development Roadmap
 
@@ -588,7 +610,7 @@ Follow-up and Evaluation
 
 Status:
 
-⚪ Pending
+🟡 Phase 7A Completed; Phase 7B Pending
 
 Includes:
 
@@ -794,9 +816,9 @@ Includes:
 
 # Current Priority
 
-Proceed to Phase 7A - Follow-up & Notification Foundation only after user confirmation.
+Proceed to Phase 7B - Evaluation Workflow only after user confirmation.
 
-Recommended approach: complete Phase 7A follow-up and database notification foundations before Phase 7B evaluation workflows.
+Recommended approach: build evaluation and satisfaction workflows on completed work orders while preserving the existing work-order authorization and immutable-history patterns.
 
 ---
 

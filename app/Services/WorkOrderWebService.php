@@ -15,7 +15,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 class WorkOrderWebService
 {
-    public function __construct(private readonly WorkOrderService $workOrders) {}
+    public function __construct(
+        private readonly WorkOrderService $workOrders,
+        private readonly WorkOrderTimelineService $timeline,
+    ) {}
 
     /** @return array<string, mixed> */
     public function dashboard(User $user): array
@@ -106,10 +109,11 @@ class WorkOrderWebService
     public function detail(User $user, WorkOrder $workOrder): array
     {
         $workOrder = $this->workOrders->findVisibleTo($user, $workOrder);
-        $workOrder->load(['approvals.approver', 'assignments.assignedStaff.user', 'assignments.assignedBy', 'updates.status', 'updates.staff', 'updates.creator', 'updates.photos']);
+        $workOrder->load(['approvals.approver', 'assignments.assignedStaff.user', 'assignments.assignedBy', 'updates.status', 'updates.staff', 'updates.creator', 'updates.photos', 'followups.user']);
 
         return [
             'workOrder' => $workOrder,
+            'timeline' => $this->timeline->build($workOrder),
             'progressStatuses' => WorkOrderStatus::query()
                 ->whereIn('name', ['In Progress', 'On Hold', 'Pending Materials', 'Completed'])
                 ->orderBy('sort_order')

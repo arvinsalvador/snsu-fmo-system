@@ -18,6 +18,8 @@ use Throwable;
 
 class ProgressUpdateService
 {
+    public function __construct(private readonly NotificationService $notifications) {}
+
     private const OPERATIONAL_ROLES = ['Super Admin', 'FMO Head', 'Campus Director', 'Director for Instruction'];
 
     private const TRANSITIONS = [
@@ -70,6 +72,7 @@ class ProgressUpdateService
                 $workOrderChanges['completed_at'] = now();
             }
             $lockedWorkOrder->update($workOrderChanges);
+            $this->notifications->progressAdded($lockedWorkOrder->refresh(), $actor, $targetStatus->name === 'Completed');
 
             return $update->load($this->relations());
         });

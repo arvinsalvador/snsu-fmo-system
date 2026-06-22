@@ -97,6 +97,19 @@ class WorkOrderPolicy
             || ($user->hasPermissionTo('create_work_order_updates') && $this->isActivelyAssigned($user, $workOrder));
     }
 
+    public function viewFollowups(User $user, WorkOrder $workOrder): bool
+    {
+        return ($user->can('view_followups') || $user->can('manage_work_orders')) && $this->view($user, $workOrder);
+    }
+
+    public function createFollowup(User $user, WorkOrder $workOrder): bool
+    {
+        return ($user->can('create_followups') || $user->can('manage_work_orders'))
+            && $this->view($user, $workOrder)
+            && $workOrder->approval_status !== 'rejected'
+            && ! (bool) $workOrder->status?->is_terminal;
+    }
+
     private function isActivelyAssigned(User $user, WorkOrder $workOrder): bool
     {
         $staffId = StaffProfile::query()->where('user_id', $user->id)->whereNull('deleted_at')->value('id');

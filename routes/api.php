@@ -12,11 +12,13 @@ use App\Http\Controllers\Api\V1\MasterData\PriorityController;
 use App\Http\Controllers\Api\V1\MasterData\RoomController;
 use App\Http\Controllers\Api\V1\MasterData\WorkOrderCategoryController;
 use App\Http\Controllers\Api\V1\MasterData\WorkOrderStatusController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\SkillController;
 use App\Http\Controllers\Api\V1\StaffProfileController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\WorkOrderAssignmentController;
 use App\Http\Controllers\Api\V1\WorkOrderController;
+use App\Http\Controllers\Api\V1\WorkOrderFollowupController;
 use App\Http\Controllers\Api\V1\WorkOrderUpdateController;
 use Illuminate\Support\Facades\Route;
 
@@ -69,8 +71,14 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->parameters(['inventory-categories' => 'inventoryCategory'])
             ->only(['index', 'store', 'show', 'update']);
 
+        Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::patch('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+        Route::patch('notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+
         Route::apiResource('work-orders', WorkOrderController::class)
             ->only(['index', 'store', 'show', 'update', 'destroy']);
+        Route::get('work-orders/{workOrder}/followups', [WorkOrderFollowupController::class, 'index'])->name('work-orders.followups.index');
+        Route::post('work-orders/{workOrder}/followups', [WorkOrderFollowupController::class, 'store'])->name('work-orders.followups.store');
         Route::post('work-orders/{workOrder}/approve', [WorkOrderController::class, 'approve'])
             ->name('work-orders.approve');
         Route::post('work-orders/{workOrder}/reject', [WorkOrderController::class, 'reject'])
