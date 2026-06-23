@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Admin\AccessControlController;
+use App\Http\Controllers\Web\Admin\InventoryManagementController;
 use App\Http\Controllers\Web\Admin\SkillManagementController;
 use App\Http\Controllers\Web\Admin\StaffManagementController;
 use App\Http\Controllers\Web\Admin\UserManagementController;
@@ -72,6 +73,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('permissions/export', [AccessControlController::class, 'exportPermissions'])->name('permissions.export');
         Route::get('permissions', [AccessControlController::class, 'permissions'])->name('permissions.index');
         Route::get('permissions/{permission}', [AccessControlController::class, 'showPermission'])->name('permissions.show');
+
+        Route::get('inventory/export', [InventoryManagementController::class, 'export'])->name('inventory.export');
+        Route::post('inventory/{inventoryItem}/stock-in', [InventoryManagementController::class, 'stockIn'])->name('inventory.stock-in');
+        Route::post('inventory/{inventoryItem}/adjust', [InventoryManagementController::class, 'adjust'])->name('inventory.adjust');
+        Route::resource('inventory', InventoryManagementController::class)->parameters(['inventory' => 'inventoryItem'])->except(['destroy']);
     });
 
     $masterDataModules = [

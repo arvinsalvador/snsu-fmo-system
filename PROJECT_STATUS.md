@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 7.9 MVP Stabilization Completed
+Phase 8A Consumable Inventory Foundation Completed
 
 ---
 
 # Current Phase
 
-## Phase 7.9 - MVP Stabilization
+## Phase 8A - Consumable Inventory Foundation
 
 **Status:**
 
@@ -399,7 +399,7 @@ Completed
 
 # Pending Tasks for Current Phase
 
-No remaining Phase 7.9 stabilization tasks.
+No remaining Phase 8A implementation tasks.
 
 ---
 
@@ -510,6 +510,28 @@ Completed
 * Verification completed: focused regression suite 51 tests / 277 assertions, full suite 109 tests / 546 assertions, Pint, route checks, Blade view cache, and Vite build
 
 Next recommended phase: Phase 8 - Consumable Inventory Foundation.
+
+---
+
+# Phase 8A - Consumable Inventory Foundation
+
+Completed
+
+* Consumable inventory item table added with UUIDs, item code, category, name, brand, unit, minimum stock, current stock, remarks, status, timestamps, and soft deletes
+* Immutable stock movement history table added for stock-in and adjustment records
+* Inventory item and stock movement models added with category, creator, and movement relationships
+* Inventory service added for filtered listing, CSV records, transactional stock-in, transactional adjustment, movement history, low-stock checks, and negative-stock prevention
+* API Form Requests added for inventory item creation/update, stock-in, and adjustment validation
+* API Resources added for inventory items and stock movements
+* Inventory item policy added and registered with permissions for viewing, managing, adjusting, and exporting inventory
+* Protected API endpoints added under `/api/v1/inventory-items` for listing, create, show, update, stock-in, adjustment, and movement history
+* Blade admin pages added for inventory index, create, edit, show, stock-in, stock adjustment, low-stock indicators, movement history, filters, pagination, and CSV export
+* Role navigation updated to expose inventory administration only to authorized users
+* Role seeder expanded with `view_inventory`, `manage_inventory`, `adjust_inventory`, and `export_inventory`
+* Feature tests added for inventory APIs, stock movement history, negative-stock prevention, low-stock filtering, web management, CSV export escaping, navigation, and authorization
+* Verification completed: inventory focused tests 7 tests / 42 assertions, full suite 116 tests / 588 assertions, route checks, Blade view cache, Pint, and Vite build
+
+Next recommended phase: Phase 8B - Work Order Material Usage.
 
 ---
 
@@ -673,7 +695,7 @@ Consumable Inventory
 
 Status:
 
-⚪ Pending
+🟡 In Progress
 
 Includes:
 
@@ -862,9 +884,9 @@ Includes:
 
 # Current Priority
 
-Proceed to Phase 8 - Consumable Inventory Foundation only after user confirmation.
+Proceed to Phase 8B - Work Order Material Usage only after user confirmation.
 
-Recommended approach: establish inventory items, stock balances, and immutable stock movement foundations before implementing work-order material consumption.
+Recommended approach: connect completed inventory item and stock movement foundations to work orders through material usage records, with transactional stock deduction and immutable usage history.
 
 ---
 

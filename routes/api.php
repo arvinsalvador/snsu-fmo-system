@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AssignmentIntelligenceController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\InventoryItemController;
 use App\Http\Controllers\Api\V1\MasterData\AssetCategoryController;
 use App\Http\Controllers\Api\V1\MasterData\BuildingController;
 use App\Http\Controllers\Api\V1\MasterData\DepartmentController;
@@ -71,6 +72,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::apiResource('inventory-categories', InventoryCategoryController::class)
             ->parameters(['inventory-categories' => 'inventoryCategory'])
             ->only(['index', 'store', 'show', 'update']);
+        Route::apiResource('inventory-items', InventoryItemController::class)
+            ->parameters(['inventory-items' => 'inventoryItem'])
+            ->only(['index', 'store', 'show', 'update']);
+        Route::post('inventory-items/{inventoryItem}/stock-in', [InventoryItemController::class, 'stockIn'])->name('inventory-items.stock-in');
+        Route::post('inventory-items/{inventoryItem}/adjust', [InventoryItemController::class, 'adjust'])->name('inventory-items.adjust');
+        Route::get('inventory-items/{inventoryItem}/movements', [InventoryItemController::class, 'movements'])->name('inventory-items.movements');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::patch('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
