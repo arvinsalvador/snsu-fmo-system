@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -111,6 +112,16 @@ class WorkOrder extends Model
     public function updates(): HasMany
     {
         return $this->hasMany(WorkOrderUpdate::class);
+    }
+
+    public function followups(): HasMany
+    {
+        return $this->hasMany(WorkOrderFollowup::class);
+    }
+
+    public function evaluation(): HasOne
+    {
+        return $this->hasOne(WorkOrderEvaluation::class);
     }
 
     public function activeAssignments(): HasMany

@@ -83,13 +83,7 @@ class WorkOrderController extends Controller
     {
         Gate::authorize('update', $workOrder);
 
-        $data = $request->validated();
-
-        if (! $this->workOrders->canViewOperationalRequests($request->user())) {
-            unset($data['status_id'], $data['requested_at'], $data['completed_at']);
-        }
-
-        $workOrder = $this->workOrders->update($workOrder, $data);
+        $workOrder = $this->workOrders->update($workOrder, $request->validated());
 
         return response()->json([
             'success' => true,

@@ -11,7 +11,6 @@ use App\Services\UserManagementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -59,15 +58,15 @@ class UserManagementController extends Controller
     public function update(UpdateAdminUserRequest $request, User $user): RedirectResponse
     {
         Gate::authorize('update', $user);
-        $this->users->update($user, $request->validated());
+        $this->users->update($user, $request->validated(), $request->user());
 
         return redirect()->route('admin.users.show', $user)->with('success', 'User updated successfully.');
     }
 
-    public function activate(User $user): RedirectResponse
+    public function activate(Request $request, User $user): RedirectResponse
     {
         Gate::authorize('update', $user);
-        $this->users->setActive($user, true);
+        $this->users->setActive($user, true, $request->user());
 
         return back()->with('success', 'User activated successfully.');
     }
@@ -75,10 +74,7 @@ class UserManagementController extends Controller
     public function deactivate(Request $request, User $user): RedirectResponse
     {
         Gate::authorize('update', $user);
-        if ($request->user()->is($user)) {
-            throw ValidationException::withMessages(['user' => 'You cannot deactivate your own account.']);
-        }
-        $this->users->setActive($user, false);
+        $this->users->setActive($user, false, $request->user());
 
         return back()->with('success', 'User deactivated successfully.');
     }

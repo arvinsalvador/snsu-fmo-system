@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 6.75B-C Admin Management Completion Completed
+Phase 7.9 MVP Stabilization Completed
 
 ---
 
 # Current Phase
 
-## Phase 6.75B-C - Admin Management Completion
+## Phase 7.9 - MVP Stabilization
 
 **Status:**
 
@@ -399,7 +399,7 @@ Completed
 
 # Pending Tasks for Current Phase
 
-No remaining Phase 6.75B-C implementation tasks.
+No remaining Phase 7.9 stabilization tasks.
 
 ---
 
@@ -444,6 +444,74 @@ Completed
 * Feature tests cover authorization, navigation, account lifecycle, staff status, skill synchronization, role permissions, exports, and lockout edge cases
 
 Next recommended phase: Phase 7A - Follow-up & Notification Foundation.
+
+# Phase 7A - Follow-up & Notification Foundation
+
+Completed
+
+* Immutable, UUID-backed work-order follow-up records added with no delete route
+* Requestors can follow up their own active requests; operational users can respond on managed requests
+* Follow-up API endpoints added under `/api/v1/work-orders/{workOrder}/followups`
+* Follow-up service, Form Request, API Resource, policy authorization, and thin API/web controllers added
+* Work-order detail pages now include a role-aware follow-up thread and message form
+* Unified chronological work-order timeline now includes creation, approval, assignment, progress, and follow-up events
+* Laravel database notification foundation added with owner-scoped list, read, and read-all APIs
+* Notification events integrated for approval, rejection, assignment, reassignment, progress, completion, and follow-up activity
+* Responsive notification bell, unread count, dropdown, mark-read, and mark-all-read actions added to the Blade shell
+* Notification recipients exclude the actor and include requestors, assigned staff, assignment history staff for reassignment, and authorized operational leaders where appropriate
+* Permissions added for follow-ups and notifications across the established role matrix
+* Feature tests cover authorization, immutable history, API/web actions, notification ownership, workflow hooks, and timeline integration
+* Route registration, Blade compilation, Pint, focused tests, and the full suite of 98 tests / 470 assertions verified
+
+Next recommended phase: Phase 7B - Evaluation Workflow.
+
+---
+
+# Phase 7B - Evaluation Workflow
+
+Completed
+
+* UUID-backed `work_order_evaluations` table added with one immutable evaluation per work order
+* Evaluation records capture the original requestor, 1-5 overall rating, optional comments, and evaluation timestamp
+* Dedicated evaluation policy prevents role-based overrides, including Super Admin, from evaluating another requestor's work order
+* Transactional evaluation service locks the work order and enforces completed status, original requestor ownership, and one-time submission
+* Evaluation API endpoints added:
+  * `GET /api/v1/work-orders/{workOrder}/evaluation`
+  * `POST /api/v1/work-orders/{workOrder}/evaluation`
+* API Form Request and Resource provide validation and UUID-based response identifiers
+* Work-order detail pages display the evaluation form for eligible requestors and the immutable rating after submission
+* Evaluation events are included in the chronological work-order timeline
+* Existing database notification foundation now notifies authorized operational leaders and assigned staff when an evaluation is submitted
+* Existing `evaluate_work_orders` permission retained for submission; `view_evaluations` added for scoped operational and requestor visibility
+* No evaluation update or delete routes were added, and restrictive foreign keys preserve history
+* Phase scope uses one overall rating as explicitly requested; the older four-dimension database-plan concept remains a possible future extension
+* Route registration, migration, role seeding, Blade compilation, Vite build, Pint, browser workflow, and the full suite of 103 tests / 508 assertions verified
+
+Next recommended phase: Phase 8 - Consumable Inventory Foundation.
+
+---
+
+# Phase 7.9 - MVP Stabilization
+
+Completed
+
+* Reviewed and stabilized routes, permissions, navigation, search/filter/export behavior, work-order lifecycle rules, timeline integration, notifications, UI consistency, tests, and documentation
+* Generic work-order update endpoints can no longer bypass lifecycle-managed status, requested, or completion fields
+* Approval workflow now rejects non-submitted work orders while preserving the completed-workflow validation path for already approved or rejected requests
+* Assignment service now allows initial assignment only for approved work orders awaiting assignment and reassignment only for active approved work orders
+* Work-order approval, assignment, recommendation, update, and follow-up policies now apply record visibility scope consistently
+* Completed and evaluated work orders are blocked from new follow-up messages
+* API and web user management share self-lockout protections for self-deactivation and Super Admin self-demotion
+* Master-data web management now honors granular `manage_locations` and `manage_work_order_settings` permissions for routes, navigation targets, tabs, create pages, stores, and exports
+* Admin and master-data CSV exports now escape spreadsheet formula-leading values before streaming
+* Notification list and web dropdown ordering are deterministic by creation timestamp and notification id
+* Request users without work-order creation permission no longer see the web `New request` action
+* Temporary Phase 7.9 helper file was removed and regression tests were added for lifecycle, visibility, self-lockout, master-data access/navigation, CSV export escaping, and UI action visibility
+* Verification completed: focused regression suite 51 tests / 277 assertions, full suite 109 tests / 546 assertions, Pint, route checks, Blade view cache, and Vite build
+
+Next recommended phase: Phase 8 - Consumable Inventory Foundation.
+
+---
 
 # Planned Development Roadmap
 
@@ -588,7 +656,7 @@ Follow-up and Evaluation
 
 Status:
 
-⚪ Pending
+🟢 Completed
 
 Includes:
 
@@ -794,9 +862,9 @@ Includes:
 
 # Current Priority
 
-Proceed to Phase 7A - Follow-up & Notification Foundation only after user confirmation.
+Proceed to Phase 8 - Consumable Inventory Foundation only after user confirmation.
 
-Recommended approach: complete Phase 7A follow-up and database notification foundations before Phase 7B evaluation workflows.
+Recommended approach: establish inventory items, stock balances, and immutable stock movement foundations before implementing work-order material consumption.
 
 ---
 

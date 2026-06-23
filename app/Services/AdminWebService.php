@@ -39,13 +39,23 @@ class AdminWebService
             ->get();
     }
 
+    /** @param array<int, mixed> $row */
+    private function sanitizeCsvRow(array $row): array
+    {
+        return array_map(function (mixed $value): string {
+            $value = (string) ($value ?? '');
+
+            return preg_match('/^[=+\-@\t\r]/', $value) === 1 ? "'{$value}" : $value;
+        }, $row);
+    }
+
     public function csv(string $filename, array $headers, iterable $records, callable $row): StreamedResponse
     {
         return response()->streamDownload(function () use ($headers, $records, $row): void {
             $output = fopen('php://output', 'w');
             fputcsv($output, $headers);
             foreach ($records as $record) {
-                fputcsv($output, $row($record));
+                fputcsv($output, $this->sanitizeCsvRow($row($record)));
             }
             fclose($output);
         }, $filename.'-'.now()->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv']);

@@ -17,6 +17,7 @@ use App\Http\Requests\Api\V1\MasterData\UpdateNameRequest;
 use App\Http\Requests\Api\V1\MasterData\UpdatePriorityRequest;
 use App\Http\Requests\Api\V1\MasterData\UpdateRoomRequest;
 use App\Http\Requests\Api\V1\MasterData\UpdateWorkOrderStatusRequest;
+use App\Services\AdminWebService;
 use App\Services\MasterDataService;
 use App\Services\MasterDataWebService;
 use Illuminate\Database\Eloquent\Model;
@@ -32,12 +33,13 @@ class MasterDataController extends Controller
     public function __construct(
         private readonly MasterDataService $masterData,
         private readonly MasterDataWebService $web,
+        private readonly AdminWebService $adminWeb,
     ) {}
 
     public function index(Request $request): View
     {
         $module = $this->module();
-        Gate::authorize('viewAny', $module['model']);
+        Gate::authorize('manageMasterData', $module['model']);
         $filters = $request->only(['search', 'status', 'sort', 'direction', 'per_page']);
 
         return view('admin.master-data.index', [
@@ -51,7 +53,7 @@ class MasterDataController extends Controller
     public function create(): View
     {
         $module = $this->module();
-        Gate::authorize('create', $module['model']);
+        Gate::authorize('manageMasterData', $module['model']);
 
         return $this->formView($module);
     }
@@ -85,17 +87,19 @@ class MasterDataController extends Controller
     public function export(Request $request): StreamedResponse
     {
         $module = $this->module();
-        Gate::authorize('viewAny', $module['model']);
+        Gate::authorize('manageMasterData', $module['model']);
         $records = $this->masterData->records($module['model'], $request->only(['search', 'status', 'sort', 'direction']), $module['with']);
 
-        return response()->streamDownload(function () use ($module, $records): void {
-            $output = fopen('php://output', 'w');
-            fputcsv($output, [...array_values($module['columns']), 'Active', 'Created At']);
-            foreach ($records as $record) {
-                fputcsv($output, [...array_map(fn (string $key): string => $this->web->displayValue($record, $key), array_keys($module['columns'])), $record->is_active ? 'Yes' : 'No', $record->created_at?->toIso8601String()]);
-            }
-            fclose($output);
-        }, $this->moduleKey().'-'.now()->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv']);
+        return $this->adminWeb->csv(
+            $this->moduleKey(),
+            [...array_values($module['columns']), 'Active', 'Created At'],
+            $records,
+            fn (Model $record): array => [
+                ...array_map(fn (string $key): string => $this->web->displayValue($record, $key), array_keys($module['columns'])),
+                $record->is_active ? 'Yes' : 'No',
+                $record->created_at?->toIso8601String(),
+            ],
+        );
     }
 
     public function storeBuilding(StoreBuildingRequest $request): RedirectResponse
@@ -181,7 +185,7 @@ class MasterDataController extends Controller
     private function storeRecord(FormRequest $request): RedirectResponse
     {
         $module = $this->module();
-        Gate::authorize('create', $module['model']);
+        Gate::authorize('manageMasterData', $module['model']);
         $record = $this->masterData->create($module['model'], $request->validated());
 
         return redirect()->route("admin.master-data.{$this->moduleKey()}.show", $record)->with('success', 'Record created successfully.');

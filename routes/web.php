@@ -7,7 +7,10 @@ use App\Http\Controllers\Web\Admin\StaffManagementController;
 use App\Http\Controllers\Web\Admin\UserManagementController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\MasterDataController;
+use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\WorkOrderController;
+use App\Http\Controllers\Web\WorkOrderEvaluationController;
+use App\Http\Controllers\Web\WorkOrderFollowupController;
 use App\Http\Controllers\Web\WorkOrderWorkflowController;
 use App\Models\Building;
 use App\Models\Department;
@@ -33,6 +36,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/work-orders/{workOrder}', [WorkOrderController::class, 'show'])->name('work-orders.show');
     Route::get('/work-orders/{workOrder}/recommendations', [WorkOrderController::class, 'recommendations'])->name('work-orders.recommendations');
     Route::get('/work-orders/{workOrder}/progress/create', [WorkOrderController::class, 'createProgress'])->name('work-orders.progress.create');
+
+    Route::post('/work-orders/{workOrder}/followups', [WorkOrderFollowupController::class, 'store'])->name('work-orders.followups.store');
+    Route::post('/work-orders/{workOrder}/evaluation', [WorkOrderEvaluationController::class, 'store'])->name('work-orders.evaluation.store');
+    Route::patch('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
 
     Route::post('/work-orders/{workOrder}/approve', [WorkOrderWorkflowController::class, 'approve'])->name('work-orders.approve');
     Route::post('/work-orders/{workOrder}/reject', [WorkOrderWorkflowController::class, 'reject'])->name('work-orders.reject');

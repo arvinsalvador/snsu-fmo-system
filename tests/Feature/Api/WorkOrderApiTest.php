@@ -112,7 +112,7 @@ class WorkOrderApiTest extends TestCase
             ->assertJsonPath('data.work_order.status_id', $workOrder->status_id);
     }
 
-    public function test_operational_role_can_update_status_and_delete_work_order(): void
+    public function test_generic_update_cannot_bypass_lifecycle_but_operational_role_can_delete_work_order(): void
     {
         $this->seedFoundation();
         $requestor = $this->userWithRole('Faculty');
@@ -126,7 +126,7 @@ class WorkOrderApiTest extends TestCase
             'status_id' => $approvedStatus->id,
         ])
             ->assertOk()
-            ->assertJsonPath('data.work_order.status_id', $approvedStatus->id);
+            ->assertJsonPath('data.work_order.status_id', $workOrder->status_id);
 
         $this->deleteJson("/api/v1/work-orders/{$workOrder->id}")
             ->assertOk();

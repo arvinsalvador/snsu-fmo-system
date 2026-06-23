@@ -14,7 +14,10 @@ use Illuminate\Validation\ValidationException;
 
 class WorkOrderService
 {
-    public function __construct(private readonly WorkOrderRepository $workOrders) {}
+    public function __construct(
+        private readonly WorkOrderRepository $workOrders,
+        private readonly NotificationService $notifications,
+    ) {}
 
     /**
      * @param  array<string, mixed>  $filters
@@ -62,6 +65,8 @@ class WorkOrderService
      */
     public function update(WorkOrder $workOrder, array $data): WorkOrder
     {
+        unset($data['status_id'], $data['requested_at'], $data['completed_at']);
+
         return DB::transaction(fn (): WorkOrder => $this->workOrders->update($workOrder, $data));
     }
 
@@ -104,7 +109,10 @@ class WorkOrderService
                 'rejected_at' => null,
             ]);
 
-            return $workOrder->refresh()->load($this->workOrders->relations());
+            $workOrder = $workOrder->refresh()->load($this->workOrders->relations());
+            $this->notifications->workOrderApproved($workOrder, $approver);
+
+            return $workOrder;
         });
     }
 
@@ -137,7 +145,10 @@ class WorkOrderService
                 'rejected_at' => $rejectedAt,
             ]);
 
-            return $workOrder->refresh()->load($this->workOrders->relations());
+            $workOrder = $workOrder->refresh()->load($this->workOrders->relations());
+            $this->notifications->workOrderRejected($workOrder, $approver);
+
+            return $workOrder;
         });
     }
 
@@ -184,6 +195,12 @@ class WorkOrderService
         if ($workOrder->approval_status === 'approved' || $workOrder->approval_status === 'rejected') {
             throw ValidationException::withMessages([
                 'work_order' => 'This work order has already completed the approval workflow.',
+            ]);
+        }
+
+        if (! in_array($workOrder->status?->name, ['Submitted', 'For Approval'], true)) {
+            throw ValidationException::withMessages([
+                'status' => 'Only submitted work orders can enter the approval workflow.',
             ]);
         }
 

@@ -63,7 +63,7 @@ class UserController extends Controller
     {
         Gate::authorize('update', $user);
 
-        $user = $this->users->update($user, $request->validated());
+        $user = $this->users->update($user, $request->validated(), $request->user());
 
         return response()->json([
             'success' => true,
@@ -72,11 +72,11 @@ class UserController extends Controller
         ]);
     }
 
-    public function activate(User $user): JsonResponse
+    public function activate(Request $request, User $user): JsonResponse
     {
         Gate::authorize('update', $user);
 
-        $user = $this->users->setActive($user, true);
+        $user = $this->users->setActive($user, true, $request->user());
 
         return response()->json([
             'success' => true,
@@ -85,11 +85,11 @@ class UserController extends Controller
         ]);
     }
 
-    public function deactivate(User $user): JsonResponse
+    public function deactivate(Request $request, User $user): JsonResponse
     {
         Gate::authorize('update', $user);
 
-        $user = $this->users->setActive($user, false);
+        $user = $this->users->setActive($user, false, $request->user());
 
         return response()->json([
             'success' => true,

@@ -75,26 +75,41 @@ class WorkOrderPolicy
 
     public function viewAssignments(User $user, WorkOrder $workOrder): bool
     {
-        return $user->can('manage_work_orders')
-            || $user->can('view_assignments');
+        return ($user->can('manage_work_orders') || $user->can('view_assignments'))
+            && $this->view($user, $workOrder);
     }
 
     public function viewAssignmentRecommendations(User $user, WorkOrder $workOrder): bool
     {
-        return $user->can('manage_work_orders')
-            || $user->can('view_assignment_recommendations');
+        return ($user->can('manage_work_orders') || $user->can('view_assignment_recommendations'))
+            && $this->view($user, $workOrder);
     }
 
     public function viewUpdates(User $user, WorkOrder $workOrder): bool
     {
-        return $user->hasAnyRole(['FMO Head', 'Campus Director', 'Director for Instruction'])
-            || $user->hasPermissionTo('view_work_order_updates');
+        return ($user->hasAnyRole(['FMO Head', 'Campus Director', 'Director for Instruction'])
+                || $user->hasPermissionTo('view_work_order_updates'))
+            && $this->view($user, $workOrder);
     }
 
     public function createUpdate(User $user, WorkOrder $workOrder): bool
     {
         return $user->hasAnyRole(['FMO Head', 'Campus Director', 'Director for Instruction'])
             || ($user->hasPermissionTo('create_work_order_updates') && $this->isActivelyAssigned($user, $workOrder));
+    }
+
+    public function viewFollowups(User $user, WorkOrder $workOrder): bool
+    {
+        return ($user->can('view_followups') || $user->can('manage_work_orders')) && $this->view($user, $workOrder);
+    }
+
+    public function createFollowup(User $user, WorkOrder $workOrder): bool
+    {
+        return ($user->can('create_followups') || $user->can('manage_work_orders'))
+            && $this->view($user, $workOrder)
+            && $workOrder->approval_status !== 'rejected'
+            && ! (bool) $workOrder->status?->is_terminal
+            && ! in_array($workOrder->status?->name, ['Completed', 'Evaluated'], true);
     }
 
     private function isActivelyAssigned(User $user, WorkOrder $workOrder): bool
@@ -110,9 +125,10 @@ class WorkOrderPolicy
 
     public function viewApprovals(User $user, WorkOrder $workOrder): bool
     {
-        return $user->can('manage_work_orders')
-            || $user->can('view_work_order_approvals')
-            || ($user->can('view_work_orders') && $workOrder->requestor_id === $user->id)
-            || ($user->can('view_work_orders') && $this->isActivelyAssigned($user, $workOrder));
+        return $this->view($user, $workOrder)
+            && ($user->can('manage_work_orders')
+                || $user->can('view_work_order_approvals')
+                || $workOrder->requestor_id === $user->id
+                || $this->isActivelyAssigned($user, $workOrder));
     }
 }
