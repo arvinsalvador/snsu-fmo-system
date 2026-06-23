@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 7.9 MVP Stabilization Completed
+Phase 8C Inventory Intelligence Completed
 
 ---
 
 # Current Phase
 
-## Phase 7.9 - MVP Stabilization
+## Phase 8C - Inventory Intelligence
 
 **Status:**
 
@@ -399,7 +399,7 @@ Completed
 
 # Pending Tasks for Current Phase
 
-No remaining Phase 7.9 stabilization tasks.
+No remaining Phase 8C implementation tasks.
 
 ---
 
@@ -513,6 +513,67 @@ Next recommended phase: Phase 8 - Consumable Inventory Foundation.
 
 ---
 
+# Phase 8A - Consumable Inventory Foundation
+
+Completed
+
+* Consumable inventory item table added with UUIDs, item code, category, name, brand, unit, minimum stock, current stock, remarks, status, timestamps, and soft deletes
+* Immutable stock movement history table added for stock-in and adjustment records
+* Inventory item and stock movement models added with category, creator, and movement relationships
+* Inventory service added for filtered listing, CSV records, transactional stock-in, transactional adjustment, movement history, low-stock checks, and negative-stock prevention
+* API Form Requests added for inventory item creation/update, stock-in, and adjustment validation
+* API Resources added for inventory items and stock movements
+* Inventory item policy added and registered with permissions for viewing, managing, adjusting, and exporting inventory
+* Protected API endpoints added under `/api/v1/inventory-items` for listing, create, show, update, stock-in, adjustment, and movement history
+* Blade admin pages added for inventory index, create, edit, show, stock-in, stock adjustment, low-stock indicators, movement history, filters, pagination, and CSV export
+* Role navigation updated to expose inventory administration only to authorized users
+* Role seeder expanded with `view_inventory`, `manage_inventory`, `adjust_inventory`, and `export_inventory`
+* Feature tests added for inventory APIs, stock movement history, negative-stock prevention, low-stock filtering, web management, CSV export escaping, navigation, and authorization
+* Verification completed: inventory focused tests 7 tests / 42 assertions, full suite 116 tests / 588 assertions, route checks, Blade view cache, Pint, and Vite build
+
+Next recommended phase: Phase 8B - Work Order Material Usage.
+
+---
+
+# Phase 8B - Work Order Material Usage
+
+Completed
+
+* UUID-backed `work_order_materials` table added to link work orders with inventory items
+* Material records support requested, issued, and used quantities, remarks, issuer, and issuance timestamp
+* Work order material model, service, API Form Requests, API Resource, API controller, and web controller added
+* Material issuance deducts inventory stock transactionally and creates immutable `work_order_usage` stock movement records
+* Inventory negative-stock prevention is enforced during work order material issuance
+* Issued quantity can only increase; reductions are blocked to preserve stock movement history
+* Unissued material request lines can be removed, while issued or used material lines cannot be deleted
+* Protected API endpoints added for listing, creating, updating, and deleting work order material lines under `/api/v1/work-orders/{workOrder}/materials`
+* Work order detail Blade UI now includes material usage display, add material form, inline update controls, and guarded removal for unissued lines
+* Work order timeline includes material issuance events
+* Role seeder expanded with `issue_materials` permission for operational inventory/material issuance users
+* Feature tests added for API issuance, stock deduction, stock movement history, negative-stock prevention, immutable issued quantities, delete rules, web UI, and authorization
+* Verification completed: focused material tests 5 tests / 33 assertions, route checks, Blade view cache, and Pint
+
+Next recommended phase: Phase 8C - Inventory Intelligence.
+
+---
+# Phase 8C - Inventory Intelligence
+
+Completed
+
+* Inventory intelligence service added to centralize dashboard, stock health, movement ranking, and consumption calculations
+* Inventory dashboard added with active item, low-stock, out-of-stock, inventory unit, and health indicator cards
+* Low stock and out-of-stock monitoring reports added with search, filters, pagination, and CSV export
+* Fast-moving and slow-moving material reports added using existing negative stock movement history
+* Monthly consumption summary added using existing stock movement history
+* Protected API endpoints added under `/api/v1/inventory-intelligence` for dashboard, low stock, out of stock, fast moving, slow moving, and monthly consumption data
+* Admin Blade pages added for dashboard, reports, filters, pagination, and CSV export
+* Inventory intelligence navigation added for users with inventory permissions
+* Feature tests added for API dashboard metrics, stock monitoring, movement reports, CSV export, navigation, and authorization
+* Verification completed: focused inventory intelligence tests 5 tests / 31 assertions, route checks, Blade view cache, and Pint
+
+Next recommended phase: Phase 9 - Asset Management.
+
+---
 # Planned Development Roadmap
 
 ---
@@ -673,7 +734,7 @@ Consumable Inventory
 
 Status:
 
-⚪ Pending
+🟡 In Progress
 
 Includes:
 
@@ -862,9 +923,9 @@ Includes:
 
 # Current Priority
 
-Proceed to Phase 8 - Consumable Inventory Foundation only after user confirmation.
+Proceed to Phase 9 - Asset Management only after user confirmation.
 
-Recommended approach: establish inventory items, stock balances, and immutable stock movement foundations before implementing work-order material consumption.
+Recommended approach: start asset category-aligned campus asset records, lifecycle/status tracking, location assignment, and asset CRUD without implementing maintenance management or procurement workflows yet.
 
 ---
 

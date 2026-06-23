@@ -38,6 +38,8 @@
                 </ol>
             </section>
 
+            @include('work-orders.partials.materials')
+
             @can('viewFollowups', $workOrder)
                 <section class="border-t border-gray-200 pt-7">
                     <div class="mb-4"><h2 class="text-lg font-semibold text-gray-900">Follow-up thread</h2><p class="mt-1 text-sm text-gray-500">Messages remain attached to this work order and cannot be deleted.</p></div>

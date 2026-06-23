@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Admin\AccessControlController;
+use App\Http\Controllers\Web\Admin\InventoryIntelligenceController;
+use App\Http\Controllers\Web\Admin\InventoryManagementController;
 use App\Http\Controllers\Web\Admin\SkillManagementController;
 use App\Http\Controllers\Web\Admin\StaffManagementController;
 use App\Http\Controllers\Web\Admin\UserManagementController;
@@ -11,6 +13,7 @@ use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\WorkOrderController;
 use App\Http\Controllers\Web\WorkOrderEvaluationController;
 use App\Http\Controllers\Web\WorkOrderFollowupController;
+use App\Http\Controllers\Web\WorkOrderMaterialController;
 use App\Http\Controllers\Web\WorkOrderWorkflowController;
 use App\Models\Building;
 use App\Models\Department;
@@ -37,6 +40,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/work-orders/{workOrder}/recommendations', [WorkOrderController::class, 'recommendations'])->name('work-orders.recommendations');
     Route::get('/work-orders/{workOrder}/progress/create', [WorkOrderController::class, 'createProgress'])->name('work-orders.progress.create');
 
+    Route::post('/work-orders/{workOrder}/materials', [WorkOrderMaterialController::class, 'store'])->name('work-orders.materials.store');
+    Route::patch('/work-orders/{workOrder}/materials/{material}', [WorkOrderMaterialController::class, 'update'])->name('work-orders.materials.update');
+    Route::delete('/work-orders/{workOrder}/materials/{material}', [WorkOrderMaterialController::class, 'destroy'])->name('work-orders.materials.destroy');
     Route::post('/work-orders/{workOrder}/followups', [WorkOrderFollowupController::class, 'store'])->name('work-orders.followups.store');
     Route::post('/work-orders/{workOrder}/evaluation', [WorkOrderEvaluationController::class, 'store'])->name('work-orders.evaluation.store');
     Route::patch('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
@@ -72,6 +78,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('permissions/export', [AccessControlController::class, 'exportPermissions'])->name('permissions.export');
         Route::get('permissions', [AccessControlController::class, 'permissions'])->name('permissions.index');
         Route::get('permissions/{permission}', [AccessControlController::class, 'showPermission'])->name('permissions.show');
+
+        Route::get('inventory-intelligence', [InventoryIntelligenceController::class, 'dashboard'])->name('inventory-intelligence.dashboard');
+        Route::get('inventory-intelligence/{report}', [InventoryIntelligenceController::class, 'report'])->name('inventory-intelligence.report');
+        Route::get('inventory-intelligence/{report}/export', [InventoryIntelligenceController::class, 'export'])->name('inventory-intelligence.export');
+
+        Route::get('inventory/export', [InventoryManagementController::class, 'export'])->name('inventory.export');
+        Route::post('inventory/{inventoryItem}/stock-in', [InventoryManagementController::class, 'stockIn'])->name('inventory.stock-in');
+        Route::post('inventory/{inventoryItem}/adjust', [InventoryManagementController::class, 'adjust'])->name('inventory.adjust');
+        Route::resource('inventory', InventoryManagementController::class)->parameters(['inventory' => 'inventoryItem'])->except(['destroy']);
     });
 
     $masterDataModules = [

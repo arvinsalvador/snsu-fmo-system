@@ -35,6 +35,11 @@ class WorkOrderTimelineService
             'actor' => $update->creator?->name, 'occurred_at' => $update->created_at,
             'meta' => is_null($update->estimated_remaining_days) ? null : "{$update->estimated_remaining_days} day(s) remaining",
         ]));
+        $events = $events->concat($workOrder->materials->filter(fn ($material): bool => (float) $material->quantity_issued > 0)->map(fn ($material): array => [
+            'type' => 'material', 'title' => 'Material issued',
+            'body' => trim(($material->inventoryItem?->name ?? 'Material').' - '.$material->quantity_issued.' '.$material->inventoryItem?->unit.($material->remarks ? " - {$material->remarks}" : '')),
+            'actor' => $material->issuer?->name, 'occurred_at' => $material->issued_at ?? $material->updated_at,
+        ]));
         $events = $events->concat($workOrder->followups->map(fn ($followup): array => [
             'type' => 'followup', 'title' => 'Follow-up message', 'body' => $followup->message,
             'actor' => $followup->user?->name, 'occurred_at' => $followup->created_at,

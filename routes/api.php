@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\V1\AssignmentIntelligenceController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\InventoryIntelligenceController;
+use App\Http\Controllers\Api\V1\InventoryItemController;
 use App\Http\Controllers\Api\V1\MasterData\AssetCategoryController;
 use App\Http\Controllers\Api\V1\MasterData\BuildingController;
 use App\Http\Controllers\Api\V1\MasterData\DepartmentController;
@@ -20,6 +22,7 @@ use App\Http\Controllers\Api\V1\WorkOrderAssignmentController;
 use App\Http\Controllers\Api\V1\WorkOrderController;
 use App\Http\Controllers\Api\V1\WorkOrderEvaluationController;
 use App\Http\Controllers\Api\V1\WorkOrderFollowupController;
+use App\Http\Controllers\Api\V1\WorkOrderMaterialController;
 use App\Http\Controllers\Api\V1\WorkOrderUpdateController;
 use Illuminate\Support\Facades\Route;
 
@@ -71,6 +74,19 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::apiResource('inventory-categories', InventoryCategoryController::class)
             ->parameters(['inventory-categories' => 'inventoryCategory'])
             ->only(['index', 'store', 'show', 'update']);
+        Route::get('inventory-intelligence/dashboard', [InventoryIntelligenceController::class, 'dashboard'])->name('inventory-intelligence.dashboard');
+        Route::get('inventory-intelligence/low-stock', [InventoryIntelligenceController::class, 'lowStock'])->name('inventory-intelligence.low-stock');
+        Route::get('inventory-intelligence/out-of-stock', [InventoryIntelligenceController::class, 'outOfStock'])->name('inventory-intelligence.out-of-stock');
+        Route::get('inventory-intelligence/fast-moving', [InventoryIntelligenceController::class, 'fastMoving'])->name('inventory-intelligence.fast-moving');
+        Route::get('inventory-intelligence/slow-moving', [InventoryIntelligenceController::class, 'slowMoving'])->name('inventory-intelligence.slow-moving');
+        Route::get('inventory-intelligence/monthly-consumption', [InventoryIntelligenceController::class, 'monthlyConsumption'])->name('inventory-intelligence.monthly-consumption');
+
+        Route::apiResource('inventory-items', InventoryItemController::class)
+            ->parameters(['inventory-items' => 'inventoryItem'])
+            ->only(['index', 'store', 'show', 'update']);
+        Route::post('inventory-items/{inventoryItem}/stock-in', [InventoryItemController::class, 'stockIn'])->name('inventory-items.stock-in');
+        Route::post('inventory-items/{inventoryItem}/adjust', [InventoryItemController::class, 'adjust'])->name('inventory-items.adjust');
+        Route::get('inventory-items/{inventoryItem}/movements', [InventoryItemController::class, 'movements'])->name('inventory-items.movements');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::patch('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
@@ -78,6 +94,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::apiResource('work-orders', WorkOrderController::class)
             ->only(['index', 'store', 'show', 'update', 'destroy']);
+        Route::get('work-orders/{workOrder}/materials', [WorkOrderMaterialController::class, 'index'])->name('work-orders.materials.index');
+        Route::post('work-orders/{workOrder}/materials', [WorkOrderMaterialController::class, 'store'])->name('work-orders.materials.store');
+        Route::patch('work-orders/{workOrder}/materials/{material}', [WorkOrderMaterialController::class, 'update'])->name('work-orders.materials.update');
+        Route::delete('work-orders/{workOrder}/materials/{material}', [WorkOrderMaterialController::class, 'destroy'])->name('work-orders.materials.destroy');
         Route::get('work-orders/{workOrder}/followups', [WorkOrderFollowupController::class, 'index'])->name('work-orders.followups.index');
         Route::post('work-orders/{workOrder}/followups', [WorkOrderFollowupController::class, 'store'])->name('work-orders.followups.store');
         Route::get('work-orders/{workOrder}/evaluation', [WorkOrderEvaluationController::class, 'show'])->name('work-orders.evaluation.show');

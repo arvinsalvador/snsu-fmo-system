@@ -114,6 +114,11 @@ class WorkOrder extends Model
         return $this->hasMany(WorkOrderUpdate::class);
     }
 
+    public function materials(): HasMany
+    {
+        return $this->hasMany(WorkOrderMaterial::class);
+    }
+
     public function followups(): HasMany
     {
         return $this->hasMany(WorkOrderFollowup::class);
