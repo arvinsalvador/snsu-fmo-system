@@ -112,6 +112,20 @@ class WorkOrderPolicy
             && ! in_array($workOrder->status?->name, ['Completed', 'Evaluated'], true);
     }
 
+    public function viewMaterials(User $user, WorkOrder $workOrder): bool
+    {
+        return ($user->can('view_inventory') || $user->can('manage_inventory') || $user->can('issue_materials'))
+            && $this->view($user, $workOrder);
+    }
+
+    public function manageMaterials(User $user, WorkOrder $workOrder): bool
+    {
+        return ($user->can('manage_inventory') || $user->can('issue_materials'))
+            && $this->view($user, $workOrder)
+            && ! (bool) $workOrder->status?->is_terminal
+            && ! in_array($workOrder->status?->name, ['Completed', 'Evaluated', 'Closed', 'Cancelled'], true);
+    }
+
     private function isActivelyAssigned(User $user, WorkOrder $workOrder): bool
     {
         $staffId = StaffProfile::query()->where('user_id', $user->id)->whereNull('deleted_at')->value('id');

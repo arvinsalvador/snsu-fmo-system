@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 8A Consumable Inventory Foundation Completed
+Phase 8B Work Order Material Usage Completed
 
 ---
 
 # Current Phase
 
-## Phase 8A - Consumable Inventory Foundation
+## Phase 8B - Work Order Material Usage
 
 **Status:**
 
@@ -399,7 +399,7 @@ Completed
 
 # Pending Tasks for Current Phase
 
-No remaining Phase 8A implementation tasks.
+No remaining Phase 8B implementation tasks.
 
 ---
 
@@ -535,6 +535,27 @@ Next recommended phase: Phase 8B - Work Order Material Usage.
 
 ---
 
+# Phase 8B - Work Order Material Usage
+
+Completed
+
+* UUID-backed `work_order_materials` table added to link work orders with inventory items
+* Material records support requested, issued, and used quantities, remarks, issuer, and issuance timestamp
+* Work order material model, service, API Form Requests, API Resource, API controller, and web controller added
+* Material issuance deducts inventory stock transactionally and creates immutable `work_order_usage` stock movement records
+* Inventory negative-stock prevention is enforced during work order material issuance
+* Issued quantity can only increase; reductions are blocked to preserve stock movement history
+* Unissued material request lines can be removed, while issued or used material lines cannot be deleted
+* Protected API endpoints added for listing, creating, updating, and deleting work order material lines under `/api/v1/work-orders/{workOrder}/materials`
+* Work order detail Blade UI now includes material usage display, add material form, inline update controls, and guarded removal for unissued lines
+* Work order timeline includes material issuance events
+* Role seeder expanded with `issue_materials` permission for operational inventory/material issuance users
+* Feature tests added for API issuance, stock deduction, stock movement history, negative-stock prevention, immutable issued quantities, delete rules, web UI, and authorization
+* Verification completed: focused material tests 5 tests / 33 assertions, route checks, Blade view cache, and Pint
+
+Next recommended phase: Phase 8C - Inventory Intelligence.
+
+---
 # Planned Development Roadmap
 
 ---
@@ -884,9 +905,9 @@ Includes:
 
 # Current Priority
 
-Proceed to Phase 8B - Work Order Material Usage only after user confirmation.
+Proceed to Phase 8C - Inventory Intelligence only after user confirmation.
 
-Recommended approach: connect completed inventory item and stock movement foundations to work orders through material usage records, with transactional stock deduction and immutable usage history.
+Recommended approach: add inventory insight APIs and UI indicators for low-stock trends, material demand by work order category, and replenishment prioritization without adding procurement workflows yet.
 
 ---
 

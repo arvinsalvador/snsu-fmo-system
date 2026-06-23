@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Building;
 use App\Models\Department;
+use App\Models\InventoryItem;
 use App\Models\Priority;
 use App\Models\StaffProfile;
 use App\Models\User;
@@ -109,7 +110,7 @@ class WorkOrderWebService
     public function detail(User $user, WorkOrder $workOrder): array
     {
         $workOrder = $this->workOrders->findVisibleTo($user, $workOrder);
-        $workOrder->load(['approvals.approver', 'assignments.assignedStaff.user', 'assignments.assignedBy', 'updates.status', 'updates.staff', 'updates.creator', 'updates.photos', 'followups.user', 'evaluation.evaluator']);
+        $workOrder->load(['approvals.approver', 'assignments.assignedStaff.user', 'assignments.assignedBy', 'updates.status', 'updates.staff', 'updates.creator', 'updates.photos', 'followups.user', 'evaluation.evaluator', 'materials.inventoryItem.category', 'materials.issuer']);
 
         return [
             'workOrder' => $workOrder,
@@ -117,6 +118,11 @@ class WorkOrderWebService
             'progressStatuses' => WorkOrderStatus::query()
                 ->whereIn('name', ['In Progress', 'On Hold', 'Pending Materials', 'Completed'])
                 ->orderBy('sort_order')
+                ->get(),
+            'inventoryItems' => InventoryItem::query()
+                ->with('category')
+                ->where('status', 'active')
+                ->orderBy('name')
                 ->get(),
         ];
     }

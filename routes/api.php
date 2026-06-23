@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\V1\WorkOrderAssignmentController;
 use App\Http\Controllers\Api\V1\WorkOrderController;
 use App\Http\Controllers\Api\V1\WorkOrderEvaluationController;
 use App\Http\Controllers\Api\V1\WorkOrderFollowupController;
+use App\Http\Controllers\Api\V1\WorkOrderMaterialController;
 use App\Http\Controllers\Api\V1\WorkOrderUpdateController;
 use Illuminate\Support\Facades\Route;
 
@@ -85,6 +86,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::apiResource('work-orders', WorkOrderController::class)
             ->only(['index', 'store', 'show', 'update', 'destroy']);
+        Route::get('work-orders/{workOrder}/materials', [WorkOrderMaterialController::class, 'index'])->name('work-orders.materials.index');
+        Route::post('work-orders/{workOrder}/materials', [WorkOrderMaterialController::class, 'store'])->name('work-orders.materials.store');
+        Route::patch('work-orders/{workOrder}/materials/{material}', [WorkOrderMaterialController::class, 'update'])->name('work-orders.materials.update');
+        Route::delete('work-orders/{workOrder}/materials/{material}', [WorkOrderMaterialController::class, 'destroy'])->name('work-orders.materials.destroy');
         Route::get('work-orders/{workOrder}/followups', [WorkOrderFollowupController::class, 'index'])->name('work-orders.followups.index');
         Route::post('work-orders/{workOrder}/followups', [WorkOrderFollowupController::class, 'store'])->name('work-orders.followups.store');
         Route::get('work-orders/{workOrder}/evaluation', [WorkOrderEvaluationController::class, 'show'])->name('work-orders.evaluation.show');

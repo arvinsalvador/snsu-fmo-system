@@ -59,6 +59,7 @@ class RoleAndPermissionSeeder extends Seeder
         'manage_inventory',
         'adjust_inventory',
         'export_inventory',
+        'issue_materials',
         'manage_assets',
         'manage_maintenance',
         'view_reports',
@@ -118,6 +119,7 @@ class RoleAndPermissionSeeder extends Seeder
                     'manage_inventory',
                     'adjust_inventory',
                     'export_inventory',
+                    'issue_materials',
                     'view_reports',
                 ]);
             }
