@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Admin\AccessControlController;
+use App\Http\Controllers\Web\Admin\AssetMaintenanceRecordController;
 use App\Http\Controllers\Web\Admin\AssetManagementController;
 use App\Http\Controllers\Web\Admin\InventoryIntelligenceController;
 use App\Http\Controllers\Web\Admin\InventoryManagementController;
@@ -92,6 +93,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('assets/export', [AssetManagementController::class, 'export'])->name('assets.export');
         Route::post('assets/{asset}/photos', [AssetManagementController::class, 'photos'])->name('assets.photos.store');
+        Route::get('assets/{asset}/maintenance/export', [AssetMaintenanceRecordController::class, 'export'])->name('assets.maintenance.export');
+        Route::get('assets/{asset}/maintenance', [AssetMaintenanceRecordController::class, 'index'])->name('assets.maintenance.index');
+        Route::get('assets/{asset}/maintenance/create', [AssetMaintenanceRecordController::class, 'create'])->name('assets.maintenance.create');
+        Route::post('assets/{asset}/maintenance', [AssetMaintenanceRecordController::class, 'store'])->name('assets.maintenance.store');
+        Route::get('assets/{asset}/maintenance/{record}', [AssetMaintenanceRecordController::class, 'show'])->name('assets.maintenance.show');
+        Route::get('assets/{asset}/maintenance/{record}/edit', [AssetMaintenanceRecordController::class, 'edit'])->name('assets.maintenance.edit');
+        Route::patch('assets/{asset}/maintenance/{record}', [AssetMaintenanceRecordController::class, 'update'])->name('assets.maintenance.update');
         Route::resource('assets', AssetManagementController::class);
     });
 

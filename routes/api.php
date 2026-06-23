@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AssetController;
+use App\Http\Controllers\Api\V1\AssetMaintenanceRecordController;
 use App\Http\Controllers\Api\V1\AssignmentIntelligenceController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\InventoryIntelligenceController;
@@ -91,6 +92,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::apiResource('assets', AssetController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
         Route::post('assets/{asset}/photos', [AssetController::class, 'photos'])->name('assets.photos.store');
+        Route::get('assets/{asset}/maintenance', [AssetMaintenanceRecordController::class, 'index'])->name('assets.maintenance.index');
+        Route::post('assets/{asset}/maintenance', [AssetMaintenanceRecordController::class, 'store'])->name('assets.maintenance.store');
+        Route::get('assets/{asset}/maintenance/{record}', [AssetMaintenanceRecordController::class, 'show'])->name('assets.maintenance.show');
+        Route::patch('assets/{asset}/maintenance/{record}', [AssetMaintenanceRecordController::class, 'update'])->name('assets.maintenance.update');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::patch('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');

@@ -51,7 +51,7 @@ class AssetService
 
     public function relations(): array
     {
-        return ['category', 'building', 'floor', 'room', 'photos.uploader'];
+        return ['category', 'building', 'floor', 'room', 'photos.uploader', 'maintenanceRecords.maintenanceType', 'maintenanceRecords.recorder'];
     }
 
     private function query(array $filters): Builder

@@ -12,6 +12,7 @@ use App\Models\Building;
 use App\Models\Floor;
 use App\Models\Room;
 use App\Services\AdminWebService;
+use App\Services\AssetMaintenanceService;
 use App\Services\AssetService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AssetManagementController extends Controller
 {
-    public function __construct(private readonly AssetService $assets, private readonly AdminWebService $web) {}
+    public function __construct(private readonly AssetService $assets, private readonly AdminWebService $web, private readonly AssetMaintenanceService $maintenance) {}
 
     public function index(Request $request): View
     {
@@ -57,6 +58,8 @@ class AssetManagementController extends Controller
         return view('admin.assets.show', [
             'asset' => $asset->load($this->assets->relations()),
             'photos' => $asset->photos()->with('uploader')->paginate((int) $request->integer('per_page', 10)),
+            'maintenanceRecords' => $this->maintenance->paginate($asset, ['per_page' => 5]),
+            'maintenanceTimeline' => $this->maintenance->timeline($asset),
         ]);
     }
 

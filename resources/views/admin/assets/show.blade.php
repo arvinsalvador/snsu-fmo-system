@@ -58,6 +58,49 @@
             @endcan
         </div>
 
+        @can('viewAny', App\Models\AssetMaintenanceRecord::class)
+            <div class="rounded-md border border-gray-200 bg-white">
+                <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-5 py-4">
+                    <h2 class="text-sm font-semibold text-gray-900">Asset maintenance</h2>
+                    <div class="flex items-center gap-3 text-sm">
+                        <a href="{{ route('admin.assets.maintenance.index', $asset) }}" class="font-semibold text-gray-700 hover:text-emerald-700">View all</a>
+                        @can('create', App\Models\AssetMaintenanceRecord::class)
+                            <a href="{{ route('admin.assets.maintenance.create', $asset) }}" class="font-semibold text-emerald-700 hover:text-emerald-900">Add record</a>
+                        @endcan
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left">Date</th><th class="px-4 py-3 text-left">Type</th><th class="px-4 py-3 text-left">Performed by</th><th class="px-4 py-3 text-left">Next</th><th class="px-4 py-3 text-right">Actions</th></tr></thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse ($maintenanceRecords as $record)
+                                <tr><td class="px-4 py-3 font-medium text-gray-900">{{ $record->maintenance_date?->format('Y-m-d') }}</td><td class="px-4 py-3 text-gray-700">{{ $record->maintenanceType?->name }}</td><td class="px-4 py-3 text-gray-600">{{ $record->performed_by }}</td><td class="px-4 py-3 text-gray-600">{{ $record->next_maintenance_date?->format('Y-m-d') ?: 'Not set' }}</td><td class="px-4 py-3 text-right"><a href="{{ route('admin.assets.maintenance.show', [$asset, $record]) }}" class="font-medium text-gray-600 hover:text-gray-900">View</a></td></tr>
+                            @empty
+                                <tr><td colspan="5" class="px-4 py-10 text-center text-gray-500">No maintenance records yet.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="rounded-md border border-gray-200 bg-white">
+                <div class="border-b border-gray-200 px-5 py-4"><h2 class="text-sm font-semibold text-gray-900">Maintenance timeline</h2></div>
+                <div class="divide-y divide-gray-100">
+                    @forelse ($maintenanceTimeline as $event)
+                        <div class="px-5 py-4">
+                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                <div><p class="text-sm font-semibold text-gray-900">{{ $event['title'] }}</p><p class="mt-1 text-sm text-gray-600">{{ $event['body'] ?: 'No details recorded.' }}</p></div>
+                                <p class="text-xs font-medium text-gray-500">{{ $event['occurred_at']?->format('Y-m-d') }}</p>
+                            </div>
+                            <p class="mt-2 text-xs text-gray-500">{{ $event['actor'] }}@if($event['meta']) - {{ $event['meta'] }}@endif</p>
+                        </div>
+                    @empty
+                        <div class="px-5 py-10 text-center text-sm text-gray-500">No maintenance timeline events yet.</div>
+                    @endforelse
+                </div>
+            </div>
+        @endcan
+
         <div class="rounded-md border border-gray-200 bg-white">
             <div class="border-b border-gray-200 px-5 py-4"><h2 class="text-sm font-semibold text-gray-900">Photo records</h2></div>
             <div class="overflow-x-auto">

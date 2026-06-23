@@ -30,6 +30,7 @@ class AssetResource extends JsonResource
             'status' => $this->status,
             'remarks' => $this->remarks,
             'photos' => AssetPhotoResource::collection($this->whenLoaded('photos')),
+            'maintenance_records' => AssetMaintenanceRecordResource::collection($this->whenLoaded('maintenanceRecords')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

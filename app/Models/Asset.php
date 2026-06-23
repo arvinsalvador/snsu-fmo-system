@@ -64,4 +64,9 @@ class Asset extends Model
     {
         return $this->hasMany(AssetPhoto::class)->latest();
     }
+
+    public function maintenanceRecords(): HasMany
+    {
+        return $this->hasMany(AssetMaintenanceRecord::class)->latest('maintenance_date')->latest();
+    }
 }
