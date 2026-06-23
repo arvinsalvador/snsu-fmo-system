@@ -33,7 +33,7 @@
         @if ($user->hasRole('FMO Staff'))
             <a href="{{ route('work-orders.assigned-tasks') }}" class="{{ $link }} {{ request()->routeIs('work-orders.assigned-tasks') ? $active : $inactive }}">Assigned tasks</a>
         @endif
-        @if ($user->can('manage_users') || $user->can('manage_staff_profiles') || $user->can('manage_skills') || $user->can('manage_roles') || $user->can('manage_permissions') || $user->can('view_inventory') || $user->can('manage_inventory'))
+        @if ($user->can('manage_users') || $user->can('manage_staff_profiles') || $user->can('manage_skills') || $user->can('manage_roles') || $user->can('manage_permissions') || $user->can('view_inventory') || $user->can('manage_inventory') || $user->can('view_assets') || $user->can('manage_assets'))
             <div class="pt-4"><p class="px-3 pb-2 text-xs font-semibold uppercase text-gray-400">Administration</p></div>
             @can('manage_users')<a href="{{ route('admin.users.index') }}" class="{{ $link }} {{ request()->routeIs('admin.users.*') ? $active : $inactive }}">Users</a>@endcan
             @can('manage_staff_profiles')<a href="{{ route('admin.staff.index') }}" class="{{ $link }} {{ request()->routeIs('admin.staff.*') ? $active : $inactive }}">Staff profiles</a>@endcan
@@ -42,10 +42,11 @@
             @can('manage_permissions')<a href="{{ route('admin.permissions.index') }}" class="{{ $link }} {{ request()->routeIs('admin.permissions.*') ? $active : $inactive }}">Permissions</a>@endcan
             @if ($user->can('view_inventory') || $user->can('manage_inventory'))<a href="{{ route('admin.inventory.index') }}" class="{{ $link }} {{ request()->routeIs('admin.inventory.*') ? $active : $inactive }}">Inventory</a>@endif
             @if ($user->can('view_inventory') || $user->can('manage_inventory'))<a href="{{ route('admin.inventory-intelligence.dashboard') }}" class="{{ $link }} {{ request()->routeIs('admin.inventory-intelligence.*') ? $active : $inactive }}">Inventory intelligence</a>@endif
+            @if ($user->can('view_assets') || $user->can('manage_assets'))<a href="{{ route('admin.assets.index') }}" class="{{ $link }} {{ request()->routeIs('admin.assets.*') ? $active : $inactive }}">Assets</a>@endif
         @endif
-        @if ($user->can('manage_master_data') || $user->can('manage_locations') || $user->can('manage_work_order_settings'))
+        @if ($user->can('manage_master_data') || $user->can('manage_locations') || $user->can('manage_work_order_settings') || $user->can('manage_assets'))
             <div class="pt-4"><p class="px-3 pb-2 text-xs font-semibold uppercase text-gray-400">Master data</p></div>
-            <a href="{{ $user->can('manage_master_data') || $user->can('manage_locations') ? route('admin.master-data.buildings.index') : route('admin.master-data.work-order-categories.index') }}" class="{{ $link }} {{ request()->routeIs('admin.master-data.*') ? $active : $inactive }}">Manage master data</a>
+            <a href="{{ $user->can('manage_master_data') || $user->can('manage_locations') ? route('admin.master-data.buildings.index') : ($user->can('manage_work_order_settings') ? route('admin.master-data.work-order-categories.index') : route('admin.master-data.asset-categories.index')) }}" class="{{ $link }} {{ request()->routeIs('admin.master-data.*') ? $active : $inactive }}">Manage master data</a>
         @endif
     </nav>
 

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AssetCategory;
 use App\Models\Building;
 use App\Models\Department;
 use App\Models\Floor;
@@ -39,6 +40,9 @@ class MasterDataWebService
             ]),
             'work-order-statuses' => $this->makeModule('Work Order Statuses', WorkOrderStatus::class, 'workOrderStatus', ['sort_order' => 'Order', 'name' => 'Name', 'is_terminal' => 'Terminal'], [
                 $this->field('name', 'Name'), $this->field('sort_order', 'Sort order', 'number'), $this->field('is_terminal', 'Terminal status', 'checkbox'), $this->field('description', 'Description', 'textarea'),
+            ]),
+            'asset-categories' => $this->makeModule('Asset Categories', AssetCategory::class, 'assetCategory', ['name' => 'Name'], [
+                $this->field('name', 'Name'), $this->field('description', 'Description', 'textarea'),
             ]),
         ];
     }

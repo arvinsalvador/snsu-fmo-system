@@ -60,7 +60,9 @@ class RoleAndPermissionSeeder extends Seeder
         'adjust_inventory',
         'export_inventory',
         'issue_materials',
+        'view_assets',
         'manage_assets',
+        'export_assets',
         'manage_maintenance',
         'view_reports',
         'manage_notifications',
@@ -120,6 +122,9 @@ class RoleAndPermissionSeeder extends Seeder
                     'adjust_inventory',
                     'export_inventory',
                     'issue_materials',
+                    'view_assets',
+                    'manage_assets',
+                    'export_assets',
                     'view_reports',
                 ]);
             }
@@ -136,6 +141,7 @@ class RoleAndPermissionSeeder extends Seeder
                     'view_notifications',
                     'view_evaluations',
                     'view_inventory',
+                    'view_assets',
                     'sync_mobile_data',
                 ]);
             }

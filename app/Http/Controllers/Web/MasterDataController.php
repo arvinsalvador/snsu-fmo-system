@@ -152,6 +152,16 @@ class MasterDataController extends Controller
         return $this->updateRecord($request);
     }
 
+    public function storeAssetCategory(StoreNameRequest $request): RedirectResponse
+    {
+        return $this->storeRecord($request);
+    }
+
+    public function updateAssetCategory(UpdateNameRequest $request): RedirectResponse
+    {
+        return $this->updateRecord($request);
+    }
+
     public function storePriority(StorePriorityRequest $request): RedirectResponse
     {
         return $this->storeRecord($request);

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Admin\AccessControlController;
+use App\Http\Controllers\Web\Admin\AssetManagementController;
 use App\Http\Controllers\Web\Admin\InventoryIntelligenceController;
 use App\Http\Controllers\Web\Admin\InventoryManagementController;
 use App\Http\Controllers\Web\Admin\SkillManagementController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Web\WorkOrderEvaluationController;
 use App\Http\Controllers\Web\WorkOrderFollowupController;
 use App\Http\Controllers\Web\WorkOrderMaterialController;
 use App\Http\Controllers\Web\WorkOrderWorkflowController;
+use App\Models\AssetCategory;
 use App\Models\Building;
 use App\Models\Department;
 use App\Models\Floor;
@@ -87,6 +89,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('inventory/{inventoryItem}/stock-in', [InventoryManagementController::class, 'stockIn'])->name('inventory.stock-in');
         Route::post('inventory/{inventoryItem}/adjust', [InventoryManagementController::class, 'adjust'])->name('inventory.adjust');
         Route::resource('inventory', InventoryManagementController::class)->parameters(['inventory' => 'inventoryItem'])->except(['destroy']);
+
+        Route::get('assets/export', [AssetManagementController::class, 'export'])->name('assets.export');
+        Route::post('assets/{asset}/photos', [AssetManagementController::class, 'photos'])->name('assets.photos.store');
+        Route::resource('assets', AssetManagementController::class);
     });
 
     $masterDataModules = [
@@ -97,6 +103,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'work-order-categories' => ['workOrderCategory', 'storeCategory', 'updateCategory', WorkOrderCategory::class],
         'priorities' => ['priority', 'storePriority', 'updatePriority', Priority::class],
         'work-order-statuses' => ['workOrderStatus', 'storeStatus', 'updateStatus', WorkOrderStatus::class],
+        'asset-categories' => ['assetCategory', 'storeAssetCategory', 'updateAssetCategory', AssetCategory::class],
     ];
 
     Route::prefix('admin/master-data')->name('admin.master-data.')->group(function () use ($masterDataModules) {

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Asset;
 use App\Models\InventoryItem;
 use App\Models\Skill;
 use App\Models\StaffProfile;
@@ -9,6 +10,7 @@ use App\Models\User;
 use App\Models\WorkOrder;
 use App\Models\WorkOrderEvaluation;
 use App\Models\WorkOrderUpdate;
+use App\Policies\AssetPolicy;
 use App\Policies\InventoryItemPolicy;
 use App\Policies\MasterDataPolicy;
 use App\Policies\NotificationPolicy;
@@ -43,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(StaffProfile::class, StaffProfilePolicy::class);
         Gate::policy(Skill::class, SkillPolicy::class);
         Gate::policy(WorkOrder::class, WorkOrderPolicy::class);
+        Gate::policy(Asset::class, AssetPolicy::class);
         Gate::policy(InventoryItem::class, InventoryItemPolicy::class);
         Gate::policy(WorkOrderEvaluation::class, WorkOrderEvaluationPolicy::class);
         Gate::policy(WorkOrderUpdate::class, WorkOrderUpdatePolicy::class);
