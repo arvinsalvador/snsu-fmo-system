@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Admin\AccessControlController;
+use App\Http\Controllers\Web\Admin\InventoryIntelligenceController;
 use App\Http\Controllers\Web\Admin\InventoryManagementController;
 use App\Http\Controllers\Web\Admin\SkillManagementController;
 use App\Http\Controllers\Web\Admin\StaffManagementController;
@@ -77,6 +78,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('permissions/export', [AccessControlController::class, 'exportPermissions'])->name('permissions.export');
         Route::get('permissions', [AccessControlController::class, 'permissions'])->name('permissions.index');
         Route::get('permissions/{permission}', [AccessControlController::class, 'showPermission'])->name('permissions.show');
+
+        Route::get('inventory-intelligence', [InventoryIntelligenceController::class, 'dashboard'])->name('inventory-intelligence.dashboard');
+        Route::get('inventory-intelligence/{report}', [InventoryIntelligenceController::class, 'report'])->name('inventory-intelligence.report');
+        Route::get('inventory-intelligence/{report}/export', [InventoryIntelligenceController::class, 'export'])->name('inventory-intelligence.export');
 
         Route::get('inventory/export', [InventoryManagementController::class, 'export'])->name('inventory.export');
         Route::post('inventory/{inventoryItem}/stock-in', [InventoryManagementController::class, 'stockIn'])->name('inventory.stock-in');

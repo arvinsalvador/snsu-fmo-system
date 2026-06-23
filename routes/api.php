@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AssignmentIntelligenceController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\InventoryIntelligenceController;
 use App\Http\Controllers\Api\V1\InventoryItemController;
 use App\Http\Controllers\Api\V1\MasterData\AssetCategoryController;
 use App\Http\Controllers\Api\V1\MasterData\BuildingController;
@@ -73,6 +74,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::apiResource('inventory-categories', InventoryCategoryController::class)
             ->parameters(['inventory-categories' => 'inventoryCategory'])
             ->only(['index', 'store', 'show', 'update']);
+        Route::get('inventory-intelligence/dashboard', [InventoryIntelligenceController::class, 'dashboard'])->name('inventory-intelligence.dashboard');
+        Route::get('inventory-intelligence/low-stock', [InventoryIntelligenceController::class, 'lowStock'])->name('inventory-intelligence.low-stock');
+        Route::get('inventory-intelligence/out-of-stock', [InventoryIntelligenceController::class, 'outOfStock'])->name('inventory-intelligence.out-of-stock');
+        Route::get('inventory-intelligence/fast-moving', [InventoryIntelligenceController::class, 'fastMoving'])->name('inventory-intelligence.fast-moving');
+        Route::get('inventory-intelligence/slow-moving', [InventoryIntelligenceController::class, 'slowMoving'])->name('inventory-intelligence.slow-moving');
+        Route::get('inventory-intelligence/monthly-consumption', [InventoryIntelligenceController::class, 'monthlyConsumption'])->name('inventory-intelligence.monthly-consumption');
+
         Route::apiResource('inventory-items', InventoryItemController::class)
             ->parameters(['inventory-items' => 'inventoryItem'])
             ->only(['index', 'store', 'show', 'update']);

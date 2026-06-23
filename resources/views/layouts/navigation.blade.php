@@ -41,6 +41,7 @@
             @can('manage_roles')<a href="{{ route('admin.roles.index') }}" class="{{ $link }} {{ request()->routeIs('admin.roles.*') ? $active : $inactive }}">Roles</a>@endcan
             @can('manage_permissions')<a href="{{ route('admin.permissions.index') }}" class="{{ $link }} {{ request()->routeIs('admin.permissions.*') ? $active : $inactive }}">Permissions</a>@endcan
             @if ($user->can('view_inventory') || $user->can('manage_inventory'))<a href="{{ route('admin.inventory.index') }}" class="{{ $link }} {{ request()->routeIs('admin.inventory.*') ? $active : $inactive }}">Inventory</a>@endif
+            @if ($user->can('view_inventory') || $user->can('manage_inventory'))<a href="{{ route('admin.inventory-intelligence.dashboard') }}" class="{{ $link }} {{ request()->routeIs('admin.inventory-intelligence.*') ? $active : $inactive }}">Inventory intelligence</a>@endif
         @endif
         @if ($user->can('manage_master_data') || $user->can('manage_locations') || $user->can('manage_work_order_settings'))
             <div class="pt-4"><p class="px-3 pb-2 text-xs font-semibold uppercase text-gray-400">Master data</p></div>
