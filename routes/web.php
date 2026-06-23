@@ -9,6 +9,7 @@ use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\MasterDataController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\WorkOrderController;
+use App\Http\Controllers\Web\WorkOrderEvaluationController;
 use App\Http\Controllers\Web\WorkOrderFollowupController;
 use App\Http\Controllers\Web\WorkOrderWorkflowController;
 use App\Models\Building;
@@ -37,6 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/work-orders/{workOrder}/progress/create', [WorkOrderController::class, 'createProgress'])->name('work-orders.progress.create');
 
     Route::post('/work-orders/{workOrder}/followups', [WorkOrderFollowupController::class, 'store'])->name('work-orders.followups.store');
+    Route::post('/work-orders/{workOrder}/evaluation', [WorkOrderEvaluationController::class, 'store'])->name('work-orders.evaluation.store');
     Route::patch('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
 

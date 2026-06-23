@@ -40,6 +40,17 @@ class WorkOrderTimelineService
             'actor' => $followup->user?->name, 'occurred_at' => $followup->created_at,
         ]));
 
+        if ($workOrder->evaluation) {
+            $events->push([
+                'type' => 'evaluation',
+                'title' => 'Service evaluated',
+                'body' => $workOrder->evaluation->comments,
+                'actor' => $workOrder->evaluation->evaluator?->name,
+                'occurred_at' => $workOrder->evaluation->evaluated_at,
+                'meta' => "{$workOrder->evaluation->rating} of 5 stars",
+            ]);
+        }
+
         return $events->sortBy('occurred_at')->values();
     }
 }

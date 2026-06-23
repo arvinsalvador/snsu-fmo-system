@@ -109,7 +109,7 @@ class WorkOrderWebService
     public function detail(User $user, WorkOrder $workOrder): array
     {
         $workOrder = $this->workOrders->findVisibleTo($user, $workOrder);
-        $workOrder->load(['approvals.approver', 'assignments.assignedStaff.user', 'assignments.assignedBy', 'updates.status', 'updates.staff', 'updates.creator', 'updates.photos', 'followups.user']);
+        $workOrder->load(['approvals.approver', 'assignments.assignedStaff.user', 'assignments.assignedBy', 'updates.status', 'updates.staff', 'updates.creator', 'updates.photos', 'followups.user', 'evaluation.evaluator']);
 
         return [
             'workOrder' => $workOrder,

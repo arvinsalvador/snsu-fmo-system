@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\WorkOrder;
+use App\Models\WorkOrderEvaluation;
 use App\Notifications\WorkOrderActivityNotification;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -43,9 +44,20 @@ class NotificationService
         $this->send($recipients, $workOrder, 'followup_added', "A follow-up was added to {$workOrder->work_order_number}.", $actor);
     }
 
+    public function evaluationSubmitted(WorkOrder $workOrder, User $actor, WorkOrderEvaluation $evaluation): void
+    {
+        $this->send(
+            $this->operationalRecipients($workOrder),
+            $workOrder,
+            'evaluation_submitted',
+            "{$workOrder->work_order_number} received a {$evaluation->rating}-star evaluation.",
+            $actor,
+        );
+    }
+
     public function paginate(User $user, int $perPage = 20): LengthAwarePaginator
     {
-        return $user->notifications()->latest()->paginate(min(max($perPage, 10), 100));
+        return $user->notifications()->latest('created_at')->latest('id')->paginate(min(max($perPage, 10), 100));
     }
 
     public function markRead(User $user, string $notificationId): DatabaseNotification

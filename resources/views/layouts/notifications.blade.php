@@ -1,7 +1,7 @@
 @can('viewAny', Illuminate\Notifications\DatabaseNotification::class)
     @php
         $unreadNotificationCount = Auth::user()->unreadNotifications()->count();
-        $recentNotifications = Auth::user()->notifications()->latest()->limit(8)->get();
+        $recentNotifications = Auth::user()->notifications()->latest('created_at')->latest('id')->limit(8)->get();
     @endphp
     <div class="relative" @click.outside="notificationOpen = false">
         <button type="button" @click="notificationOpen = !notificationOpen" class="relative rounded-md p-2 text-gray-600 hover:bg-gray-100" aria-label="Notifications" :aria-expanded="notificationOpen">

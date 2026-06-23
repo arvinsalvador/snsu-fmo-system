@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\StaffProfileController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\WorkOrderAssignmentController;
 use App\Http\Controllers\Api\V1\WorkOrderController;
+use App\Http\Controllers\Api\V1\WorkOrderEvaluationController;
 use App\Http\Controllers\Api\V1\WorkOrderFollowupController;
 use App\Http\Controllers\Api\V1\WorkOrderUpdateController;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +80,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->only(['index', 'store', 'show', 'update', 'destroy']);
         Route::get('work-orders/{workOrder}/followups', [WorkOrderFollowupController::class, 'index'])->name('work-orders.followups.index');
         Route::post('work-orders/{workOrder}/followups', [WorkOrderFollowupController::class, 'store'])->name('work-orders.followups.store');
+        Route::get('work-orders/{workOrder}/evaluation', [WorkOrderEvaluationController::class, 'show'])->name('work-orders.evaluation.show');
+        Route::post('work-orders/{workOrder}/evaluation', [WorkOrderEvaluationController::class, 'store'])->name('work-orders.evaluation.store');
         Route::post('work-orders/{workOrder}/approve', [WorkOrderController::class, 'approve'])
             ->name('work-orders.approve');
         Route::post('work-orders/{workOrder}/reject', [WorkOrderController::class, 'reject'])

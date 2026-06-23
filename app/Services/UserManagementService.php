@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
 
 class UserManagementService
 {
@@ -29,9 +30,12 @@ class UserManagementService
         return $user->load('roles', 'staffProfile');
     }
 
-    public function update(User $user, array $data): User
+    public function update(User $user, array $data, ?User $actor = null): User
     {
         $roles = $data['roles'] ?? null;
+        if ($roles !== null && $actor?->is($user) && $user->hasRole('Super Admin') && ! in_array('Super Admin', $roles, true)) {
+            throw ValidationException::withMessages(['roles' => 'You cannot remove your own Super Admin role.']);
+        }
         unset($data['roles']);
         if (($data['password'] ?? null) === null) {
             unset($data['password']);
@@ -48,8 +52,12 @@ class UserManagementService
         return $user->load('roles', 'staffProfile');
     }
 
-    public function setActive(User $user, bool $isActive): User
+    public function setActive(User $user, bool $isActive, ?User $actor = null): User
     {
+        if (! $isActive && $actor?->is($user)) {
+            throw ValidationException::withMessages(['user' => 'You cannot deactivate your own account.']);
+        }
+
         $user->forceFill(['is_active' => $isActive])->save();
 
         return $user->load('roles', 'staffProfile');

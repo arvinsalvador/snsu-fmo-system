@@ -103,7 +103,7 @@ class AssignmentService
                 ->lockForUpdate()
                 ->findOrFail($workOrder->id);
 
-            $this->ensureWorkOrderCanBeAssigned($workOrder);
+            $this->ensureWorkOrderCanBeAssigned($workOrder, $isReassignment);
             $this->ensureStaffCanBeAssigned($staffIds);
 
             $activeAssignments = $workOrder->assignments()
@@ -176,11 +176,18 @@ class AssignmentService
         }
     }
 
-    private function ensureWorkOrderCanBeAssigned(WorkOrder $workOrder): void
+    private function ensureWorkOrderCanBeAssigned(WorkOrder $workOrder, bool $isReassignment): void
     {
-        if ($workOrder->approval_status === 'rejected' || $workOrder->status?->is_terminal) {
+        $allowedStatuses = $isReassignment
+            ? ['Assigned', 'In Progress', 'On Hold', 'Pending Materials']
+            : ['Approved'];
+
+        if ($workOrder->approval_status !== 'approved'
+            || ! in_array($workOrder->status?->name, $allowedStatuses, true)) {
             throw ValidationException::withMessages([
-                'work_order' => 'Rejected or terminal work orders cannot be assigned.',
+                'work_order' => $isReassignment
+                    ? 'Only active approved work orders can be reassigned.'
+                    : 'Only approved work orders awaiting assignment can be assigned.',
             ]);
         }
     }

@@ -54,6 +54,7 @@ class RoleAndPermissionSeeder extends Seeder
         'create_work_order_updates',
         'manage_work_order_updates',
         'evaluate_work_orders',
+        'view_evaluations',
         'manage_inventory',
         'manage_assets',
         'manage_maintenance',
@@ -109,6 +110,7 @@ class RoleAndPermissionSeeder extends Seeder
                     'view_followups',
                     'create_followups',
                     'view_notifications',
+                    'view_evaluations',
                     'view_reports',
                 ]);
             }
@@ -123,6 +125,7 @@ class RoleAndPermissionSeeder extends Seeder
                     'view_followups',
                     'create_followups',
                     'view_notifications',
+                    'view_evaluations',
                     'sync_mobile_data',
                 ]);
             }
@@ -137,6 +140,7 @@ class RoleAndPermissionSeeder extends Seeder
                     'create_followups',
                     'view_notifications',
                     'evaluate_work_orders',
+                    'view_evaluations',
                 ]);
             }
         }
