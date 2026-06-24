@@ -8,6 +8,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class InventoryIntelligenceService
 {
@@ -65,15 +66,19 @@ class InventoryIntelligenceService
         $from = $this->from($filters);
         $to = $this->to($filters);
 
-        return StockMovement::query()
-            ->selectRaw("DATE_FORMAT(occurred_at, '%Y-%m') as month")
+        $monthExpression = DB::connection()->getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', occurred_at)"
+            : "DATE_FORMAT(occurred_at, '%Y-%m')";
+
+        return $this->formatConsumptionCollection(StockMovement::query()
+            ->selectRaw($monthExpression.' as month')
             ->selectRaw('SUM(ABS(quantity)) as consumed_quantity')
             ->where('quantity', '<', 0)
             ->whereBetween('occurred_at', [$from, $to])
             ->groupBy('month')
             ->orderBy('month', 'desc')
             ->limit($limit)
-            ->get()
+            ->get())
             ->sortBy('month')
             ->values();
     }
@@ -107,11 +112,11 @@ class InventoryIntelligenceService
 
     private function movementRanking(array $filters, string $direction, int $limit): Collection
     {
-        return $this->movementBaseQuery($filters)
+        return $this->formatConsumptionCollection($this->movementBaseQuery($filters)
             ->orderBy('consumed_quantity', $direction)
             ->orderBy('items.name')
             ->limit($limit)
-            ->get();
+            ->get());
     }
 
     private function movementReport(array $filters, string $direction): LengthAwarePaginator
@@ -120,15 +125,16 @@ class InventoryIntelligenceService
             ->orderBy('consumed_quantity', $direction)
             ->orderBy('items.name')
             ->paginate($this->perPage($filters))
-            ->withQueryString();
+            ->withQueryString()
+            ->through(fn ($record) => $this->formatConsumptionRecord($record));
     }
 
     private function movementRecords(array $filters, string $direction): Collection
     {
-        return $this->movementBaseQuery($filters)
+        return $this->formatConsumptionCollection($this->movementBaseQuery($filters)
             ->orderBy('consumed_quantity', $direction)
             ->orderBy('items.name')
-            ->get();
+            ->get());
     }
 
     private function movementBaseQuery(array $filters): Builder
@@ -161,6 +167,20 @@ class InventoryIntelligenceService
             ->when($filters['category_id'] ?? null, fn (Builder $query, int|string $categoryId) => $query->where('items.category_id', $categoryId))
             ->when($filters['status'] ?? null, fn (Builder $query, string $status) => $query->where('items.status', $status))
             ->groupBy('items.id', 'items.uuid', 'items.item_code', 'items.name', 'items.brand', 'items.unit', 'items.minimum_stock', 'items.current_stock', 'items.status', 'categories.name');
+    }
+
+    private function formatConsumptionCollection(Collection $records): Collection
+    {
+        return $records->each(fn ($record) => $this->formatConsumptionRecord($record));
+    }
+
+    private function formatConsumptionRecord($record)
+    {
+        if (isset($record->consumed_quantity)) {
+            $record->consumed_quantity = number_format((float) $record->consumed_quantity, 2, '.', '');
+        }
+
+        return $record;
     }
 
     private function lowStockQuery(): Builder

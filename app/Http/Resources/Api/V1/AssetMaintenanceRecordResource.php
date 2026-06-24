@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Http\Resources\Api\V1;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class AssetMaintenanceRecordResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'uuid' => $this->uuid,
+            'asset' => $this->whenLoaded('asset', fn () => [
+                'id' => $this->asset->id,
+                'asset_tag' => $this->asset->asset_tag,
+                'name' => $this->asset->name,
+                'location' => $this->asset->location,
+                'status' => $this->asset->status,
+            ]),
+            'maintenance_schedule' => $this->whenLoaded('maintenanceSchedule', fn () => $this->maintenanceSchedule ? [
+                'id' => $this->maintenanceSchedule->id,
+                'title' => $this->maintenanceSchedule->title,
+                'frequency' => $this->maintenanceSchedule->frequency,
+                'next_due_date' => $this->maintenanceSchedule->next_due_date?->toDateString(),
+            ] : null),
+            'work_order' => $this->whenLoaded('workOrder', fn () => $this->workOrder ? [
+                'id' => $this->workOrder->id,
+                'uuid' => $this->workOrder->uuid,
+                'work_order_number' => $this->workOrder->work_order_number,
+                'title' => $this->workOrder->title,
+            ] : null),
+            'staff' => $this->whenLoaded('staffProfile', fn () => $this->staffProfile ? [
+                'id' => $this->staffProfile->id,
+                'employee_code' => $this->staffProfile->employee_code,
+                'user' => $this->staffProfile->relationLoaded('user') && $this->staffProfile->user ? [
+                    'id' => $this->staffProfile->user->id,
+                    'uuid' => $this->staffProfile->user->uuid,
+                    'name' => $this->staffProfile->user->name,
+                ] : null,
+            ] : null),
+            'completed_by' => $this->whenLoaded('completedBy', fn () => $this->completedBy ? [
+                'id' => $this->completedBy->id,
+                'uuid' => $this->completedBy->uuid,
+                'name' => $this->completedBy->name,
+            ] : null),
+            'completion_date' => $this->completion_date?->toDateString(),
+            'findings' => $this->findings,
+            'actions_taken' => $this->actions_taken,
+            'remarks' => $this->remarks,
+            'labor_cost' => $this->labor_cost,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+    }
+}

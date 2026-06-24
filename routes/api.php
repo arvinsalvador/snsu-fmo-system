@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\MaintenanceScheduleController;
+use App\Http\Controllers\Api\V1\AssetMaintenanceRecordController;
 use App\Http\Controllers\Api\V1\AssignmentIntelligenceController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\InventoryIntelligenceController;
@@ -101,6 +102,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::patch('notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
 
         Route::get('assets', [MaintenanceScheduleController::class, 'assets'])->name('assets.index');
+        Route::get('assets/{asset}/maintenance-history', [AssetMaintenanceRecordController::class, 'assetHistory'])->name('assets.maintenance-history');
+        Route::get('asset-maintenance-records/export', [AssetMaintenanceRecordController::class, 'export'])->name('asset-maintenance-records.export');
+        Route::apiResource('asset-maintenance-records', AssetMaintenanceRecordController::class)->only(['index', 'store', 'show']);
         Route::get('maintenance-schedules/export', [MaintenanceScheduleController::class, 'export'])->name('maintenance-schedules.export');
         Route::get('maintenance-schedules/upcoming', [MaintenanceScheduleController::class, 'upcoming'])->name('maintenance-schedules.upcoming');
         Route::get('maintenance-schedules/overdue', [MaintenanceScheduleController::class, 'overdue'])->name('maintenance-schedules.overdue');

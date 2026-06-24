@@ -136,7 +136,7 @@ class WorkOrderUpdateApiTest extends TestCase
         $update = WorkOrderUpdate::query()->firstOrFail();
 
         $this->post("/api/v1/work-orders/{$workOrder->id}/updates/{$update->id}/photos", [
-            'photos' => [UploadedFile::fake()->image('progress.jpg')],
+            'photos' => [UploadedFile::fake()->create('progress.jpg', 12, 'image/jpeg')],
             'captions' => ['Completed fixture repair.'],
         ], ['Accept' => 'application/json'])
             ->assertCreated()

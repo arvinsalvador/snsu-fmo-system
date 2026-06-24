@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\AssetMaintenanceRecord;
 use App\Models\MaintenanceSchedule;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MaintenanceScheduleService
@@ -79,18 +82,29 @@ class MaintenanceScheduleService
         ];
     }
 
-    public function complete(MaintenanceSchedule $schedule, ?string $completedAt = null): MaintenanceSchedule
+    public function complete(MaintenanceSchedule $schedule, ?string $completedAt = null, ?User $actor = null): MaintenanceSchedule
     {
-        $completedDate = $completedAt ? Carbon::parse($completedAt) : now();
-        $months = MaintenanceSchedule::FREQUENCIES[$schedule->frequency];
+        return DB::transaction(function () use ($actor, $completedAt, $schedule): MaintenanceSchedule {
+            $schedule = MaintenanceSchedule::query()->lockForUpdate()->findOrFail($schedule->id);
+            $completedDate = $completedAt ? Carbon::parse($completedAt) : now();
+            $months = MaintenanceSchedule::FREQUENCIES[$schedule->frequency];
 
-        $schedule->update([
-            'last_completed_date' => $completedDate->toDateString(),
-            'next_due_date' => $completedDate->copy()->addMonthsNoOverflow($months)->toDateString(),
-            'is_active' => true,
-        ]);
+            AssetMaintenanceRecord::query()->create([
+                'asset_id' => $schedule->asset_id,
+                'maintenance_schedule_id' => $schedule->id,
+                'completed_by' => $actor?->id,
+                'completion_date' => $completedDate->toDateString(),
+                'actions_taken' => 'Preventive maintenance completed.',
+            ]);
 
-        return $schedule->refresh()->load('asset');
+            $schedule->update([
+                'last_completed_date' => $completedDate->toDateString(),
+                'next_due_date' => $completedDate->copy()->addMonthsNoOverflow($months)->toDateString(),
+                'is_active' => true,
+            ]);
+
+            return $schedule->refresh()->load('asset');
+        });
     }
 
     public function csvResponse(Request $request): StreamedResponse

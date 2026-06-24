@@ -80,7 +80,7 @@ class MaintenanceScheduleController extends Controller
             'completed_at' => ['nullable', 'date'],
         ]);
 
-        $this->schedules->complete($maintenanceSchedule, $data['completed_at'] ?? null);
+        $this->schedules->complete($maintenanceSchedule, $data['completed_at'] ?? null, $request->user());
 
         return redirect()->route('maintenance-schedules.index')->with('status', 'Maintenance schedule completed.');
     }

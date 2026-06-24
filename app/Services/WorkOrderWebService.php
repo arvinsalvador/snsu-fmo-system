@@ -89,7 +89,7 @@ class WorkOrderWebService
                 fn (Builder $query) => $query->where('assigned_staff_id', $staffId),
             ), fn (Builder $query) => $query->whereRaw('1 = 0'))
             ->whereHas('status', fn (Builder $query) => $query->whereNotIn('name', ['Evaluated', 'Closed', 'Cancelled']))
-            ->orderByRaw("FIELD(status_id, (SELECT id FROM work_order_statuses WHERE name = 'In Progress' LIMIT 1), (SELECT id FROM work_order_statuses WHERE name = 'Assigned' LIMIT 1))")
+            ->orderByRaw("CASE WHEN status_id = (SELECT id FROM work_order_statuses WHERE name = 'In Progress' LIMIT 1) THEN 0 WHEN status_id = (SELECT id FROM work_order_statuses WHERE name = 'Assigned' LIMIT 1) THEN 1 ELSE 2 END")
             ->latest('requested_at')
             ->paginate(15);
     }

@@ -61,7 +61,7 @@ class MaintenanceScheduleController extends Controller
         ]);
 
         return response()->json([
-            'data' => $this->schedules->complete($maintenanceSchedule, $data['completed_at'] ?? null),
+            'data' => $this->schedules->complete($maintenanceSchedule, $data['completed_at'] ?? null, $request->user()),
         ]);
     }
 

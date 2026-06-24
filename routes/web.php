@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Admin\AccessControlController;
+use App\Http\Controllers\Web\Admin\AssetMaintenanceController;
 use App\Http\Controllers\Web\Admin\InventoryIntelligenceController;
 use App\Http\Controllers\Web\Admin\InventoryManagementController;
 use App\Http\Controllers\Web\Admin\SkillManagementController;
@@ -82,6 +83,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('inventory-intelligence', [InventoryIntelligenceController::class, 'dashboard'])->name('inventory-intelligence.dashboard');
         Route::get('inventory-intelligence/{report}', [InventoryIntelligenceController::class, 'report'])->name('inventory-intelligence.report');
         Route::get('inventory-intelligence/{report}/export', [InventoryIntelligenceController::class, 'export'])->name('inventory-intelligence.export');
+
+        Route::get('assets', [AssetMaintenanceController::class, 'assets'])->name('assets.index');
+        Route::get('assets/{asset}', [AssetMaintenanceController::class, 'asset'])->name('assets.show');
+        Route::get('asset-maintenance/export', [AssetMaintenanceController::class, 'export'])->name('asset-maintenance.export');
+        Route::get('asset-maintenance', [AssetMaintenanceController::class, 'index'])->name('asset-maintenance.index');
+        Route::get('asset-maintenance/create', [AssetMaintenanceController::class, 'create'])->name('asset-maintenance.create');
+        Route::post('asset-maintenance', [AssetMaintenanceController::class, 'store'])->name('asset-maintenance.store');
+        Route::get('asset-maintenance/{assetMaintenanceRecord}', [AssetMaintenanceController::class, 'show'])->name('asset-maintenance.show');
 
         Route::get('inventory/export', [InventoryManagementController::class, 'export'])->name('inventory.export');
         Route::post('inventory/{inventoryItem}/stock-in', [InventoryManagementController::class, 'stockIn'])->name('inventory.stock-in');
