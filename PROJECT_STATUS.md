@@ -32,6 +32,8 @@ Completed
 
 ---
 
+
+
 # Project Repository
 
 GitHub Repository
@@ -574,6 +576,50 @@ Completed
 Next recommended phase: Phase 9 - Asset Management.
 
 ---
+
+# Phase 9C - Preventive Maintenance Scheduling
+
+Completed
+
+* Asset-linked preventive maintenance schedules added
+* Supported frequencies:
+  * Monthly
+  * Quarterly
+  * Semiannual
+  * Annual
+* Next due date and last completed date tracking added
+* Upcoming and overdue maintenance lists added
+* Basic dashboard widgets added for:
+  * Active schedules
+  * Upcoming schedules
+  * Overdue schedules
+  * Inactive schedules
+* Search, status filtering, frequency filtering, asset filtering, pagination, and CSV export added
+* Web pages added for:
+  * Schedule dashboard/list
+  * Create schedule
+  * Edit schedule
+  * Schedule detail
+  * Complete schedule
+  * Export schedules
+* API endpoints added for:
+  * Assets
+  * Maintenance schedules
+  * Upcoming schedules
+  * Overdue schedules
+  * Completion
+  * CSV export
+* QR codes, mobile sync, notifications, reports, and asset intelligence dashboards were intentionally excluded
+* Verification completed:
+  * Tests passed
+  * Pint passed
+  * Build passed
+* Existing frontend dependency tree still reports 2 critical npm audit findings; dependency upgrades were not included in this phase
+
+Next recommended phase: Phase 9D - Maintenance Work Orders and Completion History.
+
+---
+
 # Planned Development Roadmap
 
 ---
