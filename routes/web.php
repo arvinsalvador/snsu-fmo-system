@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Admin\AccessControlController;
 use App\Http\Controllers\Web\Admin\AssetMaintenanceController;
+use App\Http\Controllers\Web\Admin\AssetManagementController;
 use App\Http\Controllers\Web\Admin\InventoryIntelligenceController;
 use App\Http\Controllers\Web\Admin\InventoryManagementController;
 use App\Http\Controllers\Web\Admin\SkillManagementController;
@@ -85,7 +86,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('inventory-intelligence/{report}/export', [InventoryIntelligenceController::class, 'export'])->name('inventory-intelligence.export');
 
         Route::get('assets', [AssetMaintenanceController::class, 'assets'])->name('assets.index');
+        Route::get('assets/export', [AssetManagementController::class, 'export'])->name('assets.export');
+        Route::get('assets/create', [AssetManagementController::class, 'create'])->name('assets.create');
+        Route::post('assets', [AssetManagementController::class, 'store'])->name('assets.store');
         Route::get('assets/{asset}', [AssetMaintenanceController::class, 'asset'])->name('assets.show');
+        Route::get('assets/{asset}/edit', [AssetManagementController::class, 'edit'])->name('assets.edit');
+        Route::put('assets/{asset}', [AssetManagementController::class, 'update'])->name('assets.update');
+        Route::delete('assets/{asset}', [AssetManagementController::class, 'destroy'])->name('assets.destroy');
+        Route::post('assets/{asset}/photos', [AssetManagementController::class, 'storePhoto'])->name('assets.photos.store');
         Route::get('asset-maintenance/export', [AssetMaintenanceController::class, 'export'])->name('asset-maintenance.export');
         Route::get('asset-maintenance', [AssetMaintenanceController::class, 'index'])->name('asset-maintenance.index');
         Route::get('asset-maintenance/create', [AssetMaintenanceController::class, 'create'])->name('asset-maintenance.create');

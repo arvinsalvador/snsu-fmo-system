@@ -27,8 +27,15 @@ class AssetMaintenanceController extends Controller
 
         return view('admin.assets.index', [
             'assets' => Asset::query()
+                ->with(['category', 'building', 'room'])
                 ->withCount(['maintenanceSchedules', 'maintenanceRecords'])
-                ->when($request->validated('search'), fn ($query, string $search) => $query->where('asset_tag', 'like', "%{$search}%")->orWhere('name', 'like', "%{$search}%")->orWhere('location', 'like', "%{$search}%"))
+                ->when($request->validated('search'), fn ($query, string $search) => $query->where(fn ($query) => $query
+                    ->where('asset_tag', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%")
+                    ->orWhere('brand', 'like', "%{$search}%")
+                    ->orWhere('model', 'like', "%{$search}%")
+                    ->orWhere('serial_number', 'like', "%{$search}%")))
                 ->orderBy('asset_tag')
                 ->paginate(15)
                 ->withQueryString(),
@@ -41,7 +48,7 @@ class AssetMaintenanceController extends Controller
         Gate::authorize('viewAny', AssetMaintenanceRecord::class);
 
         return view('admin.assets.show', [
-            'asset' => $asset->load('maintenanceSchedules'),
+            'asset' => $asset->load(['category', 'building', 'floor', 'room', 'photos.uploader', 'maintenanceSchedules']),
             'records' => $this->history->timelineForAsset($asset, $request->validated()),
             'filters' => $request->validated(),
         ]);

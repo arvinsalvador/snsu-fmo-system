@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\MaintenanceScheduleController;
+use App\Http\Controllers\Api\V1\AssetController;
 use App\Http\Controllers\Api\V1\AssetMaintenanceRecordController;
 use App\Http\Controllers\Api\V1\AssignmentIntelligenceController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -102,7 +103,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::patch('notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
 
         Route::get('assets', [MaintenanceScheduleController::class, 'assets'])->name('assets.index');
+        Route::post('assets', [AssetController::class, 'store'])->name('assets.store');
+        Route::post('assets/{asset}/photos', [AssetController::class, 'photos'])->name('assets.photos.store');
         Route::get('assets/{asset}/maintenance-history', [AssetMaintenanceRecordController::class, 'assetHistory'])->name('assets.maintenance-history');
+        Route::get('assets/{asset}', [AssetController::class, 'show'])->name('assets.show');
+        Route::patch('assets/{asset}', [AssetController::class, 'update'])->name('assets.update');
+        Route::put('assets/{asset}', [AssetController::class, 'update']);
+        Route::delete('assets/{asset}', [AssetController::class, 'destroy'])->name('assets.destroy');
         Route::get('asset-maintenance-records/export', [AssetMaintenanceRecordController::class, 'export'])->name('asset-maintenance-records.export');
         Route::apiResource('asset-maintenance-records', AssetMaintenanceRecordController::class)->only(['index', 'store', 'show']);
         Route::get('maintenance-schedules/export', [MaintenanceScheduleController::class, 'export'])->name('maintenance-schedules.export');

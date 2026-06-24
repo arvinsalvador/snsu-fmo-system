@@ -577,6 +577,26 @@ Next recommended phase: Phase 9 - Asset Management.
 
 ---
 
+# Phase 9A/9B Branch Reconciliation - Asset Foundation Backfill
+
+Completed
+
+* Compared current `dev` with `origin/feat/asset` commits `bf64a47` and `c96e61d` without merging the older branch
+* Preserved current Phase 9C preventive maintenance scheduling and Phase 9D maintenance completion history files, services, routes, and views
+* Restored missing Phase 9A asset inventory foundation into current `dev` conventions:
+  * Richer asset fields for category, building, floor, room, brand, model, serial number, purchase date, warranty date, status, remarks, and soft deletion
+  * Asset photo metadata table, model, relationship, API resource, and create endpoint
+  * Asset policy, service, API requests/resources/controller, web create/edit/update/archive/export/photo actions, and focused tests
+* Kept `asset_tag` as the current canonical identifier and accepted older `asset_code` input as a compatibility alias
+* Did not apply older Phase 9B maintenance-history service/controller/routes because current Phase 9D already provides schedule-linked and work-order-linked maintenance completion history with stronger coverage
+* Verification completed after reconciliation:
+  * Targeted asset/maintenance tests: 14 passed / 67 assertions
+  * Full test suite: 140 passed / 719 assertions
+  * Pint: 300 files passed, 1 style issue fixed
+  * Vite build: passed
+
+---
+
 # Phase 9C - Preventive Maintenance Scheduling
 
 Completed
@@ -639,8 +659,9 @@ Completed
 * QR codes, mobile sync, procurement, asset dashboards, depreciation, barcode support, reports, and analytics were intentionally excluded
 * Verification completed:
   * Targeted Phase 9D tests: 10 passed / 37 assertions
-  * Full test suite: 136 passed / 689 assertions
-  * Pint: 288 files passed
+  * Branch reconciliation asset/maintenance tests: 14 passed / 67 assertions
+  * Full test suite: 140 passed / 719 assertions
+  * Pint: 300 files passed
   * Vite build: passed
 
 Risks and decisions:
