@@ -41,7 +41,8 @@ class MaintenanceScheduleTest extends TestCase
         ]);
 
         $this->postJson("/api/v1/maintenance-schedules/{$schedule->id}/complete", [
-            'completed_at' => '2026-06-24',
+            'completion_date' => '2026-06-24',
+            'actions_taken' => 'Completed quarterly preventive maintenance.',
         ])->assertOk();
 
         $schedule->refresh();

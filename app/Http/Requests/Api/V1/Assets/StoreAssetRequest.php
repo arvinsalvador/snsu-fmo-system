@@ -3,8 +3,11 @@
 namespace App\Http\Requests\Api\V1\Assets;
 
 use App\Models\Asset;
+use App\Models\Floor;
+use App\Models\Room;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreAssetRequest extends FormRequest
 {
@@ -33,5 +36,29 @@ class StoreAssetRequest extends FormRequest
             'status' => ['required', Rule::in(Asset::STATUSES)],
             'remarks' => ['nullable', 'string'],
         ];
+    }
+
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            $asset = $this->route('asset');
+            $buildingId = $this->has('building_id') ? ($this->integer('building_id') ?: null) : $asset?->building_id;
+            $floorId = $this->has('floor_id') ? ($this->integer('floor_id') ?: null) : $asset?->floor_id;
+            $roomId = $this->has('room_id') ? ($this->integer('room_id') ?: null) : $asset?->room_id;
+
+            if ($floorId && $buildingId && ! Floor::query()->whereKey($floorId)->where('building_id', $buildingId)->exists()) {
+                $validator->errors()->add('floor_id', 'The selected floor does not belong to the selected building.');
+            }
+
+            if ($roomId) {
+                $room = Room::query()->with('floor')->find($roomId);
+                if ($floorId && $room?->floor_id !== $floorId) {
+                    $validator->errors()->add('room_id', 'The selected room does not belong to the selected floor.');
+                }
+                if ($buildingId && $room?->floor?->building_id !== $buildingId) {
+                    $validator->errors()->add('room_id', 'The selected room does not belong to the selected building.');
+                }
+            }
+        }];
     }
 }

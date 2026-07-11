@@ -8,6 +8,7 @@ use App\Models\MaintenanceSchedule;
 use App\Models\StaffProfile;
 use App\Models\User;
 use App\Models\WorkOrder;
+use App\Models\WorkOrderStatus;
 use Database\Seeders\MasterDataSeeder;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -81,7 +82,8 @@ class AssetMaintenanceHistoryApiTest extends TestCase
         $this->seedFoundation();
         Sanctum::actingAs($this->userWithRole('FMO Head'));
         $asset = Asset::factory()->create();
-        $workOrder = WorkOrder::factory()->create(['completed_at' => null]);
+        $completed = WorkOrderStatus::query()->where('name', 'Completed')->firstOrFail();
+        $workOrder = WorkOrder::factory()->create(['status_id' => $completed->id, 'completed_at' => now()]);
 
         $this->postJson('/api/v1/asset-maintenance-records', [
             'asset_id' => $asset->id,
@@ -91,7 +93,7 @@ class AssetMaintenanceHistoryApiTest extends TestCase
         ])->assertCreated();
 
         $this->assertDatabaseHas('asset_maintenance_records', ['asset_id' => $asset->id, 'work_order_id' => $workOrder->id]);
-        $this->assertNotNull($workOrder->refresh()->completed_at);
+        $this->assertSame($completed->id, $workOrder->refresh()->status_id);
     }
 
     private function seedFoundation(): void

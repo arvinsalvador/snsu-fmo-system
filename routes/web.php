@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MaintenanceScheduleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Admin\AccessControlController;
 use App\Http\Controllers\Web\Admin\AssetMaintenanceController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Web\WorkOrderEvaluationController;
 use App\Http\Controllers\Web\WorkOrderFollowupController;
 use App\Http\Controllers\Web\WorkOrderMaterialController;
 use App\Http\Controllers\Web\WorkOrderWorkflowController;
+use App\Models\AssetCategory;
 use App\Models\Building;
 use App\Models\Department;
 use App\Models\Floor;
@@ -55,6 +57,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/work-orders/{workOrder}/assign', [WorkOrderWorkflowController::class, 'assign'])->name('work-orders.assign');
     Route::post('/work-orders/{workOrder}/reassign', [WorkOrderWorkflowController::class, 'reassign'])->name('work-orders.reassign');
     Route::post('/work-orders/{workOrder}/progress', [WorkOrderWorkflowController::class, 'progress'])->name('work-orders.progress.store');
+
+    Route::get('/maintenance-schedules/export', [MaintenanceScheduleController::class, 'export'])->name('maintenance-schedules.export');
+    Route::get('/maintenance-schedules', [MaintenanceScheduleController::class, 'index'])->name('maintenance-schedules.index');
+    Route::get('/maintenance-schedules/create', [MaintenanceScheduleController::class, 'create'])->name('maintenance-schedules.create');
+    Route::post('/maintenance-schedules', [MaintenanceScheduleController::class, 'store'])->name('maintenance-schedules.store');
+    Route::get('/maintenance-schedules/{maintenanceSchedule}', [MaintenanceScheduleController::class, 'show'])->name('maintenance-schedules.show');
+    Route::get('/maintenance-schedules/{maintenanceSchedule}/edit', [MaintenanceScheduleController::class, 'edit'])->name('maintenance-schedules.edit');
+    Route::put('/maintenance-schedules/{maintenanceSchedule}', [MaintenanceScheduleController::class, 'update'])->name('maintenance-schedules.update');
+    Route::delete('/maintenance-schedules/{maintenanceSchedule}', [MaintenanceScheduleController::class, 'destroy'])->name('maintenance-schedules.destroy');
+    Route::post('/maintenance-schedules/{maintenanceSchedule}/complete', [MaintenanceScheduleController::class, 'complete'])->name('maintenance-schedules.complete');
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('users/export', [UserManagementController::class, 'export'])->name('users.export');
         Route::patch('users/{user}/activate', [UserManagementController::class, 'activate'])->name('users.activate');
@@ -99,6 +111,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('asset-maintenance/create', [AssetMaintenanceController::class, 'create'])->name('asset-maintenance.create');
         Route::post('asset-maintenance', [AssetMaintenanceController::class, 'store'])->name('asset-maintenance.store');
         Route::get('asset-maintenance/{assetMaintenanceRecord}', [AssetMaintenanceController::class, 'show'])->name('asset-maintenance.show');
+        Route::get('asset-maintenance/{assetMaintenanceRecord}/edit', [AssetMaintenanceController::class, 'edit'])->name('asset-maintenance.edit');
+        Route::put('asset-maintenance/{assetMaintenanceRecord}', [AssetMaintenanceController::class, 'update'])->name('asset-maintenance.update');
 
         Route::get('inventory/export', [InventoryManagementController::class, 'export'])->name('inventory.export');
         Route::post('inventory/{inventoryItem}/stock-in', [InventoryManagementController::class, 'stockIn'])->name('inventory.stock-in');
@@ -114,6 +128,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'work-order-categories' => ['workOrderCategory', 'storeCategory', 'updateCategory', WorkOrderCategory::class],
         'priorities' => ['priority', 'storePriority', 'updatePriority', Priority::class],
         'work-order-statuses' => ['workOrderStatus', 'storeStatus', 'updateStatus', WorkOrderStatus::class],
+        'asset-categories' => ['assetCategory', 'storeAssetCategory', 'updateAssetCategory', AssetCategory::class],
     ];
 
     Route::prefix('admin/master-data')->name('admin.master-data.')->group(function () use ($masterDataModules) {

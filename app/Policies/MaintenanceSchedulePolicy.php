@@ -7,28 +7,43 @@ use App\Models\User;
 
 class MaintenanceSchedulePolicy
 {
-    public function viewAny(?User $user): bool
+    public function before(User $user): ?bool
     {
-        return true;
+        return $user->hasRole('Super Admin') ? true : null;
     }
 
-    public function view(?User $user, MaintenanceSchedule $maintenanceSchedule): bool
+    public function viewAny(User $user): bool
     {
-        return true;
+        return $user->can('view_maintenance_schedules') || $user->can('manage_maintenance_schedules');
     }
 
-    public function create(?User $user): bool
+    public function view(User $user, MaintenanceSchedule $maintenanceSchedule): bool
     {
-        return true;
+        return $this->viewAny($user);
     }
 
-    public function update(?User $user, MaintenanceSchedule $maintenanceSchedule): bool
+    public function create(User $user): bool
     {
-        return true;
+        return $user->can('manage_maintenance_schedules');
     }
 
-    public function delete(?User $user, MaintenanceSchedule $maintenanceSchedule): bool
+    public function update(User $user, MaintenanceSchedule $maintenanceSchedule): bool
     {
-        return true;
+        return $user->can('manage_maintenance_schedules');
+    }
+
+    public function delete(User $user, MaintenanceSchedule $maintenanceSchedule): bool
+    {
+        return $user->can('manage_maintenance_schedules');
+    }
+
+    public function complete(User $user, MaintenanceSchedule $maintenanceSchedule): bool
+    {
+        return $user->can('complete_maintenance_schedules');
+    }
+
+    public function export(User $user): bool
+    {
+        return $user->can('export_maintenance_schedules') || $user->can('manage_maintenance_schedules');
     }
 }

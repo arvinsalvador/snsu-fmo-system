@@ -36,6 +36,20 @@ class AssetController extends Controller
         ]);
     }
 
+    public function lookup(Request $request): JsonResponse
+    {
+        Gate::authorize('viewAny', Asset::class);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Asset lookup retrieved successfully.',
+            'data' => AssetResource::collection($this->assets->lookup(
+                (string) $request->query('search', ''),
+                $request->integer('limit', 50),
+            )),
+        ]);
+    }
+
     public function store(StoreAssetRequest $request): JsonResponse
     {
         Gate::authorize('create', Asset::class);

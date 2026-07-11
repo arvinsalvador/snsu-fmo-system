@@ -18,6 +18,7 @@ class IndexAssetMaintenanceRecordRequest extends FormRequest
             'search' => ['nullable', 'string', 'max:255'],
             'asset_id' => ['nullable', 'integer', Rule::exists('assets', 'id')],
             'maintenance_schedule_id' => ['nullable', 'integer', Rule::exists('maintenance_schedules', 'id')],
+            'maintenance_type_id' => ['nullable', 'integer', Rule::exists('maintenance_types', 'id')->whereNull('deleted_at')],
             'work_order_id' => ['nullable', 'integer', Rule::exists('work_orders', 'id')->whereNull('deleted_at')],
             'staff_profile_id' => ['nullable', 'integer', Rule::exists('staff_profiles', 'id')->whereNull('deleted_at')],
             'completed_from' => ['nullable', 'date'],

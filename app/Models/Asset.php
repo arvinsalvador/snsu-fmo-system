@@ -15,7 +15,7 @@ class Asset extends Model
     /** @use HasFactory<AssetFactory> */
     use HasFactory, HasUuid, SoftDeletes;
 
-    public const STATUSES = ['active', 'inactive', 'under_maintenance', 'retired'];
+    public const STATUSES = ['active', 'inactive', 'under_maintenance', 'defective', 'lost', 'disposed', 'retired'];
 
     protected $fillable = [
         'uuid',

@@ -14,7 +14,7 @@ class AssetPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->can('manage_assets') || $user->can('manage_maintenance');
+        return $user->can('view_assets') || $user->can('manage_assets');
     }
 
     public function view(User $user, Asset $asset): bool
@@ -39,6 +39,6 @@ class AssetPolicy
 
     public function export(User $user): bool
     {
-        return $this->viewAny($user);
+        return $user->can('export_assets') || $user->can('manage_assets');
     }
 }

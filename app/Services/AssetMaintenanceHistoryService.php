@@ -24,11 +24,12 @@ class AssetMaintenanceHistoryService
         $direction = ($filters['direction'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
 
         return AssetMaintenanceRecord::query()
-            ->with(['asset', 'maintenanceSchedule', 'workOrder', 'staffProfile.user', 'completedBy'])
+            ->with(['asset', 'maintenanceType', 'maintenanceSchedule', 'workOrder.status', 'staffProfile.user', 'completedBy'])
             ->when($filters['search'] ?? null, function (Builder $query, string $search): void {
                 $query->where(function (Builder $query) use ($search): void {
                     $query
                         ->where('findings', 'like', "%{$search}%")
+                        ->orWhere('performed_by', 'like', "%{$search}%")
                         ->orWhere('actions_taken', 'like', "%{$search}%")
                         ->orWhere('remarks', 'like', "%{$search}%")
                         ->orWhereHas('asset', fn (Builder $query) => $query->where('asset_tag', 'like', "%{$search}%")->orWhere('name', 'like', "%{$search}%"))
@@ -41,6 +42,7 @@ class AssetMaintenanceHistoryService
             ->when($filters['maintenance_schedule_id'] ?? null, fn (Builder $query, int|string $scheduleId) => $query->where('maintenance_schedule_id', $scheduleId))
             ->when($filters['work_order_id'] ?? null, fn (Builder $query, int|string $workOrderId) => $query->where('work_order_id', $workOrderId))
             ->when($filters['staff_profile_id'] ?? null, fn (Builder $query, int|string $staffId) => $query->where('staff_profile_id', $staffId))
+            ->when($filters['maintenance_type_id'] ?? null, fn (Builder $query, int|string $typeId) => $query->where('maintenance_type_id', $typeId))
             ->when($filters['completed_from'] ?? null, fn (Builder $query, string $date) => $query->whereDate('completion_date', '>=', $date))
             ->when($filters['completed_to'] ?? null, fn (Builder $query, string $date) => $query->whereDate('completion_date', '<=', $date))
             ->orderBy($sort, $direction)
@@ -76,7 +78,19 @@ class AssetMaintenanceHistoryService
                 ]);
             }
 
+            if ($workOrder && ($workOrder->status?->name !== 'Completed' || ! $workOrder->completed_at)) {
+                throw ValidationException::withMessages([
+                    'work_order_id' => 'A maintenance record may only link to a work order completed through the official progress workflow.',
+                ]);
+            }
+            $this->validateWorkOrderLocation($workOrder, (int) $data['asset_id']);
+
             $completionDate = Carbon::parse($data['completion_date'])->toDateString();
+            $data['maintenance_date'] = Carbon::parse($data['maintenance_date'] ?? $completionDate)->toDateString();
+            $data['total_cost'] ??= $data['labor_cost'] ?? null;
+            $data['performed_by'] ??= isset($data['staff_profile_id'])
+                ? StaffProfile::query()->with('user')->find($data['staff_profile_id'])?->user?->name
+                : null;
             $record = AssetMaintenanceRecord::query()->create([
                 ...$data,
                 'completion_date' => $completionDate,
@@ -88,13 +102,53 @@ class AssetMaintenanceHistoryService
                 $completed = Carbon::parse($completionDate);
                 $schedule->update([
                     'last_completed_date' => $completed->toDateString(),
-                    'next_due_date' => $completed->copy()->addMonthsNoOverflow($months)->toDateString(),
+                    'next_due_date' => $data['next_maintenance_date'] ?? $completed->copy()->addMonthsNoOverflow($months)->toDateString(),
                     'is_active' => true,
                 ]);
             }
 
-            if ($workOrder && ! $workOrder->completed_at) {
-                $workOrder->forceFill(['completed_at' => Carbon::parse($completionDate)->endOfDay()])->save();
+            return $record->refresh()->load($this->relations());
+        });
+    }
+
+    /** @param array<string, mixed> $data */
+    public function update(AssetMaintenanceRecord $record, array $data): AssetMaintenanceRecord
+    {
+        return DB::transaction(function () use ($data, $record): AssetMaintenanceRecord {
+            $record = AssetMaintenanceRecord::query()->lockForUpdate()->findOrFail($record->id);
+            $assetId = (int) ($data['asset_id'] ?? $record->asset_id);
+            $scheduleId = $data['maintenance_schedule_id'] ?? $record->maintenance_schedule_id;
+            $workOrderId = $data['work_order_id'] ?? $record->work_order_id;
+            $schedule = $scheduleId ? MaintenanceSchedule::query()->lockForUpdate()->findOrFail($scheduleId) : null;
+            $workOrder = $workOrderId ? WorkOrder::query()->with('status')->findOrFail($workOrderId) : null;
+
+            if ($schedule && (int) $schedule->asset_id !== $assetId) {
+                throw ValidationException::withMessages([
+                    'maintenance_schedule_id' => 'The maintenance schedule must belong to the selected asset.',
+                ]);
+            }
+            if ($workOrder && ($workOrder->status?->name !== 'Completed' || ! $workOrder->completed_at)) {
+                throw ValidationException::withMessages([
+                    'work_order_id' => 'A maintenance record may only link to a completed work order.',
+                ]);
+            }
+            $this->validateWorkOrderLocation($workOrder, $assetId);
+
+            $data['maintenance_date'] = isset($data['maintenance_date'])
+                ? Carbon::parse($data['maintenance_date'])->toDateString()
+                : $record->maintenance_date?->toDateString();
+            if (array_key_exists('total_cost', $data) && ! array_key_exists('labor_cost', $data)) {
+                $data['labor_cost'] = $data['total_cost'];
+            }
+            $record->update($data);
+
+            if ($schedule && isset($data['completion_date'])) {
+                $completed = Carbon::parse($data['completion_date']);
+                $schedule->update([
+                    'last_completed_date' => $completed->toDateString(),
+                    'next_due_date' => $data['next_maintenance_date']
+                        ?? $completed->copy()->addMonthsNoOverflow(MaintenanceSchedule::FREQUENCIES[$schedule->frequency])->toDateString(),
+                ]);
             }
 
             return $record->refresh()->load($this->relations());
@@ -109,7 +163,7 @@ class AssetMaintenanceHistoryService
     /** @return array<int, string> */
     public function relations(): array
     {
-        return ['asset', 'maintenanceSchedule', 'workOrder', 'staffProfile.user', 'completedBy'];
+        return ['asset', 'maintenanceType', 'maintenanceSchedule', 'workOrder.status', 'staffProfile.user', 'completedBy'];
     }
 
     /** @return Collection<int, Asset> */
@@ -127,7 +181,13 @@ class AssetMaintenanceHistoryService
     /** @return Collection<int, WorkOrder> */
     public function workOrders(): Collection
     {
-        return WorkOrder::query()->with('status')->latest('requested_at')->limit(250)->get();
+        return WorkOrder::query()
+            ->with('status')
+            ->whereNotNull('completed_at')
+            ->whereHas('status', fn (Builder $query) => $query->where('name', 'Completed'))
+            ->latest('requested_at')
+            ->limit(250)
+            ->get();
     }
 
     /** @return Collection<int, StaffProfile> */
@@ -139,5 +199,23 @@ class AssetMaintenanceHistoryService
     private function perPage(array $filters): int
     {
         return min(max((int) ($filters['per_page'] ?? 15), 10), 100);
+    }
+
+    private function validateWorkOrderLocation(?WorkOrder $workOrder, int $assetId): void
+    {
+        if (! $workOrder) {
+            return;
+        }
+
+        $asset = Asset::query()->findOrFail($assetId);
+        $mismatched = ($asset->building_id && (int) $asset->building_id !== (int) $workOrder->building_id)
+            || ($asset->floor_id && (int) $asset->floor_id !== (int) $workOrder->floor_id)
+            || ($asset->room_id && (int) $asset->room_id !== (int) $workOrder->room_id);
+
+        if ($mismatched) {
+            throw ValidationException::withMessages([
+                'work_order_id' => 'The work order location does not match the selected asset location.',
+            ]);
+        }
     }
 }

@@ -3,93 +3,99 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Asset;
+use App\Http\Requests\Api\V1\MaintenanceSchedules\CompleteMaintenanceScheduleRequest;
+use App\Http\Requests\Api\V1\MaintenanceSchedules\StoreMaintenanceScheduleRequest;
+use App\Http\Requests\Api\V1\MaintenanceSchedules\UpdateMaintenanceScheduleRequest;
+use App\Http\Resources\Api\V1\AssetMaintenanceRecordResource;
+use App\Http\Resources\Api\V1\MaintenanceScheduleResource;
 use App\Models\MaintenanceSchedule;
 use App\Services\MaintenanceScheduleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class MaintenanceScheduleController extends Controller
 {
     public function __construct(private readonly MaintenanceScheduleService $schedules) {}
 
-    public function assets(): JsonResponse
-    {
-        return response()->json([
-            'data' => Asset::query()->orderBy('name')->get(),
-        ]);
-    }
-
     public function index(Request $request): JsonResponse
     {
+        Gate::authorize('viewAny', MaintenanceSchedule::class);
         $perPage = min((int) $request->integer('per_page', 15), 100);
         $schedules = $this->schedules->paginate($request->only(['search', 'frequency', 'asset_id', 'status', 'is_active']), $perPage);
 
-        return response()->json($schedules);
+        return response()->json([
+            'success' => true,
+            'data' => MaintenanceScheduleResource::collection($schedules),
+            'meta' => [
+                'current_page' => $schedules->currentPage(),
+                'per_page' => $schedules->perPage(),
+                'total' => $schedules->total(),
+                'last_page' => $schedules->lastPage(),
+            ],
+        ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreMaintenanceScheduleRequest $request): JsonResponse
     {
-        $schedule = MaintenanceSchedule::create($this->validated($request))->load('asset');
+        Gate::authorize('create', MaintenanceSchedule::class);
+        $schedule = $this->schedules->create($request->validated());
 
-        return response()->json(['data' => $schedule], 201);
+        return response()->json(['success' => true, 'data' => new MaintenanceScheduleResource($schedule)], 201);
     }
 
     public function show(MaintenanceSchedule $maintenanceSchedule): JsonResponse
     {
-        return response()->json(['data' => $maintenanceSchedule->load('asset')]);
+        Gate::authorize('view', $maintenanceSchedule);
+
+        return response()->json(['success' => true, 'data' => new MaintenanceScheduleResource($maintenanceSchedule->load('asset'))]);
     }
 
-    public function update(Request $request, MaintenanceSchedule $maintenanceSchedule): JsonResponse
+    public function update(UpdateMaintenanceScheduleRequest $request, MaintenanceSchedule $maintenanceSchedule): JsonResponse
     {
-        $maintenanceSchedule->update($this->validated($request));
+        Gate::authorize('update', $maintenanceSchedule);
+        $maintenanceSchedule = $this->schedules->update($maintenanceSchedule, $request->validated());
 
-        return response()->json(['data' => $maintenanceSchedule->refresh()->load('asset')]);
+        return response()->json(['success' => true, 'data' => new MaintenanceScheduleResource($maintenanceSchedule)]);
     }
 
     public function destroy(MaintenanceSchedule $maintenanceSchedule): JsonResponse
     {
-        $maintenanceSchedule->delete();
+        Gate::authorize('delete', $maintenanceSchedule);
+        $this->schedules->delete($maintenanceSchedule);
 
         return response()->json(status: 204);
     }
 
-    public function complete(Request $request, MaintenanceSchedule $maintenanceSchedule): JsonResponse
+    public function complete(CompleteMaintenanceScheduleRequest $request, MaintenanceSchedule $maintenanceSchedule): JsonResponse
     {
-        $data = $request->validate([
-            'completed_at' => ['nullable', 'date'],
-        ]);
+        Gate::authorize('complete', $maintenanceSchedule);
+        $record = $this->schedules->complete($maintenanceSchedule, $request->validated(), $request->user());
 
         return response()->json([
-            'data' => $this->schedules->complete($maintenanceSchedule, $data['completed_at'] ?? null, $request->user()),
+            'success' => true,
+            'data' => new AssetMaintenanceRecordResource($record),
         ]);
     }
 
     public function upcoming(): JsonResponse
     {
-        return response()->json(['data' => $this->schedules->upcoming(25)]);
+        Gate::authorize('viewAny', MaintenanceSchedule::class);
+
+        return response()->json(['data' => MaintenanceScheduleResource::collection($this->schedules->upcoming(25))]);
     }
 
     public function overdue(): JsonResponse
     {
-        return response()->json(['data' => $this->schedules->overdue(25)]);
+        Gate::authorize('viewAny', MaintenanceSchedule::class);
+
+        return response()->json(['data' => MaintenanceScheduleResource::collection($this->schedules->overdue(25))]);
     }
 
     public function export(Request $request)
     {
-        return $this->schedules->csvResponse($request);
-    }
+        Gate::authorize('export', MaintenanceSchedule::class);
 
-    private function validated(Request $request): array
-    {
-        return $request->validate([
-            'asset_id' => ['required', 'exists:assets,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'frequency' => ['required', 'in:'.implode(',', array_keys(MaintenanceSchedule::FREQUENCIES))],
-            'next_due_date' => ['required', 'date'],
-            'last_completed_date' => ['nullable', 'date'],
-            'is_active' => ['sometimes', 'boolean'],
-        ]) + ['is_active' => false];
+        return $this->schedules->csvResponse($request->only(['search', 'frequency', 'asset_id', 'status', 'is_active']));
     }
 }

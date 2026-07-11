@@ -12,6 +12,7 @@ class AssetMaintenanceRecordResource extends JsonResource
         return [
             'id' => $this->id,
             'uuid' => $this->uuid,
+            'asset_id' => $this->asset_id,
             'asset' => $this->whenLoaded('asset', fn () => [
                 'id' => $this->asset->id,
                 'asset_tag' => $this->asset->asset_tag,
@@ -19,6 +20,8 @@ class AssetMaintenanceRecordResource extends JsonResource
                 'location' => $this->asset->location,
                 'status' => $this->asset->status,
             ]),
+            'maintenance_type' => new MasterDataResource($this->whenLoaded('maintenanceType')),
+            'maintenance_type_id' => $this->maintenance_type_id,
             'maintenance_schedule' => $this->whenLoaded('maintenanceSchedule', fn () => $this->maintenanceSchedule ? [
                 'id' => $this->maintenanceSchedule->id,
                 'title' => $this->maintenanceSchedule->title,
@@ -46,10 +49,14 @@ class AssetMaintenanceRecordResource extends JsonResource
                 'name' => $this->completedBy->name,
             ] : null),
             'completion_date' => $this->completion_date?->toDateString(),
+            'maintenance_date' => $this->maintenance_date?->toDateString(),
+            'performed_by' => $this->performed_by,
             'findings' => $this->findings,
             'actions_taken' => $this->actions_taken,
             'remarks' => $this->remarks,
             'labor_cost' => $this->labor_cost,
+            'total_cost' => $this->total_cost,
+            'next_maintenance_date' => $this->next_maintenance_date?->toDateString(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

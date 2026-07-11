@@ -102,16 +102,16 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::patch('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
         Route::patch('notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
 
-        Route::get('assets', [MaintenanceScheduleController::class, 'assets'])->name('assets.index');
+        Route::get('assets/lookup', [AssetController::class, 'lookup'])->name('assets.lookup');
+        Route::get('assets', [AssetController::class, 'index'])->name('assets.index');
         Route::post('assets', [AssetController::class, 'store'])->name('assets.store');
         Route::post('assets/{asset}/photos', [AssetController::class, 'photos'])->name('assets.photos.store');
         Route::get('assets/{asset}/maintenance-history', [AssetMaintenanceRecordController::class, 'assetHistory'])->name('assets.maintenance-history');
         Route::get('assets/{asset}', [AssetController::class, 'show'])->name('assets.show');
-        Route::patch('assets/{asset}', [AssetController::class, 'update'])->name('assets.update');
-        Route::put('assets/{asset}', [AssetController::class, 'update']);
+        Route::match(['put', 'patch'], 'assets/{asset}', [AssetController::class, 'update'])->name('assets.update');
         Route::delete('assets/{asset}', [AssetController::class, 'destroy'])->name('assets.destroy');
         Route::get('asset-maintenance-records/export', [AssetMaintenanceRecordController::class, 'export'])->name('asset-maintenance-records.export');
-        Route::apiResource('asset-maintenance-records', AssetMaintenanceRecordController::class)->only(['index', 'store', 'show']);
+        Route::apiResource('asset-maintenance-records', AssetMaintenanceRecordController::class)->only(['index', 'store', 'show', 'update']);
         Route::get('maintenance-schedules/export', [MaintenanceScheduleController::class, 'export'])->name('maintenance-schedules.export');
         Route::get('maintenance-schedules/upcoming', [MaintenanceScheduleController::class, 'upcoming'])->name('maintenance-schedules.upcoming');
         Route::get('maintenance-schedules/overdue', [MaintenanceScheduleController::class, 'overdue'])->name('maintenance-schedules.overdue');

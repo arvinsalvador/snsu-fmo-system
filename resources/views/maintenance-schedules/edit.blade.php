@@ -1,6 +1,5 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
+    <x-slot name="header"><h1 class="text-2xl font-semibold tracking-tight">Edit Maintenance Schedule</h1></x-slot>
     <div class="mb-6">
         <h1 class="text-2xl font-semibold tracking-tight">Edit Maintenance Schedule</h1>
         <p class="mt-1 text-sm text-zinc-600">Update frequency, due dates, and schedule status.</p>
@@ -10,4 +9,4 @@
         @method('PUT')
         @include('maintenance-schedules._form')
     </form>
-@endsection
+</x-app-layout>

@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\V1\MaintenanceSchedules\CompleteMaintenanceScheduleRequest;
+use App\Http\Requests\Api\V1\MaintenanceSchedules\StoreMaintenanceScheduleRequest;
+use App\Http\Requests\Api\V1\MaintenanceSchedules\UpdateMaintenanceScheduleRequest;
 use App\Models\Asset;
 use App\Models\MaintenanceSchedule;
 use App\Services\MaintenanceScheduleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class MaintenanceScheduleController extends Controller
@@ -15,6 +19,7 @@ class MaintenanceScheduleController extends Controller
 
     public function index(Request $request): View
     {
+        Gate::authorize('viewAny', MaintenanceSchedule::class);
         $perPage = min((int) $request->integer('per_page', 10), 50);
 
         return view('maintenance-schedules.index', [
@@ -30,6 +35,8 @@ class MaintenanceScheduleController extends Controller
 
     public function create(): View
     {
+        Gate::authorize('create', MaintenanceSchedule::class);
+
         return view('maintenance-schedules.create', [
             'assets' => Asset::query()->orderBy('name')->get(),
             'frequencies' => MaintenanceSchedule::FREQUENCIES,
@@ -37,15 +44,18 @@ class MaintenanceScheduleController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreMaintenanceScheduleRequest $request): RedirectResponse
     {
-        MaintenanceSchedule::create($this->validated($request));
+        Gate::authorize('create', MaintenanceSchedule::class);
+        $this->schedules->create($request->validated());
 
         return redirect()->route('maintenance-schedules.index')->with('status', 'Maintenance schedule created.');
     }
 
     public function show(MaintenanceSchedule $maintenanceSchedule): View
     {
+        Gate::authorize('view', $maintenanceSchedule);
+
         return view('maintenance-schedules.show', [
             'schedule' => $maintenanceSchedule->load('asset'),
         ]);
@@ -53,6 +63,8 @@ class MaintenanceScheduleController extends Controller
 
     public function edit(MaintenanceSchedule $maintenanceSchedule): View
     {
+        Gate::authorize('update', $maintenanceSchedule);
+
         return view('maintenance-schedules.edit', [
             'assets' => Asset::query()->orderBy('name')->get(),
             'frequencies' => MaintenanceSchedule::FREQUENCIES,
@@ -60,46 +72,34 @@ class MaintenanceScheduleController extends Controller
         ]);
     }
 
-    public function update(Request $request, MaintenanceSchedule $maintenanceSchedule): RedirectResponse
+    public function update(UpdateMaintenanceScheduleRequest $request, MaintenanceSchedule $maintenanceSchedule): RedirectResponse
     {
-        $maintenanceSchedule->update($this->validated($request));
+        Gate::authorize('update', $maintenanceSchedule);
+        $this->schedules->update($maintenanceSchedule, $request->validated());
 
         return redirect()->route('maintenance-schedules.index')->with('status', 'Maintenance schedule updated.');
     }
 
     public function destroy(MaintenanceSchedule $maintenanceSchedule): RedirectResponse
     {
-        $maintenanceSchedule->delete();
+        Gate::authorize('delete', $maintenanceSchedule);
+        $this->schedules->delete($maintenanceSchedule);
 
         return redirect()->route('maintenance-schedules.index')->with('status', 'Maintenance schedule deleted.');
     }
 
-    public function complete(Request $request, MaintenanceSchedule $maintenanceSchedule): RedirectResponse
+    public function complete(CompleteMaintenanceScheduleRequest $request, MaintenanceSchedule $maintenanceSchedule): RedirectResponse
     {
-        $data = $request->validate([
-            'completed_at' => ['nullable', 'date'],
-        ]);
-
-        $this->schedules->complete($maintenanceSchedule, $data['completed_at'] ?? null, $request->user());
+        Gate::authorize('complete', $maintenanceSchedule);
+        $this->schedules->complete($maintenanceSchedule, $request->validated(), $request->user());
 
         return redirect()->route('maintenance-schedules.index')->with('status', 'Maintenance schedule completed.');
     }
 
     public function export(Request $request)
     {
-        return $this->schedules->csvResponse($request);
-    }
+        Gate::authorize('export', MaintenanceSchedule::class);
 
-    private function validated(Request $request): array
-    {
-        return $request->validate([
-            'asset_id' => ['required', 'exists:assets,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'frequency' => ['required', 'in:'.implode(',', array_keys(MaintenanceSchedule::FREQUENCIES))],
-            'next_due_date' => ['required', 'date'],
-            'last_completed_date' => ['nullable', 'date'],
-            'is_active' => ['sometimes', 'boolean'],
-        ]) + ['is_active' => false];
+        return $this->schedules->csvResponse($request->only(['search', 'frequency', 'asset_id', 'status', 'is_active']));
     }
 }

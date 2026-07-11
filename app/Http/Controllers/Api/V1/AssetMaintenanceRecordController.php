@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\AssetMaintenance\IndexAssetMaintenanceRecordRequest;
 use App\Http\Requests\Api\V1\AssetMaintenance\StoreAssetMaintenanceRecordRequest;
+use App\Http\Requests\Api\V1\AssetMaintenance\UpdateAssetMaintenanceRecordRequest;
 use App\Http\Resources\Api\V1\AssetMaintenanceRecordResource;
 use App\Models\Asset;
 use App\Models\AssetMaintenanceRecord;
@@ -62,9 +63,21 @@ class AssetMaintenanceRecordController extends Controller
         ]);
     }
 
+    public function update(UpdateAssetMaintenanceRecordRequest $request, AssetMaintenanceRecord $assetMaintenanceRecord): JsonResponse
+    {
+        Gate::authorize('update', $assetMaintenanceRecord);
+        $record = $this->history->update($assetMaintenanceRecord, $request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Asset maintenance record updated successfully.',
+            'data' => ['record' => new AssetMaintenanceRecordResource($record)],
+        ]);
+    }
+
     public function assetHistory(IndexAssetMaintenanceRecordRequest $request, Asset $asset): JsonResponse
     {
-        Gate::authorize('viewAny', AssetMaintenanceRecord::class);
+        Gate::authorize('export', AssetMaintenanceRecord::class);
         $records = $this->history->timelineForAsset($asset, $request->validated());
 
         return response()->json([
@@ -91,7 +104,7 @@ class AssetMaintenanceRecordController extends Controller
     /** @return array<int, string> */
     private function headers(): array
     {
-        return ['Asset Tag', 'Asset', 'Schedule', 'Work Order', 'Technician', 'Completion Date', 'Findings', 'Actions Taken', 'Remarks', 'Labor Cost'];
+        return ['Asset Tag', 'Asset', 'Maintenance Type', 'Schedule', 'Work Order', 'Technician', 'Performed By', 'Completion Date', 'Next Maintenance Date', 'Findings', 'Actions Taken', 'Remarks', 'Labor Cost', 'Total Cost'];
     }
 
     /** @return array<int, mixed> */
@@ -100,14 +113,18 @@ class AssetMaintenanceRecordController extends Controller
         return [
             $record->asset?->asset_tag,
             $record->asset?->name,
+            $record->maintenanceType?->name,
             $record->maintenanceSchedule?->title,
             $record->workOrder?->work_order_number,
             $record->staffProfile?->user?->name ?? $record->staffProfile?->employee_code,
+            $record->performed_by,
             $record->completion_date?->toDateString(),
+            $record->next_maintenance_date?->toDateString(),
             $record->findings,
             $record->actions_taken,
             $record->remarks,
             $record->labor_cost,
+            $record->total_cost,
         ];
     }
 }

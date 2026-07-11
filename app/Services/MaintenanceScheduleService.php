@@ -8,13 +8,17 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MaintenanceScheduleService
 {
+    public function __construct(
+        private readonly AssetMaintenanceHistoryService $history,
+        private readonly AdminWebService $web,
+    ) {}
+
     public function filteredQuery(array $filters = []): Builder
     {
         return MaintenanceSchedule::query()
@@ -82,69 +86,63 @@ class MaintenanceScheduleService
         ];
     }
 
-    public function complete(MaintenanceSchedule $schedule, ?string $completedAt = null, ?User $actor = null): MaintenanceSchedule
+    public function create(array $data): MaintenanceSchedule
     {
-        return DB::transaction(function () use ($actor, $completedAt, $schedule): MaintenanceSchedule {
-            $schedule = MaintenanceSchedule::query()->lockForUpdate()->findOrFail($schedule->id);
-            $completedDate = $completedAt ? Carbon::parse($completedAt) : now();
-            $months = MaintenanceSchedule::FREQUENCIES[$schedule->frequency];
+        return DB::transaction(fn (): MaintenanceSchedule => MaintenanceSchedule::query()->create([
+            ...$data,
+            'is_active' => $data['is_active'] ?? true,
+        ])->load('asset'));
+    }
 
-            AssetMaintenanceRecord::query()->create([
-                'asset_id' => $schedule->asset_id,
-                'maintenance_schedule_id' => $schedule->id,
-                'completed_by' => $actor?->id,
-                'completion_date' => $completedDate->toDateString(),
-                'actions_taken' => 'Preventive maintenance completed.',
-            ]);
-
-            $schedule->update([
-                'last_completed_date' => $completedDate->toDateString(),
-                'next_due_date' => $completedDate->copy()->addMonthsNoOverflow($months)->toDateString(),
-                'is_active' => true,
-            ]);
+    public function update(MaintenanceSchedule $schedule, array $data): MaintenanceSchedule
+    {
+        return DB::transaction(function () use ($data, $schedule): MaintenanceSchedule {
+            $schedule->update($data);
 
             return $schedule->refresh()->load('asset');
         });
     }
 
-    public function csvResponse(Request $request): StreamedResponse
+    public function delete(MaintenanceSchedule $schedule): void
     {
-        $filters = $request->only(['search', 'frequency', 'asset_id', 'status', 'is_active']);
+        DB::transaction(fn () => $schedule->delete());
+    }
 
-        return response()->streamDownload(function () use ($filters): void {
-            $handle = fopen('php://output', 'w');
+    public function complete(MaintenanceSchedule $schedule, array $data, ?User $actor = null): AssetMaintenanceRecord
+    {
+        return DB::transaction(function () use ($actor, $data, $schedule): AssetMaintenanceRecord {
+            $schedule = MaintenanceSchedule::query()->lockForUpdate()->findOrFail($schedule->id);
+            if (! $schedule->is_active) {
+                throw ValidationException::withMessages([
+                    'schedule' => 'Inactive maintenance schedules cannot be completed.',
+                ]);
+            }
 
-            fputcsv($handle, [
-                'Asset Tag',
-                'Asset',
-                'Location',
-                'Schedule',
-                'Frequency',
-                'Next Due Date',
-                'Last Completed Date',
-                'Status',
-                'Active',
-            ]);
+            return $this->history->create([
+                ...$data,
+                'asset_id' => $schedule->asset_id,
+                'maintenance_schedule_id' => $schedule->id,
+            ], $actor);
+        });
+    }
 
-            $this->filteredQuery($filters)->chunk(200, function (Collection $schedules) use ($handle): void {
-                foreach ($schedules as $schedule) {
-                    fputcsv($handle, [
-                        $schedule->asset?->asset_tag,
-                        $schedule->asset?->name,
-                        $schedule->asset?->location,
-                        $schedule->title,
-                        $schedule->frequency_label,
-                        $schedule->next_due_date?->toDateString(),
-                        $schedule->last_completed_date?->toDateString(),
-                        $schedule->due_status,
-                        $schedule->is_active ? 'Yes' : 'No',
-                    ]);
-                }
-            });
-
-            fclose($handle);
-        }, 'maintenance-schedules.csv', [
-            'Content-Type' => 'text/csv',
-        ]);
+    public function csvResponse(array $filters = []): StreamedResponse
+    {
+        return $this->web->csv(
+            'maintenance-schedules',
+            ['Asset Tag', 'Asset', 'Location', 'Schedule', 'Frequency', 'Next Due Date', 'Last Completed Date', 'Status', 'Active'],
+            $this->filteredQuery($filters)->get(),
+            fn (MaintenanceSchedule $schedule): array => [
+                $schedule->asset?->asset_tag,
+                $schedule->asset?->name,
+                $schedule->asset?->location,
+                $schedule->title,
+                $schedule->frequency_label,
+                $schedule->next_due_date?->toDateString(),
+                $schedule->last_completed_date?->toDateString(),
+                $schedule->due_status,
+                $schedule->is_active ? 'Yes' : 'No',
+            ],
+        );
     }
 }

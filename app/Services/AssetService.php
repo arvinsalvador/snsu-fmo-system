@@ -22,6 +22,18 @@ class AssetService
         return $this->query($filters)->get();
     }
 
+    public function lookup(string $search = '', int $limit = 50): Collection
+    {
+        return Asset::query()
+            ->select(['id', 'uuid', 'asset_tag', 'name', 'building_id', 'floor_id', 'room_id', 'status'])
+            ->when($search, fn (Builder $query) => $query->where(fn (Builder $query) => $query
+                ->where('asset_tag', 'like', "%{$search}%")
+                ->orWhere('name', 'like', "%{$search}%")))
+            ->orderBy('asset_tag')
+            ->limit(min(max($limit, 1), 100))
+            ->get();
+    }
+
     public function create(array $data): Asset
     {
         return DB::transaction(fn (): Asset => Asset::query()->create($this->normalize($data))->load($this->relations()));

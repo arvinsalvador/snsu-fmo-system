@@ -14,10 +14,7 @@ class AssetMaintenanceRecordPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->can('manage_maintenance')
-            || $user->can('manage_assets')
-            || $user->can('manage_work_orders')
-            || $user->can('view_work_orders');
+        return $user->can('view_maintenance_records') || $user->can('manage_maintenance_records');
     }
 
     public function view(User $user, AssetMaintenanceRecord $record): bool
@@ -27,13 +24,16 @@ class AssetMaintenanceRecordPolicy
 
     public function create(User $user): bool
     {
-        return $user->can('manage_maintenance')
-            || $user->can('manage_work_orders')
-            || $user->can('create_work_order_updates');
+        return $user->can('manage_maintenance_records');
+    }
+
+    public function update(User $user, AssetMaintenanceRecord $record): bool
+    {
+        return $user->can('manage_maintenance_records');
     }
 
     public function export(User $user): bool
     {
-        return $this->viewAny($user);
+        return $user->can('export_maintenance_records') || $user->can('manage_maintenance_records');
     }
 }

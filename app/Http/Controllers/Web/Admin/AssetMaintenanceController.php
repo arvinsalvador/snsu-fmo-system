@@ -5,10 +5,17 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\AssetMaintenance\IndexAssetMaintenanceRecordRequest;
 use App\Http\Requests\Api\V1\AssetMaintenance\StoreAssetMaintenanceRecordRequest;
+use App\Http\Requests\Api\V1\AssetMaintenance\UpdateAssetMaintenanceRecordRequest;
 use App\Models\Asset;
+use App\Models\AssetCategory;
 use App\Models\AssetMaintenanceRecord;
+use App\Models\Building;
+use App\Models\Floor;
+use App\Models\MaintenanceType;
+use App\Models\Room;
 use App\Services\AdminWebService;
 use App\Services\AssetMaintenanceHistoryService;
+use App\Services\AssetService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
@@ -18,6 +25,7 @@ class AssetMaintenanceController extends Controller
 {
     public function __construct(
         private readonly AssetMaintenanceHistoryService $history,
+        private readonly AssetService $assetsService,
         private readonly AdminWebService $web,
     ) {}
 
@@ -25,21 +33,16 @@ class AssetMaintenanceController extends Controller
     {
         Gate::authorize('viewAny', AssetMaintenanceRecord::class);
 
+        $filters = $request->only(['search', 'asset_category_id', 'building_id', 'floor_id', 'room_id', 'status', 'sort', 'direction', 'per_page']);
+
         return view('admin.assets.index', [
-            'assets' => Asset::query()
-                ->with(['category', 'building', 'room'])
-                ->withCount(['maintenanceSchedules', 'maintenanceRecords'])
-                ->when($request->validated('search'), fn ($query, string $search) => $query->where(fn ($query) => $query
-                    ->where('asset_tag', 'like', "%{$search}%")
-                    ->orWhere('name', 'like', "%{$search}%")
-                    ->orWhere('location', 'like', "%{$search}%")
-                    ->orWhere('brand', 'like', "%{$search}%")
-                    ->orWhere('model', 'like', "%{$search}%")
-                    ->orWhere('serial_number', 'like', "%{$search}%")))
-                ->orderBy('asset_tag')
-                ->paginate(15)
-                ->withQueryString(),
-            'filters' => $request->validated(),
+            'assets' => $this->assetsService->paginate($filters),
+            'filters' => $filters,
+            'categories' => AssetCategory::query()->where('is_active', true)->orderBy('name')->get(),
+            'buildings' => Building::query()->where('is_active', true)->orderBy('name')->get(),
+            'floors' => Floor::query()->where('is_active', true)->orderBy('floor_name')->get(),
+            'rooms' => Room::query()->where('is_active', true)->orderBy('room_code')->get(),
+            'statuses' => Asset::STATUSES,
         ]);
     }
 
@@ -63,6 +66,7 @@ class AssetMaintenanceController extends Controller
             'records' => $this->history->paginate($filters),
             'assets' => $this->history->assets(),
             'staff' => $this->history->staff(),
+            'maintenanceTypes' => MaintenanceType::query()->where('is_active', true)->orderBy('name')->get(),
             'filters' => $filters,
         ]);
     }
@@ -77,6 +81,7 @@ class AssetMaintenanceController extends Controller
             'schedules' => $this->history->schedules(),
             'workOrders' => $this->history->workOrders(),
             'staff' => $this->history->staff(),
+            'maintenanceTypes' => MaintenanceType::query()->where('is_active', true)->orderBy('name')->get(),
         ]);
     }
 
@@ -97,11 +102,53 @@ class AssetMaintenanceController extends Controller
         ]);
     }
 
+    public function edit(AssetMaintenanceRecord $assetMaintenanceRecord): View
+    {
+        Gate::authorize('update', $assetMaintenanceRecord);
+
+        return view('admin.asset-maintenance.form', [
+            'record' => $assetMaintenanceRecord->load($this->history->relations()),
+            'assets' => $this->history->assets(),
+            'schedules' => $this->history->schedules(),
+            'workOrders' => $this->history->workOrders(),
+            'staff' => $this->history->staff(),
+            'maintenanceTypes' => MaintenanceType::query()->where('is_active', true)->orderBy('name')->get(),
+        ]);
+    }
+
+    public function update(UpdateAssetMaintenanceRecordRequest $request, AssetMaintenanceRecord $assetMaintenanceRecord): RedirectResponse
+    {
+        Gate::authorize('update', $assetMaintenanceRecord);
+        $this->history->update($assetMaintenanceRecord, $request->validated());
+
+        return to_route('admin.asset-maintenance.show', $assetMaintenanceRecord)->with('success', 'Asset maintenance record updated successfully.');
+    }
+
     public function export(IndexAssetMaintenanceRecordRequest $request): StreamedResponse
     {
-        Gate::authorize('viewAny', AssetMaintenanceRecord::class);
+        Gate::authorize('export', AssetMaintenanceRecord::class);
         $records = $this->history->records($request->validated());
 
-        return $this->web->csv('asset-maintenance-history', ['Asset Tag', 'Asset', 'Schedule', 'Work Order', 'Technician', 'Completion Date', 'Findings', 'Actions Taken', 'Remarks', 'Labor Cost'], $records, fn (AssetMaintenanceRecord $record): array => [$record->asset?->asset_tag, $record->asset?->name, $record->maintenanceSchedule?->title, $record->workOrder?->work_order_number, $record->staffProfile?->user?->name ?? $record->staffProfile?->employee_code, $record->completion_date?->toDateString(), $record->findings, $record->actions_taken, $record->remarks, $record->labor_cost]);
+        return $this->web->csv(
+            'asset-maintenance-history',
+            ['Asset Tag', 'Asset', 'Maintenance Type', 'Schedule', 'Work Order', 'Technician', 'Performed By', 'Completion Date', 'Next Maintenance Date', 'Findings', 'Actions Taken', 'Remarks', 'Labor Cost', 'Total Cost'],
+            $records,
+            fn (AssetMaintenanceRecord $record): array => [
+                $record->asset?->asset_tag,
+                $record->asset?->name,
+                $record->maintenanceType?->name,
+                $record->maintenanceSchedule?->title,
+                $record->workOrder?->work_order_number,
+                $record->staffProfile?->user?->name ?? $record->staffProfile?->employee_code,
+                $record->performed_by,
+                $record->completion_date?->toDateString(),
+                $record->next_maintenance_date?->toDateString(),
+                $record->findings,
+                $record->actions_taken,
+                $record->remarks,
+                $record->labor_cost,
+                $record->total_cost,
+            ],
+        );
     }
 }

@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 9D Asset Work Orders & Maintenance Completion History Completed
+Phase 9.9 Asset and Maintenance Module Stabilization Completed
 
 ---
 
 # Current Phase
 
-## Phase 9D - Asset Work Orders & Maintenance Completion History
+## Phase 9.9 - Asset and Maintenance Module Stabilization
 
 **Status:**
 
@@ -674,6 +674,87 @@ Next recommended phase: Phase 9E - Maintenance completion review and correction 
 
 ---
 
+# Phase 9.9 - Asset and Maintenance Module Stabilization
+
+Completed
+
+Phase 9A - Asset Management Foundation:
+
+* Corrected `GET /api/v1/assets` to use the authorized, filtered, paginated `AssetController@index` resource response
+* Added `GET /api/v1/assets/lookup` for lightweight schedule selectors
+* Added category, status, building, floor, room, sort, and direction filters to the asset web index
+* Expanded non-destructive asset statuses with defective, lost, and disposed values while preserving existing values
+* Added building/floor/room hierarchy validation to asset create and update requests
+* Added asset-category web master-data management and authorized asset navigation
+* Clarified asset photo handling as metadata for existing stored files
+
+Phase 9B - Asset Maintenance History:
+
+* Added forward migration `2026_07_12_000100_stabilize_asset_maintenance_records_table.php`
+* Extended maintenance records with maintenance type, maintenance date, free-text performer, next maintenance date, total cost, and soft deletion support
+* Preserved existing completion, schedule, work-order, staff, user, findings, actions, remarks, and labor-cost fields
+* Added maintenance-record update Form Request, service operation, API endpoint, web edit page, richer API Resource, and expanded CSV columns
+* Registered and enforced `AssetMaintenanceRecordPolicy`
+
+Phase 9C - Preventive Maintenance Scheduling:
+
+* Registered and enforced `MaintenanceSchedulePolicy` for view, create, update, archive, complete, and export actions
+* Restored schedule dashboard/index, create, store, show, edit, update, archive, complete, and export web routes
+* Converted schedule pages to the active Blade component layout and added permission-aware navigation/actions
+* Added schedule Form Requests, API Resource responses, service-based CRUD, soft deletion, and CSV formula escaping
+* Removed date-only placeholder completion behavior; schedule completion now requires detailed actions taken
+
+Phase 9D - Maintenance Completion History:
+
+* Unified schedule and manual maintenance completion through `AssetMaintenanceHistoryService`
+* Completion transaction creates the detailed record and advances schedule last-completed and next-due dates
+* Work-order links now require a work order completed through the official progress workflow
+* Work-order status and completion timestamp are no longer mutated directly by maintenance code
+* Asset building/floor/room location is checked against linked work-order location when the asset location is populated
+* Maintenance timeline, API, web details, editing, filtering, pagination, and CSV exports remain available
+
+Policies and permissions:
+
+* Explicitly registered `AssetPolicy`, `AssetMaintenanceRecordPolicy`, and `MaintenanceSchedulePolicy`
+* Added and assigned granular permissions:
+  * `view_assets`
+  * `manage_assets`
+  * `export_assets`
+  * `view_maintenance_records`
+  * `manage_maintenance_records`
+  * `view_maintenance_schedules`
+  * `manage_maintenance_schedules`
+  * `complete_maintenance_schedules`
+  * `export_maintenance_records`
+  * `export_maintenance_schedules`
+
+Repository cleanup:
+
+* Confirmed tracked `snsu_fmo_system` was an unreferenced SQLite database artifact
+* Backed it up outside the repository with matching SHA-256 checksum
+* Removed the artifact from Git tracking while preserving the ignored local file
+* Reused the restored schedule controller, views, and policies; no direct `feat/asset` merge or old migration recreation was performed
+
+Verification completed:
+
+* Targeted Phase 9A-9D and permission/master-data tests passed
+* Full test suite: 151 passed / 775 assertions
+* Laravel Pint: 307 files passed
+* Vite production build passed
+* Asset and maintenance route lists reviewed
+* `git diff --check` passed
+
+Final stabilized status:
+
+* Phase 9A: Complete
+* Phase 9B: Complete
+* Phase 9C: Complete
+* Phase 9D: Complete
+
+Next recommended phase: Phase 9E only after explicit user confirmation.
+
+---
+
 # Planned Development Roadmap
 
 ---
@@ -1023,7 +1104,7 @@ Includes:
 
 # Current Priority
 
-Proceed to Phase 9E only after user confirmation.
+Phase 9A through Phase 9D are stabilized and complete. Proceed to Phase 9E only after user confirmation.
 
 Recommended approach: add a controlled maintenance completion review and correction workflow with audit safeguards, without implementing reports, analytics, QR codes, mobile sync, procurement, depreciation, barcode support, or new dashboard scope.
 
