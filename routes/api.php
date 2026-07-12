@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\AssignmentIntelligenceController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\InventoryIntelligenceController;
 use App\Http\Controllers\Api\V1\InventoryItemController;
+use App\Http\Controllers\Api\V1\KpiController;
 use App\Http\Controllers\Api\V1\MasterData\AssetCategoryController;
 use App\Http\Controllers\Api\V1\MasterData\BuildingController;
 use App\Http\Controllers\Api\V1\MasterData\DepartmentController;
@@ -43,6 +44,22 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('kpi-definitions', [KpiController::class, 'definitions'])->name('kpi-definitions.index');
+        Route::get('kpi-definitions/{kpiDefinition}', [KpiController::class, 'definition'])->name('kpi-definitions.show');
+        Route::get('kpi-targets', [KpiController::class, 'targets'])->name('kpi-targets.index');
+        Route::post('kpi-targets', [KpiController::class, 'storeTarget'])->name('kpi-targets.store');
+        Route::get('kpi-targets/{kpiTarget}', [KpiController::class, 'target'])->name('kpi-targets.show');
+        Route::patch('kpi-targets/{kpiTarget}', [KpiController::class, 'updateTarget'])->name('kpi-targets.update');
+        Route::delete('kpi-targets/{kpiTarget}', [KpiController::class, 'destroyTarget'])->name('kpi-targets.destroy');
+        Route::post('kpi-targets/{kpiTarget}/evaluate', [KpiController::class, 'evaluate'])->name('kpi-targets.evaluate');
+        Route::get('kpi-targets/{kpiTarget}/evaluations', [KpiController::class, 'evaluations'])->name('kpi-targets.evaluations');
+        Route::get('kpi-scorecard', [KpiController::class, 'scorecard'])->name('kpi-scorecard');
+        Route::get('kpi-corrective-actions', [KpiController::class, 'actions'])->name('kpi-corrective-actions.index');
+        Route::post('kpi-corrective-actions', [KpiController::class, 'storeAction'])->name('kpi-corrective-actions.store');
+        Route::get('kpi-corrective-actions/{correctiveAction}', [KpiController::class, 'action'])->name('kpi-corrective-actions.show');
+        Route::patch('kpi-corrective-actions/{correctiveAction}', [KpiController::class, 'updateAction'])->name('kpi-corrective-actions.update');
+        Route::post('kpi-corrective-actions/{correctiveAction}/complete', [KpiController::class, 'transition'])->name('kpi-corrective-actions.complete');
+        Route::post('kpi-corrective-actions/{correctiveAction}/cancel', [KpiController::class, 'transition'])->name('kpi-corrective-actions.cancel');
         Route::apiResource('users', UserController::class)->only(['index', 'store', 'show', 'update']);
         Route::patch('users/{user}/activate', [UserController::class, 'activate'])->name('users.activate');
         Route::patch('users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');

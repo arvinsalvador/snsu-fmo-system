@@ -18,7 +18,7 @@ class ReportTemplate extends Model
 
     public const FORMATS = ['pdf', 'csv', 'print_view'];
 
-    public const SECTIONS = ['title_page', 'reporting_period', 'executive_summary', 'key_performance_indicators', 'work_order_summary', 'asset_summary', 'maintenance_schedule_summary', 'maintenance_completion_summary', 'review_workflow_summary', 'inventory_summary', 'staff_workload_summary', 'building_level_summary', 'charts', 'detailed_tables', 'recommendations', 'generated_by', 'applied_filters', 'signature_section', 'footer'];
+    public const SECTIONS = ['title_page', 'reporting_period', 'executive_summary', 'key_performance_indicators', 'kpi_scorecard', 'work_order_summary', 'asset_summary', 'maintenance_schedule_summary', 'maintenance_completion_summary', 'review_workflow_summary', 'inventory_summary', 'staff_workload_summary', 'building_level_summary', 'charts', 'detailed_tables', 'recommendations', 'generated_by', 'applied_filters', 'signature_section', 'footer'];
 
     protected function casts(): array
     {

@@ -95,6 +95,7 @@ class RoleAndPermissionSeeder extends Seeder
         'manage_report_schedules',
         'run_report_schedules',
         'view_report_delivery_logs',
+        'view_kpi_scorecards', 'view_kpi_definitions', 'manage_kpi_definitions', 'view_kpi_targets', 'manage_kpi_targets', 'assign_kpi_owners', 'evaluate_kpis', 'view_kpi_evaluations', 'view_kpi_corrective_actions', 'manage_kpi_corrective_actions', 'complete_kpi_corrective_actions', 'export_kpi_reports',
         'manage_notifications',
         'view_followups',
         'create_followups',
@@ -185,6 +186,7 @@ class RoleAndPermissionSeeder extends Seeder
                     'manage_report_schedules',
                     'run_report_schedules',
                     'view_report_delivery_logs',
+                    'view_kpi_scorecards', 'view_kpi_definitions', 'manage_kpi_definitions', 'view_kpi_targets', 'manage_kpi_targets', 'assign_kpi_owners', 'evaluate_kpis', 'view_kpi_evaluations', 'view_kpi_corrective_actions', 'manage_kpi_corrective_actions', 'complete_kpi_corrective_actions', 'export_kpi_reports',
                 ]);
             }
 

@@ -8,6 +8,7 @@ use App\Http\Controllers\Web\Admin\AssetMaintenanceReviewController;
 use App\Http\Controllers\Web\Admin\AssetManagementController;
 use App\Http\Controllers\Web\Admin\InventoryIntelligenceController;
 use App\Http\Controllers\Web\Admin\InventoryManagementController;
+use App\Http\Controllers\Web\Admin\KpiController as AdminKpiController;
 use App\Http\Controllers\Web\Admin\ReportController;
 use App\Http\Controllers\Web\Admin\ReportPublishingController;
 use App\Http\Controllers\Web\Admin\SkillManagementController;
@@ -71,6 +72,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/maintenance-schedules/{maintenanceSchedule}', [MaintenanceScheduleController::class, 'destroy'])->name('maintenance-schedules.destroy');
     Route::post('/maintenance-schedules/{maintenanceSchedule}/complete', [MaintenanceScheduleController::class, 'complete'])->name('maintenance-schedules.complete');
     Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('kpi-scorecards', [AdminKpiController::class, 'scorecard'])->name('kpi-scorecards.index');
+        Route::get('kpi-scorecards/export', [AdminKpiController::class, 'export'])->name('kpi-scorecards.export');
+        Route::get('kpi-definitions', [AdminKpiController::class, 'definitions'])->name('kpi-definitions.index');
+        Route::get('kpi-targets', [AdminKpiController::class, 'targets'])->name('kpi-targets.index');
+        Route::get('kpi-targets/create', [AdminKpiController::class, 'create'])->name('kpi-targets.create');
+        Route::post('kpi-targets', [AdminKpiController::class, 'store'])->name('kpi-targets.store');
+        Route::get('kpi-targets/{kpiTarget}', [AdminKpiController::class, 'show'])->name('kpi-targets.show');
+        Route::post('kpi-targets/{kpiTarget}/evaluate', [AdminKpiController::class, 'evaluate'])->name('kpi-targets.evaluate');
+        Route::get('kpi-corrective-actions', [AdminKpiController::class, 'actions'])->name('kpi-corrective-actions.index');
         Route::get('users/export', [UserManagementController::class, 'export'])->name('users.export');
         Route::patch('users/{user}/activate', [UserManagementController::class, 'activate'])->name('users.activate');
         Route::patch('users/{user}/deactivate', [UserManagementController::class, 'deactivate'])->name('users.deactivate');

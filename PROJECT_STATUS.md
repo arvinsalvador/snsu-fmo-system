@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 10B Printable Reports, Scheduled Reports, and Management Summaries Completed
+Phase 10C KPI Targets, Performance Scorecards, and Trend Monitoring Completed
 
 ---
 
 # Current Phase
 
-## Phase 10B - Printable Reports, Scheduled Reports, and Management Summaries
+## Phase 10C - KPI Targets, Performance Scorecards, and Trend Monitoring
 
 **Status:**
 
@@ -1189,6 +1189,60 @@ Includes:
 ---
 
 # Current Priority
+
+## Phase 10C Delivery
+
+Completed:
+
+* Controlled KPI metric registry backed exclusively by Phase 10A reporting calculations; no raw formulas or executable expressions
+* KPI definitions, scoped targets, immutable daily evaluations, corrective actions, and private evidence metadata
+* Eighteen system KPIs covering work orders, assets, preventive maintenance, maintenance reviews, inventory availability, and maintenance cost
+* Organization and building target scopes, overlap prevention, ownership, thresholds, lifecycle statuses, and protected system definitions
+* Deterministic 0–100 scoring for higher-is-better, lower-is-better, and target-range KPIs
+* Explicit `no_data`, `on_track`, `at_risk`, `achieved`, and `missed` states with improving, declining, stable, and insufficient-data trends
+* Dedicated management scorecard, category scores, status totals, target drill-down, accessible evaluation history, and CSV export
+* Corrective actions with assignment, priority, due dates, completion/cancellation transitions, overdue detection, and private evidence foundation
+* Owner/status/action notifications plus persistent due-soon and overdue notification deduplication
+* Daily queued KPI evaluation and daily corrective-action alert commands with overlap protection
+* API v1 endpoints and permission-aware Blade pages for definitions, targets, scorecards, evaluations, and corrective actions
+* Report audit observer integration and KPI scorecard sections in Phase 10B printable/generated reports
+
+Approved formulas:
+
+* Completion, availability, compliance, approval, correction, defective, overdue, and coverage rates use `part / total * 100`; zero denominators return `no_data`.
+* Higher-is-better score is `actual / target * 100`; lower-is-better is `target / actual * 100`; displayed scores are capped to 0–100.
+* Target-range scores are 100 inside the range and decline proportionally to distance outside the range.
+* Zero targets are handled explicitly: actual zero achieves 100; non-zero actual receives zero and at-risk/missed status.
+* Final-period failures are `missed`; before period end, values below the configured warning threshold or below 90 score are `at_risk`.
+* Trend direction compares immutable consecutive evaluations and respects KPI direction. No forecasts are produced.
+
+Operations:
+
+* `kpis:evaluate-due` runs daily at 01:00 and queues `EvaluateKpiTargetJob`.
+* `kpis:notify-corrective-actions` runs daily at 08:00 for deduplicated due-soon and overdue alerts.
+* Laravel scheduler and queue workers remain required; no operating-system cron configuration was modified.
+
+Verification completed July 12, 2026:
+
+* Phase 10C tests: 5 passed, 15 assertions
+* Full Sail suite: 177 passed, 910 assertions
+* Laravel Pint: 390 files passed
+* Vite production build: passed
+* KPI route review: 25 authenticated web/API routes
+* Scheduler review: report generation plus both KPI commands registered
+* Live migration and KPI/permission seeding: passed
+* No Git operation was performed; `git diff --check` was intentionally omitted under the explicit prohibition.
+
+Known limitations:
+
+* Reliable target scope is limited to organization and building until users and report queries have formal department/staff scope mappings.
+* Reopened-work-order, material-cost, and predictive KPIs are intentionally excluded because current data cannot calculate them reliably.
+* Corrective-action evidence has private storage metadata foundations; no direct public file paths are exposed.
+* KPI charts use existing Chart.js-capable reporting surfaces; printed reports include accessible scorecard tables.
+
+Phase 1 through Phase 10C are complete. Stop and wait for confirmation before Phase 11 or mobile work.
+
+---
 
 ## Phase 10B Delivery
 

@@ -46,7 +46,7 @@ class ReportGenerationService
         $report = $this->reportSlug($template->report_type);
         $detail = $report ? $this->reports->report($report, [...$filters, 'per_page' => 100]) : null;
 
-        return ['dashboard' => $dashboard, 'detail' => $detail, 'summary' => ['metrics' => $dashboard['metrics'], 'narrative' => $this->summaries->generate($dashboard, $previous)]];
+        return ['dashboard' => $dashboard, 'detail' => $detail, 'kpi_scorecard' => app(KpiScorecardService::class)->build(), 'summary' => ['metrics' => $dashboard['metrics'], 'narrative' => $this->summaries->generate($dashboard, $previous)]];
     }
 
     private function render(ReportTemplate $template, array $filters, array $data, User $user): string
