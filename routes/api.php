@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\MaintenanceScheduleController;
 use App\Http\Controllers\Api\V1\AssetController;
 use App\Http\Controllers\Api\V1\AssetMaintenanceRecordController;
+use App\Http\Controllers\Api\V1\AssetMaintenanceReviewController;
 use App\Http\Controllers\Api\V1\AssignmentIntelligenceController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\InventoryIntelligenceController;
@@ -111,7 +112,16 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::match(['put', 'patch'], 'assets/{asset}', [AssetController::class, 'update'])->name('assets.update');
         Route::delete('assets/{asset}', [AssetController::class, 'destroy'])->name('assets.destroy');
         Route::get('asset-maintenance-records/export', [AssetMaintenanceRecordController::class, 'export'])->name('asset-maintenance-records.export');
-        Route::apiResource('asset-maintenance-records', AssetMaintenanceRecordController::class)->only(['index', 'store', 'show', 'update']);
+        Route::apiResource('asset-maintenance-records', AssetMaintenanceRecordController::class)->only(['index', 'store', 'show']);
+        Route::get('maintenance-reviews', [AssetMaintenanceReviewController::class, 'index'])->name('maintenance-reviews.index');
+        Route::get('maintenance-records/{record}/review', [AssetMaintenanceReviewController::class, 'show'])->name('maintenance-records.review.show');
+        Route::post('maintenance-records/{record}/submit-review', [AssetMaintenanceReviewController::class, 'resubmit'])->name('maintenance-records.review.submit');
+        Route::post('maintenance-records/{record}/approve', [AssetMaintenanceReviewController::class, 'approve'])->name('maintenance-records.review.approve');
+        Route::post('maintenance-records/{record}/request-correction', [AssetMaintenanceReviewController::class, 'requestCorrection'])->name('maintenance-records.review.request-correction');
+        Route::patch('maintenance-records/{record}/correction', [AssetMaintenanceReviewController::class, 'correction'])->name('maintenance-records.review.correction');
+        Route::post('maintenance-records/{record}/resubmit', [AssetMaintenanceReviewController::class, 'resubmit'])->name('maintenance-records.review.resubmit');
+        Route::post('maintenance-records/{record}/reject', [AssetMaintenanceReviewController::class, 'reject'])->name('maintenance-records.review.reject');
+        Route::post('maintenance-records/{record}/reopen', [AssetMaintenanceReviewController::class, 'reopen'])->name('maintenance-records.review.reopen');
         Route::get('maintenance-schedules/export', [MaintenanceScheduleController::class, 'export'])->name('maintenance-schedules.export');
         Route::get('maintenance-schedules/upcoming', [MaintenanceScheduleController::class, 'upcoming'])->name('maintenance-schedules.upcoming');
         Route::get('maintenance-schedules/overdue', [MaintenanceScheduleController::class, 'overdue'])->name('maintenance-schedules.overdue');

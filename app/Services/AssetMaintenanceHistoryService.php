@@ -17,6 +17,8 @@ use Illuminate\Validation\ValidationException;
 
 class AssetMaintenanceHistoryService
 {
+    public function __construct(private readonly AssetMaintenanceReviewService $reviews) {}
+
     /** @param array<string, mixed> $filters */
     public function query(array $filters = []): Builder
     {
@@ -43,6 +45,7 @@ class AssetMaintenanceHistoryService
             ->when($filters['work_order_id'] ?? null, fn (Builder $query, int|string $workOrderId) => $query->where('work_order_id', $workOrderId))
             ->when($filters['staff_profile_id'] ?? null, fn (Builder $query, int|string $staffId) => $query->where('staff_profile_id', $staffId))
             ->when($filters['maintenance_type_id'] ?? null, fn (Builder $query, int|string $typeId) => $query->where('maintenance_type_id', $typeId))
+            ->when($filters['review_status'] ?? null, fn (Builder $query, string $status) => $query->where('review_status', $status))
             ->when($filters['completed_from'] ?? null, fn (Builder $query, string $date) => $query->whereDate('completion_date', '>=', $date))
             ->when($filters['completed_to'] ?? null, fn (Builder $query, string $date) => $query->whereDate('completion_date', '<=', $date))
             ->orderBy($sort, $direction)
@@ -97,6 +100,8 @@ class AssetMaintenanceHistoryService
                 'completed_by' => $actor?->id,
             ]);
 
+            $record = $this->reviews->initialize($record, $actor);
+
             if ($schedule) {
                 $months = MaintenanceSchedule::FREQUENCIES[$schedule->frequency];
                 $completed = Carbon::parse($completionDate);
@@ -104,50 +109,6 @@ class AssetMaintenanceHistoryService
                     'last_completed_date' => $completed->toDateString(),
                     'next_due_date' => $data['next_maintenance_date'] ?? $completed->copy()->addMonthsNoOverflow($months)->toDateString(),
                     'is_active' => true,
-                ]);
-            }
-
-            return $record->refresh()->load($this->relations());
-        });
-    }
-
-    /** @param array<string, mixed> $data */
-    public function update(AssetMaintenanceRecord $record, array $data): AssetMaintenanceRecord
-    {
-        return DB::transaction(function () use ($data, $record): AssetMaintenanceRecord {
-            $record = AssetMaintenanceRecord::query()->lockForUpdate()->findOrFail($record->id);
-            $assetId = (int) ($data['asset_id'] ?? $record->asset_id);
-            $scheduleId = $data['maintenance_schedule_id'] ?? $record->maintenance_schedule_id;
-            $workOrderId = $data['work_order_id'] ?? $record->work_order_id;
-            $schedule = $scheduleId ? MaintenanceSchedule::query()->lockForUpdate()->findOrFail($scheduleId) : null;
-            $workOrder = $workOrderId ? WorkOrder::query()->with('status')->findOrFail($workOrderId) : null;
-
-            if ($schedule && (int) $schedule->asset_id !== $assetId) {
-                throw ValidationException::withMessages([
-                    'maintenance_schedule_id' => 'The maintenance schedule must belong to the selected asset.',
-                ]);
-            }
-            if ($workOrder && ($workOrder->status?->name !== 'Completed' || ! $workOrder->completed_at)) {
-                throw ValidationException::withMessages([
-                    'work_order_id' => 'A maintenance record may only link to a completed work order.',
-                ]);
-            }
-            $this->validateWorkOrderLocation($workOrder, $assetId);
-
-            $data['maintenance_date'] = isset($data['maintenance_date'])
-                ? Carbon::parse($data['maintenance_date'])->toDateString()
-                : $record->maintenance_date?->toDateString();
-            if (array_key_exists('total_cost', $data) && ! array_key_exists('labor_cost', $data)) {
-                $data['labor_cost'] = $data['total_cost'];
-            }
-            $record->update($data);
-
-            if ($schedule && isset($data['completion_date'])) {
-                $completed = Carbon::parse($data['completion_date']);
-                $schedule->update([
-                    'last_completed_date' => $completed->toDateString(),
-                    'next_due_date' => $data['next_maintenance_date']
-                        ?? $completed->copy()->addMonthsNoOverflow(MaintenanceSchedule::FREQUENCIES[$schedule->frequency])->toDateString(),
                 ]);
             }
 
@@ -163,7 +124,7 @@ class AssetMaintenanceHistoryService
     /** @return array<int, string> */
     public function relations(): array
     {
-        return ['asset', 'maintenanceType', 'maintenanceSchedule', 'workOrder.status', 'staffProfile.user', 'completedBy'];
+        return ['asset', 'maintenanceType', 'maintenanceSchedule', 'workOrder.status', 'staffProfile.user', 'completedBy', 'reviewer', 'correctionRequester', 'corrector', 'reviewActions.actor'];
     }
 
     /** @return Collection<int, Asset> */

@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 9.9 Asset and Maintenance Module Stabilization Completed
+Phase 9E Maintenance Review, Correction, and Approval Workflow Completed
 
 ---
 
 # Current Phase
 
-## Phase 9.9 - Asset and Maintenance Module Stabilization
+## Phase 9E - Maintenance Review, Correction, and Approval Workflow
 
 **Status:**
 
@@ -755,6 +755,90 @@ Next recommended phase: Phase 9E only after explicit user confirmation.
 
 ---
 
+# Phase 9E - Maintenance Review, Correction, and Approval Workflow
+
+Completed
+
+Database and models:
+
+* Added forward migration `2026_07_12_000200_add_maintenance_review_workflow.php`
+* Existing maintenance records default to `approved` to preserve their historical finalized state
+* New maintenance records automatically enter `pending_review`
+* Added review ownership, timestamps, notes, correction, rejection, and locking fields to `asset_maintenance_records`
+* Added immutable UUID-backed `asset_maintenance_review_actions` history with actor, timestamp, previous/new status, comments, and JSON change metadata
+* Added `AssetMaintenanceReviewAction` model and maintenance-record review relationships
+
+Review statuses and transitions:
+
+* `pending_review` -> `approved`
+* `pending_review` -> `correction_requested`
+* `correction_requested` -> `corrected`
+* `corrected` -> `pending_review` through explicit resubmission
+* `corrected` -> `approved`
+* `pending_review` or `corrected` -> `rejected`
+* `approved` or `rejected` -> `pending_review` through authorized administrative reopening
+* Approved and rejected records are locked; ordinary maintenance updates were removed so corrections cannot bypass review history
+* Corrections preserve before/after values and evidence metadata in immutable review actions
+* Review approval does not rerun maintenance completion, advance schedules, or mutate work-order completion
+
+Permissions and policy:
+
+* Added permissions:
+  * `view_maintenance_reviews`
+  * `review_maintenance_records`
+  * `approve_maintenance_records`
+  * `request_maintenance_corrections`
+  * `correct_maintenance_records`
+  * `reject_maintenance_records`
+  * `reopen_maintenance_records`
+* FMO Head, Campus Director, and Director for Instruction receive review, approval, correction-request, correction, and rejection permissions
+* FMO Staff receive correction permission, constrained by record ownership or technician assignment
+* Reopening is reserved for Super Admin through the existing all-permissions assignment
+* Creators cannot approve, reject, or request correction on their own records; Super Admin retains controlled policy override
+* `AssetMaintenanceRecordPolicy` now governs dashboard visibility, review, approval, correction request, correction, resubmission, rejection, and reopening
+
+Services and notifications:
+
+* Added transactional `AssetMaintenanceReviewService`
+* Added automatic review submission when maintenance completion is created
+* Added immutable review-action creation for submission, approval, correction request, correction, resubmission, rejection, and reopening
+* Added database notifications for every review transition using `AssetMaintenanceReviewNotification`
+* Reviewer notifications target active users with review permission
+* Creator and assigned-technician notifications use existing Laravel database notification infrastructure
+
+API:
+
+* Added paginated and filterable `GET /api/v1/maintenance-reviews`
+* Added review detail, submit/resubmit, approve, request-correction, correction, reject, and reopen endpoints under `/api/v1/maintenance-records/{record}`
+* Added Form Requests for every state-changing review operation
+* Added review history API Resource and expanded maintenance-record resources with review state and history
+* Filters support review status, asset, building, maintenance type, creator, reviewer, date range, and pending reviewer action
+
+Web interface and exports:
+
+* Added maintenance review dashboard with pending, correction-requested, corrected, approved-this-month, and rejected metrics
+* Added filterable/paginated review list, review detail, permission-aware actions, correction form, and review timeline
+* Added authorized Maintenance Reviews navigation
+* Added review-dashboard CSV export
+* Extended maintenance exports with review status, reviewer, dates, correction details/count, rejection reason, and lock date
+
+Tests and verification:
+
+* Added API tests for automatic submission, approval separation, correction workflow, resubmission, rejection, reopening, locking, invalid transitions, immutable history, notifications, filters, pagination, and CSV export
+* Added web tests for review dashboard/detail, approval, correction UI, navigation authorization, and access denial
+* Phase 9E targeted tests: 11 passed / 63 assertions
+* Full test suite: 162 passed / 836 assertions
+* Laravel Pint: 321 files passed
+* Vite production build passed
+* API and web review routes reviewed
+* `git diff --check` passed
+
+Phase 9E status: Complete
+
+Phase 10 was not started.
+
+---
+
 # Planned Development Roadmap
 
 ---
@@ -1104,7 +1188,7 @@ Includes:
 
 # Current Priority
 
-Phase 9A through Phase 9D are stabilized and complete. Proceed to Phase 9E only after user confirmation.
+Phase 9A through Phase 9E are complete. Wait for explicit user confirmation before beginning any subsequent phase.
 
 Recommended approach: add a controlled maintenance completion review and correction workflow with audit safeguards, without implementing reports, analytics, QR codes, mobile sync, procurement, depreciation, barcode support, or new dashboard scope.
 

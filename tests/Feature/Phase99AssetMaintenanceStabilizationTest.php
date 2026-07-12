@@ -91,10 +91,10 @@ class Phase99AssetMaintenanceStabilizationTest extends TestCase
         $this->actingAs($head)->get(route('maintenance-schedules.edit', $schedule))->assertOk()->assertSee('Edit Maintenance Schedule');
     }
 
-    public function test_maintenance_fields_can_be_created_and_updated(): void
+    public function test_maintenance_fields_can_be_created(): void
     {
         $this->seedFoundation();
-        Sanctum::actingAs($this->userWithRole('FMO Head'));
+        Sanctum::actingAs($this->userWithRole('Super Admin'));
         $asset = Asset::factory()->create();
         $type = MaintenanceType::query()->firstOrFail();
 
@@ -111,13 +111,10 @@ class Phase99AssetMaintenanceStabilizationTest extends TestCase
             ->assertJsonPath('data.record.maintenance_type.name', $type->name)
             ->assertJsonPath('data.record.performed_by', 'External HVAC Team');
 
-        $recordId = $response->json('data.record.id');
-        $this->patchJson("/api/v1/asset-maintenance-records/{$recordId}", [
-            'remarks' => 'Reviewed and corrected.',
-            'total_cost' => 2750,
-        ])->assertOk()
-            ->assertJsonPath('data.record.remarks', 'Reviewed and corrected.')
-            ->assertJsonPath('data.record.total_cost', '2750.00');
+        $this->assertDatabaseHas('asset_maintenance_records', [
+            'id' => $response->json('data.record.id'),
+            'total_cost' => 2500,
+        ]);
     }
 
     public function test_schedule_completion_creates_detailed_record_and_rolls_dates(): void
@@ -217,7 +214,7 @@ class Phase99AssetMaintenanceStabilizationTest extends TestCase
         Sanctum::actingAs($faculty);
 
         $this->getJson('/api/v1/asset-maintenance-records')->assertForbidden();
-        $this->patchJson("/api/v1/asset-maintenance-records/{$record->id}", ['remarks' => 'Denied'])->assertForbidden();
+        $this->patchJson("/api/v1/asset-maintenance-records/{$record->id}", ['remarks' => 'Denied'])->assertMethodNotAllowed();
         $this->get('/api/v1/asset-maintenance-records/export')->assertForbidden();
     }
 

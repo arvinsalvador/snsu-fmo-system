@@ -4,6 +4,7 @@ use App\Http\Controllers\MaintenanceScheduleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Admin\AccessControlController;
 use App\Http\Controllers\Web\Admin\AssetMaintenanceController;
+use App\Http\Controllers\Web\Admin\AssetMaintenanceReviewController;
 use App\Http\Controllers\Web\Admin\AssetManagementController;
 use App\Http\Controllers\Web\Admin\InventoryIntelligenceController;
 use App\Http\Controllers\Web\Admin\InventoryManagementController;
@@ -111,8 +112,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('asset-maintenance/create', [AssetMaintenanceController::class, 'create'])->name('asset-maintenance.create');
         Route::post('asset-maintenance', [AssetMaintenanceController::class, 'store'])->name('asset-maintenance.store');
         Route::get('asset-maintenance/{assetMaintenanceRecord}', [AssetMaintenanceController::class, 'show'])->name('asset-maintenance.show');
-        Route::get('asset-maintenance/{assetMaintenanceRecord}/edit', [AssetMaintenanceController::class, 'edit'])->name('asset-maintenance.edit');
-        Route::put('asset-maintenance/{assetMaintenanceRecord}', [AssetMaintenanceController::class, 'update'])->name('asset-maintenance.update');
+        Route::get('maintenance-reviews/export', [AssetMaintenanceReviewController::class, 'export'])->name('maintenance-reviews.export');
+        Route::get('maintenance-reviews', [AssetMaintenanceReviewController::class, 'index'])->name('maintenance-reviews.index');
+        Route::get('maintenance-reviews/{record}', [AssetMaintenanceReviewController::class, 'show'])->name('maintenance-reviews.show');
+        Route::get('maintenance-reviews/{record}/correction', [AssetMaintenanceReviewController::class, 'editCorrection'])->name('maintenance-reviews.correction.edit');
+        Route::patch('maintenance-reviews/{record}/correction', [AssetMaintenanceReviewController::class, 'correction'])->name('maintenance-reviews.correction.update');
+        Route::post('maintenance-reviews/{record}/approve', [AssetMaintenanceReviewController::class, 'approve'])->name('maintenance-reviews.approve');
+        Route::post('maintenance-reviews/{record}/request-correction', [AssetMaintenanceReviewController::class, 'requestCorrection'])->name('maintenance-reviews.request-correction');
+        Route::post('maintenance-reviews/{record}/resubmit', [AssetMaintenanceReviewController::class, 'resubmit'])->name('maintenance-reviews.resubmit');
+        Route::post('maintenance-reviews/{record}/reject', [AssetMaintenanceReviewController::class, 'reject'])->name('maintenance-reviews.reject');
+        Route::post('maintenance-reviews/{record}/reopen', [AssetMaintenanceReviewController::class, 'reopen'])->name('maintenance-reviews.reopen');
 
         Route::get('inventory/export', [InventoryManagementController::class, 'export'])->name('inventory.export');
         Route::post('inventory/{inventoryItem}/stock-in', [InventoryManagementController::class, 'stockIn'])->name('inventory.stock-in');

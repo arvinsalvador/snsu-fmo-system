@@ -6,9 +6,6 @@
                 <h1 class="text-2xl font-semibold text-gray-900">Maintenance completion</h1>
             </div>
             <div class="flex gap-2">
-                @can('update', $record)
-                    <a href="{{ route('admin.asset-maintenance.edit', $record) }}" class="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white">Edit</a>
-                @endcan
                 <a href="{{ route('admin.assets.show', $record->asset) }}" class="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700">Asset history</a>
             </div>
         </div>

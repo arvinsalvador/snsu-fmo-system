@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\AssetMaintenance\IndexAssetMaintenanceRecordRequest;
 use App\Http\Requests\Api\V1\AssetMaintenance\StoreAssetMaintenanceRecordRequest;
-use App\Http\Requests\Api\V1\AssetMaintenance\UpdateAssetMaintenanceRecordRequest;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\AssetMaintenanceRecord;
@@ -102,28 +101,6 @@ class AssetMaintenanceController extends Controller
         ]);
     }
 
-    public function edit(AssetMaintenanceRecord $assetMaintenanceRecord): View
-    {
-        Gate::authorize('update', $assetMaintenanceRecord);
-
-        return view('admin.asset-maintenance.form', [
-            'record' => $assetMaintenanceRecord->load($this->history->relations()),
-            'assets' => $this->history->assets(),
-            'schedules' => $this->history->schedules(),
-            'workOrders' => $this->history->workOrders(),
-            'staff' => $this->history->staff(),
-            'maintenanceTypes' => MaintenanceType::query()->where('is_active', true)->orderBy('name')->get(),
-        ]);
-    }
-
-    public function update(UpdateAssetMaintenanceRecordRequest $request, AssetMaintenanceRecord $assetMaintenanceRecord): RedirectResponse
-    {
-        Gate::authorize('update', $assetMaintenanceRecord);
-        $this->history->update($assetMaintenanceRecord, $request->validated());
-
-        return to_route('admin.asset-maintenance.show', $assetMaintenanceRecord)->with('success', 'Asset maintenance record updated successfully.');
-    }
-
     public function export(IndexAssetMaintenanceRecordRequest $request): StreamedResponse
     {
         Gate::authorize('export', AssetMaintenanceRecord::class);
@@ -131,7 +108,7 @@ class AssetMaintenanceController extends Controller
 
         return $this->web->csv(
             'asset-maintenance-history',
-            ['Asset Tag', 'Asset', 'Maintenance Type', 'Schedule', 'Work Order', 'Technician', 'Performed By', 'Completion Date', 'Next Maintenance Date', 'Findings', 'Actions Taken', 'Remarks', 'Labor Cost', 'Total Cost'],
+            ['Asset Tag', 'Asset', 'Maintenance Type', 'Schedule', 'Work Order', 'Technician', 'Performed By', 'Completion Date', 'Next Maintenance Date', 'Findings', 'Actions Taken', 'Remarks', 'Labor Cost', 'Total Cost', 'Review Status', 'Reviewer', 'Reviewed At', 'Correction Requested At', 'Correction Reason', 'Correction Count', 'Rejection Reason', 'Locked At'],
             $records,
             fn (AssetMaintenanceRecord $record): array => [
                 $record->asset?->asset_tag,
@@ -148,6 +125,14 @@ class AssetMaintenanceController extends Controller
                 $record->remarks,
                 $record->labor_cost,
                 $record->total_cost,
+                $record->review_status,
+                $record->reviewer?->name,
+                $record->reviewed_at?->toIso8601String(),
+                $record->correction_requested_at?->toIso8601String(),
+                $record->correction_reason,
+                $record->reviewActions->where('action', 'corrected')->count(),
+                $record->rejection_reason,
+                $record->locked_at?->toIso8601String(),
             ],
         );
     }

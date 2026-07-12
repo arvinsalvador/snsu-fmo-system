@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -27,6 +28,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'labor_cost',
     'total_cost',
     'next_maintenance_date',
+    'review_status',
+    'reviewed_by',
+    'reviewed_at',
+    'review_notes',
+    'correction_requested_by',
+    'correction_requested_at',
+    'correction_reason',
+    'corrected_by',
+    'corrected_at',
+    'rejection_reason',
+    'locked_at',
 ])]
 class AssetMaintenanceRecord extends Model
 {
@@ -41,6 +53,10 @@ class AssetMaintenanceRecord extends Model
             'labor_cost' => 'decimal:2',
             'total_cost' => 'decimal:2',
             'next_maintenance_date' => 'date',
+            'reviewed_at' => 'datetime',
+            'correction_requested_at' => 'datetime',
+            'corrected_at' => 'datetime',
+            'locked_at' => 'datetime',
         ];
     }
 
@@ -72,5 +88,25 @@ class AssetMaintenanceRecord extends Model
     public function completedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'completed_by');
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function correctionRequester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'correction_requested_by');
+    }
+
+    public function corrector(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'corrected_by');
+    }
+
+    public function reviewActions(): HasMany
+    {
+        return $this->hasMany(AssetMaintenanceReviewAction::class);
     }
 }
