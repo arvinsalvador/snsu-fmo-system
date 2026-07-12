@@ -1,0 +1,14 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+
+import '../../app/providers.dart';
+import '../../core/network/api_error.dart';
+import '../../data/models/app_notification.dart';
+import '../../data/repositories/repositories.dart';
+import '../../shared/widgets.dart';
+
+class NotificationsScreen extends ConsumerStatefulWidget{const NotificationsScreen({super.key});@override ConsumerState<NotificationsScreen>createState()=>_NotificationsState();}
+class _NotificationsState extends ConsumerState<NotificationsScreen>{PageResult<AppNotification>? result;Object? error;bool unread=false,loading=true;@override void initState(){super.initState();_load();}Future<void>_load({int page=1})async{setState((){loading=true;error=null;});try{final v=await ref.read(notificationRepositoryProvider).list(unread:unread,page:page);if(mounted)setState(()=>result=v);ref.invalidate(unreadCountProvider);}catch(e){if(mounted)setState(()=>error=e);}finally{if(mounted)setState(()=>loading=false);}}Future<void>_read(AppNotification n)async{if(!n.isRead)await ref.read(notificationRepositoryProvider).read(n.uuid);await _load(page:result?.page??1);if(!mounted)return;final route=_safeRoute(n.route);if(route!=null)context.push(route);}String?_safeRoute(String? value){if(value==null)return null;final uri=Uri.tryParse(value);if(uri==null||uri.hasScheme||!value.startsWith('/'))return null;const allowed=['/work-orders/','/assets/','/maintenance/','/profile'];return allowed.any(value.startsWith)?value:null;}Future<void>_all()async{await ref.read(notificationRepositoryProvider).readAll();await _load();}
+ @override Widget build(BuildContext c)=>Column(children:[Padding(padding:const EdgeInsets.fromLTRB(16,12,8,8),child:Row(children:[FilterChip(label:const Text('Unread only'),selected:unread,onSelected:(v){setState(()=>unread=v);_load();}),const Spacer(),TextButton.icon(onPressed:_all,icon:const Icon(Icons.done_all),label:const Text('Mark all read'))])),Expanded(child:loading?const LoadingPanel():error!=null?ErrorPanel(ApiError.messageFor(error),onRetry:_load):RefreshIndicator(onRefresh:_load,child:result!.items.isEmpty?ListView(children:[SizedBox(height:MediaQuery.sizeOf(c).height*.5,child:const EmptyPanel('No notifications found.'))]):ListView.builder(itemCount:result!.items.length,itemBuilder:(c,i){final n=result!.items[i];return ListTile(leading:Icon(n.isRead?Icons.notifications_none:Icons.notifications_active,color:n.isRead?null:Theme.of(c).colorScheme.primary),title:Text(n.title,style:TextStyle(fontWeight:n.isRead?FontWeight.normal:FontWeight.bold)),subtitle:Text('${n.message??''}\n${DateFormat.yMMMd().add_jm().format(n.createdAt.toLocal())}'),isThreeLine:true,onTap:()=>_read(n));}))),if(!loading&&result!=null)PageControls(page:result!.page,lastPage:result!.lastPage,onPage:(p)=>_load(page:p))]);}

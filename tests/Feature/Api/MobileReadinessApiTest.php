@@ -51,6 +51,24 @@ class MobileReadinessApiTest extends TestCase
         $this->patchJson('/api/v1/profile', ['mobile_number' => '09990000000'], $headers)->assertConflict()->assertJsonPath('error_code', 'CONFLICT');
     }
 
+    public function test_reference_data_contains_ids_required_by_mobile_create_forms(): void
+    {
+        Sanctum::actingAs($this->user('Faculty'));
+
+        $this->getJson('/api/v1/reference-data')
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonStructure([
+                'data' => [
+                    'buildings' => [['id', 'uuid', 'name']],
+                    'floors' => [['id', 'uuid', 'building_id']],
+                    'rooms' => [['id', 'uuid', 'floor_id']],
+                    'priorities' => [['id', 'uuid', 'name']],
+                    'work_order_categories' => [['id', 'uuid', 'name']],
+                ],
+            ]);
+    }
+
     public function test_qr_lookup_requires_authentication_and_returns_mobile_safe_asset(): void
     {
         $asset = Asset::factory()->create(['asset_category_id' => AssetCategory::first()->id]);

@@ -10,7 +10,7 @@ SNSU Facilities Management Office (FMO) Management System
 
 **Architecture:**
 
-Laravel API + Laravel Web + Flutter Offline Mobile App
+Laravel API + Laravel Web + Flutter Online-First Mobile App Foundation
 
 **Development Methodology:**
 
@@ -18,17 +18,49 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 11A API and Mobile Readiness Stabilization Completed
+Phase 11B Flutter Mobile Application Foundation Completed (SDK build verification pending)
 
 ---
 
 # Current Phase
 
-## Phase 11A - API and Mobile Readiness Stabilization
+## Phase 11B - Flutter Mobile Application Foundation
 
 **Status:**
 
 Completed
+
+---
+
+## Phase 11B Delivery
+
+Completed July 13, 2026:
+
+* Added a separate `mobile/` Flutter application using Riverpod, Dio, GoRouter, secure storage, and Mobile Scanner.
+* Implemented online-only startup validation, secure Sanctum token persistence, current-device and all-device logout, centralized 401 expiry, maintenance-mode handling, and role/permission/scope loading.
+* Added role- and feature-aware navigation for dashboard, work orders, assets, maintenance, notifications, and profile.
+* Added mobile dashboard, paginated work-order and asset browsing, work-order creation, work-order details/progress display, guarded approval/rejection, asset QR scanning and lookup, preventive-maintenance views and guarded completion, notifications, unread count, profile editing/password change, and authenticated attachment byte loading.
+* Added standardized API envelopes/errors, GET retry surfaces, mutation idempotency keys, safe notification route allowlisting, UTC parsing, session-memory reference caching, and hierarchical building/floor/room form selection.
+* Added Android internet/camera permissions with debug-only cleartext networking and production HTTPS enforcement; added iOS camera usage metadata.
+* Added mobile architecture, environment, API, and testing documentation plus initial unit/widget/integration harness tests.
+* Corrected the Phase 11A reference-data response to return numeric IDs required by validated foreign-key form submissions while retaining UUIDs.
+
+Verification:
+
+* Laravel Pint for the backend correction and regression test: passed.
+* Mobile readiness API tests: 7 passed, 61 assertions.
+* Full Laravel suite: 184 passed, 973 assertions.
+* Static secret scan: no hardcoded bearer token or production API URL patterns found.
+* Flutter SDK and Dart SDK were unavailable in both WSL and Windows. `flutter pub get`, Dart formatting, `flutter analyze`, Flutter tests, and Android/iOS builds remain mandatory environment verification steps.
+
+Known limitations:
+
+* Phase 11B is online-first only; no SQLite/Drift database, offline cache, background synchronization, or queued mutations exist.
+* The checked-in Android/iOS configuration could not be generated or compiled by an installed Flutter toolchain; generated wrapper/Xcode artifacts and platform plugin integration must be verified before distribution.
+* Secure PDF handoff and upload/evidence workflows remain foundations rather than complete field workflows.
+* Work-order assignment, richer progress mutation, maintenance correction/review actions, and exhaustive transport/widget tests remain appropriate Phase 11D field-workflow work after Phase 11C synchronization design.
+
+Phase 11B source implementation is complete. The next recommended phase is Phase 11C offline-first synchronization, only after the Flutter SDK verification commands pass in a configured mobile development environment.
 
 ---
 
