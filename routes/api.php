@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\MasterData\RoomController;
 use App\Http\Controllers\Api\V1\MasterData\WorkOrderCategoryController;
 use App\Http\Controllers\Api\V1\MasterData\WorkOrderStatusController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SkillController;
 use App\Http\Controllers\Api\V1\StaffProfileController;
 use App\Http\Controllers\Api\V1\UserController;
@@ -102,6 +103,16 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::patch('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
         Route::patch('notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('dashboard', [ReportController::class, 'dashboard'])->name('dashboard');
+            Route::get('work-orders', [ReportController::class, 'workOrders'])->name('work-orders');
+            Route::get('assets', [ReportController::class, 'assets'])->name('assets');
+            Route::get('maintenance-schedules', [ReportController::class, 'maintenanceSchedules'])->name('maintenance-schedules');
+            Route::get('maintenance-records', [ReportController::class, 'maintenanceRecords'])->name('maintenance-records');
+            Route::get('inventory', [ReportController::class, 'inventory'])->name('inventory');
+            Route::get('staff', [ReportController::class, 'staff'])->name('staff');
+        });
 
         Route::get('assets/lookup', [AssetController::class, 'lookup'])->name('assets.lookup');
         Route::get('assets', [AssetController::class, 'index'])->name('assets.index');

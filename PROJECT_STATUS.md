@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 9E Maintenance Review, Correction, and Approval Workflow Completed
+Phase 10A Reporting and Analytics Dashboard Completed
 
 ---
 
 # Current Phase
 
-## Phase 9E - Maintenance Review, Correction, and Approval Workflow
+## Phase 10A - Reporting and Analytics Dashboard
 
 **Status:**
 
@@ -1067,11 +1067,11 @@ Includes:
 
 ## Phase 12
 
-Reports and Dashboard
+Reports and Dashboard (Legacy Roadmap Entry)
 
 Status:
 
-⚪ Pending
+🟡 Partially superseded by Phase 10A
 
 Includes:
 
@@ -1080,6 +1080,8 @@ Includes:
 * Inventory Reports
 * Asset Reports
 * Evaluation Reports
+
+Work order, staff, inventory, asset, and maintenance reporting were delivered in Phase 10A. A dedicated evaluation report remains deferred to a separately approved reporting enhancement phase.
 
 ---
 
@@ -1188,9 +1190,36 @@ Includes:
 
 # Current Priority
 
-Phase 9A through Phase 9E are complete. Wait for explicit user confirmation before beginning any subsequent phase.
+## Phase 10A Delivery
 
-Recommended approach: add a controlled maintenance completion review and correction workflow with audit safeguards, without implementing reports, analytics, QR codes, mobile sync, procurement, depreciation, barcode support, or new dashboard scope.
+Completed:
+
+* Central reporting dashboard with work order, asset, preventive maintenance, maintenance review, inventory, and staff indicators
+* Shared date presets and building, floor, room, category, status, priority, staff, search, sort, and pagination filters where applicable
+* Work order, asset, preventive maintenance schedule, maintenance record, inventory, and staff detail reports
+* Chart.js visualizations, drill-through records, empty states, KPI definitions, and known-data-limit notes
+* Filter-preserving CSV exports with report metadata and spreadsheet formula-injection protection
+* Protected web and `/api/v1/reports` routes with granular report-view and export permissions
+* Reporting query indexes and API/web regression coverage
+
+Known limitations:
+
+* The current data model represents one campus and does not map reporting users to a building or department scope. Authorized management roles therefore receive campus-wide results constrained by explicit filters.
+* Inventory valuation and highest-cost material rankings are unavailable until inventory items store a unit cost.
+* Historical preventive-maintenance compliance is an approximation because historical due-date snapshots are not stored.
+* Reopened work-order counts are unavailable because work-order status transitions do not have a dedicated history table.
+
+Verification completed on July 12, 2026:
+
+* Laravel Pint: 330 files passed
+* Full Sail test suite: 167 tests passed, 871 assertions
+* Phase 10A reporting tests: 5 tests passed, 35 assertions
+* Vite production build: passed
+* Report route audit: 10 protected web/API routes registered
+
+Phase 1 through Phase 10A are complete. Wait for explicit user confirmation before beginning any subsequent phase.
+
+Recommended next phase: Phase 10B report hardening or the next explicitly approved project phase. Do not begin mobile synchronization, procurement, QR/barcode support, or unrelated analytics without confirmation.
 
 ---
 

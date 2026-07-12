@@ -18,6 +18,7 @@ use App\Policies\InventoryItemPolicy;
 use App\Policies\MaintenanceSchedulePolicy;
 use App\Policies\MasterDataPolicy;
 use App\Policies\NotificationPolicy;
+use App\Policies\ReportPolicy;
 use App\Policies\SkillPolicy;
 use App\Policies\StaffProfilePolicy;
 use App\Policies\UserPolicy;
@@ -56,6 +57,13 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(WorkOrderEvaluation::class, WorkOrderEvaluationPolicy::class);
         Gate::policy(WorkOrderUpdate::class, WorkOrderUpdatePolicy::class);
         Gate::define('manageMasterData', fn (User $user, string $modelClass): bool => app(MasterDataPolicy::class)->canManage($user, $modelClass));
+        Gate::define('viewReports', fn (User $user): bool => app(ReportPolicy::class)->viewAny($user));
+        Gate::define('viewWorkOrderReports', fn (User $user): bool => app(ReportPolicy::class)->workOrders($user));
+        Gate::define('viewAssetReports', fn (User $user): bool => app(ReportPolicy::class)->assets($user));
+        Gate::define('viewMaintenanceReports', fn (User $user): bool => app(ReportPolicy::class)->maintenance($user));
+        Gate::define('viewInventoryReports', fn (User $user): bool => app(ReportPolicy::class)->inventory($user));
+        Gate::define('viewStaffReports', fn (User $user): bool => app(ReportPolicy::class)->staff($user));
+        Gate::define('exportReports', fn (User $user): bool => app(ReportPolicy::class)->export($user));
         Gate::guessPolicyNamesUsing(function (string $modelClass): ?string {
             return is_subclass_of($modelClass, Model::class) ? MasterDataPolicy::class : null;
         });

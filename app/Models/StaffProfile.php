@@ -49,4 +49,9 @@ class StaffProfile extends Model
     {
         return $this->hasMany(WorkOrderUpdate::class, 'staff_id');
     }
+
+    public function maintenanceRecords(): HasMany
+    {
+        return $this->hasMany(AssetMaintenanceRecord::class);
+    }
 }
