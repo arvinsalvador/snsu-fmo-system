@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 10A Reporting and Analytics Dashboard Completed
+Phase 10B Printable Reports, Scheduled Reports, and Management Summaries Completed
 
 ---
 
 # Current Phase
 
-## Phase 10A - Reporting and Analytics Dashboard
+## Phase 10B - Printable Reports, Scheduled Reports, and Management Summaries
 
 **Status:**
 
@@ -1189,6 +1189,68 @@ Includes:
 ---
 
 # Current Priority
+
+## Phase 10B Delivery
+
+Completed:
+
+* Configuration-only report templates with validated types, sections, formats, orientation, and paper size
+* Nine protected system templates: executive management, work order, asset, preventive maintenance, maintenance completion, maintenance review, inventory, staff workload, and building facility summaries
+* Professional Blade print layout for browser printing and Dompdf PDF generation, with A4/Letter/Legal and portrait/landscape support
+* PDF, CSV, and stored print-view output generated from the Phase 10A reporting calculations
+* Deterministic management observations based on current-versus-previous-period comparisons and documented thresholds
+* Immutable generated-report snapshots containing filters, summary data, generator, template configuration, timestamps, private file metadata, and SHA-256 checksum
+* Manual queued generation, generation history, authenticated UUID-bound downloads, and integrity verification
+* Daily, weekly, monthly, quarterly, and annual schedules with calculated next-run dates and supported relative date-range modes
+* Due-schedule command, row locking, processing keys, queued generation, retry protection, and duplicate-safe delivery logging
+* Linked-system-user database notification delivery; external email recipients remain intentionally disabled pending organizational scope rules
+* Report-specific audit ledger for template, snapshot, schedule, download, and model-change traceability
+* Granular policies and permissions for templates, generation, history, downloads, schedules, run-now, deletion, and delivery logs
+* Authenticated API v1 and Blade management routes with pagination and consistent resources
+
+Executive summary rules:
+
+* Completed work orders are compared with the previous equivalent period and reported as a percentage only when the prior value is non-zero.
+* One or more overdue work orders, defective assets, overdue preventive schedules, or out-of-stock items produces a factual warning.
+* Recommended actions are emitted only for metrics crossing those thresholds; otherwise routine monitoring is recommended.
+* Every narrative records its source metric keys and configured thresholds. No AI narrative generation or employee-performance judgment is used.
+
+Storage and integrity:
+
+* Files are stored privately under `reports/{year}/{month}/{generated-report-uuid}/` on `REPORT_STORAGE_DISK` (`local` by default).
+* Downloads are controller-mediated and policy-protected; API resources never expose local paths.
+* SHA-256 verifies file integrity but is not represented as a digital signature.
+* `REPORT_RETENTION_DAYS` is configurable but unset by default, so reports are retained indefinitely. No automatic cleanup command is enabled without an approved retention policy.
+* Printable detailed appendices are limited to 100 rows; CSV remains the appropriate format for larger record sets.
+
+Operations:
+
+* Run `php artisan schedule:run` every minute through the deployment scheduler. Laravel invokes `reports:process-due` with overlap prevention.
+* Keep a queue worker running, for example `php artisan queue:work --tries=3`, because manual and scheduled generation use `GenerateReportJob`.
+* Database notifications and report delivery logs are created only after successful generation.
+
+Verification completed on July 12, 2026:
+
+* Phase 10A and 10B targeted tests: 10 passed, 59 assertions
+* Full Sail test suite: 172 passed, 895 assertions
+* Laravel Pint: 361 files passed
+* Vite production build: passed
+* Reporting route review: 49 web/API routes listed
+* Scheduler review: `reports:process-due` registered every minute with overlap protection
+* Live migration and system template/permission seeding: passed
+* `git diff --check` was intentionally not run because Phase 10B explicitly prohibited all Git operations.
+
+Known limitations:
+
+* Organizational campus/building/department assignment is not represented on users, so authorized management reporting remains campus-wide with explicit location filters.
+* External email delivery is disabled; database notifications and authenticated downloads are supported.
+* Inventory valuation remains unavailable without unit-cost data.
+* Printable charts use accessible metric tables rather than server-rendered chart images; interactive charts remain in Phase 10A web reports.
+* No automatic retention deletion occurs until an explicit retention policy is approved.
+
+Phase 1 through Phase 10B are complete. Stop and wait for explicit confirmation before Phase 10C or mobile work.
+
+---
 
 ## Phase 10A Delivery
 

@@ -16,4 +16,7 @@
             <a href="{{ route('admin.reports.show', ['report' => $slug, ...request()->query()]) }}" class="whitespace-nowrap rounded-md px-3 py-2 text-sm font-semibold {{ ($report ?? null) === $slug ? 'bg-emerald-700 text-white' : 'text-gray-600 hover:bg-gray-100' }}">{{ $label }}</a>
         @endcan
     @endforeach
+    @can('generate_reports')<a href="{{ route('admin.reports.generate.form') }}" class="whitespace-nowrap rounded-md px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100">Generate</a>@endcan
+    @can('view_generated_reports')<a href="{{ route('admin.reports.generated.index') }}" class="whitespace-nowrap rounded-md px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100">History</a>@endcan
+    @can('view_report_schedules')<a href="{{ route('admin.reports.schedules.index') }}" class="whitespace-nowrap rounded-md px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100">Schedules</a>@endcan
 </nav>

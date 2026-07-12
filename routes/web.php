@@ -9,6 +9,7 @@ use App\Http\Controllers\Web\Admin\AssetManagementController;
 use App\Http\Controllers\Web\Admin\InventoryIntelligenceController;
 use App\Http\Controllers\Web\Admin\InventoryManagementController;
 use App\Http\Controllers\Web\Admin\ReportController;
+use App\Http\Controllers\Web\Admin\ReportPublishingController;
 use App\Http\Controllers\Web\Admin\SkillManagementController;
 use App\Http\Controllers\Web\Admin\StaffManagementController;
 use App\Http\Controllers\Web\Admin\UserManagementController;
@@ -100,6 +101,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('inventory-intelligence/{report}/export', [InventoryIntelligenceController::class, 'export'])->name('inventory-intelligence.export');
 
         Route::get('reports', [ReportController::class, 'dashboard'])->name('reports.dashboard');
+        Route::get('reports/generate', [ReportPublishingController::class, 'generateForm'])->name('reports.generate.form');
+        Route::post('reports/generate', [ReportPublishingController::class, 'generate'])->name('reports.generate');
+        Route::get('reports/generated', [ReportPublishingController::class, 'generated'])->name('reports.generated.index');
+        Route::get('reports/generated/{generatedReport}', [ReportPublishingController::class, 'show'])->name('reports.generated.show');
+        Route::get('reports/generated/{generatedReport}/download', [ReportPublishingController::class, 'download'])->name('reports.generated.download');
+        Route::get('reports/generated/{generatedReport}/print', [ReportPublishingController::class, 'print'])->name('reports.generated.print');
+        Route::post('reports/generated/{generatedReport}/regenerate', [ReportPublishingController::class, 'regenerate'])->name('reports.generated.regenerate');
+        Route::delete('reports/generated/{generatedReport}', [ReportPublishingController::class, 'archive'])->name('reports.generated.archive');
+        Route::get('reports/templates', [ReportPublishingController::class, 'templates'])->name('reports.templates.index');
+        Route::get('reports/templates/create', [ReportPublishingController::class, 'templateForm'])->name('reports.templates.create');
+        Route::post('reports/templates', [ReportPublishingController::class, 'storeTemplate'])->name('reports.templates.store');
+        Route::get('reports/templates/{reportTemplate}/edit', [ReportPublishingController::class, 'templateForm'])->name('reports.templates.edit');
+        Route::put('reports/templates/{reportTemplate}', [ReportPublishingController::class, 'updateTemplate'])->name('reports.templates.update');
+        Route::post('reports/templates/{reportTemplate}/duplicate', [ReportPublishingController::class, 'duplicateTemplate'])->name('reports.templates.duplicate');
+        Route::patch('reports/templates/{reportTemplate}/toggle', [ReportPublishingController::class, 'toggleTemplate'])->name('reports.templates.toggle');
+        Route::get('reports/schedules', [ReportPublishingController::class, 'schedules'])->name('reports.schedules.index');
+        Route::get('reports/schedules/create', [ReportPublishingController::class, 'scheduleForm'])->name('reports.schedules.create');
+        Route::post('reports/schedules', [ReportPublishingController::class, 'storeSchedule'])->name('reports.schedules.store');
+        Route::get('reports/schedules/{reportSchedule}/edit', [ReportPublishingController::class, 'scheduleForm'])->name('reports.schedules.edit');
+        Route::put('reports/schedules/{reportSchedule}', [ReportPublishingController::class, 'updateSchedule'])->name('reports.schedules.update');
+        Route::post('reports/schedules/{reportSchedule}/run', [ReportPublishingController::class, 'run'])->name('reports.schedules.run');
         Route::get('reports/{report}/export', [ReportController::class, 'export'])->name('reports.export');
         Route::get('reports/{report}', [ReportController::class, 'report'])->name('reports.show');
 

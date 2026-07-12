@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleAndPermissionSeeder::class);
         $this->call(SkillSeeder::class);
         $this->call(MasterDataSeeder::class);
+        $this->call(ReportTemplateSeeder::class);
 
         $user = User::query()->updateOrCreate(
             ['email' => 'test@example.com'],

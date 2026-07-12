@@ -36,6 +36,8 @@
         @can('viewReports')
             <div class="pt-4"><p class="px-3 pb-2 text-xs font-semibold uppercase text-gray-400">Insights</p></div>
             <a href="{{ route('admin.reports.dashboard') }}" class="{{ $link }} {{ request()->routeIs('admin.reports.*') ? $active : $inactive }}">Reports & analytics</a>
+            @can('generate_reports')<a href="{{ route('admin.reports.generate.form') }}" class="{{ $link }} {{ request()->routeIs('admin.reports.generate.*') ? $active : $inactive }}">Generate report</a>@endcan
+            @can('view_generated_reports')<a href="{{ route('admin.reports.generated.index') }}" class="{{ $link }} {{ request()->routeIs('admin.reports.generated.*') ? $active : $inactive }}">Report history</a>@endcan
         @endcan
         @if ($user->can('manage_users') || $user->can('manage_staff_profiles') || $user->can('manage_skills') || $user->can('manage_roles') || $user->can('manage_permissions') || $user->can('view_inventory') || $user->can('manage_inventory') || $user->can('view_assets') || $user->can('manage_assets') || $user->can('view_maintenance_records') || $user->can('view_maintenance_schedules') || $user->can('view_maintenance_reviews'))
             <div class="pt-4"><p class="px-3 pb-2 text-xs font-semibold uppercase text-gray-400">Administration</p></div>
