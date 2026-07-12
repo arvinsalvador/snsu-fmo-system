@@ -79,6 +79,12 @@ class RoleAndPermissionSeeder extends Seeder
         'reopen_maintenance_records',
         'manage_maintenance',
         'view_reports',
+        'view_work_order_reports',
+        'view_asset_reports',
+        'view_maintenance_reports',
+        'view_inventory_reports',
+        'view_staff_reports',
+        'export_reports',
         'manage_notifications',
         'view_followups',
         'create_followups',
@@ -154,6 +160,12 @@ class RoleAndPermissionSeeder extends Seeder
                     'reject_maintenance_records',
                     'manage_maintenance',
                     'view_reports',
+                    'view_work_order_reports',
+                    'view_asset_reports',
+                    'view_maintenance_reports',
+                    'view_inventory_reports',
+                    'view_staff_reports',
+                    'export_reports',
                 ]);
             }
 

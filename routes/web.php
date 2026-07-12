@@ -8,6 +8,7 @@ use App\Http\Controllers\Web\Admin\AssetMaintenanceReviewController;
 use App\Http\Controllers\Web\Admin\AssetManagementController;
 use App\Http\Controllers\Web\Admin\InventoryIntelligenceController;
 use App\Http\Controllers\Web\Admin\InventoryManagementController;
+use App\Http\Controllers\Web\Admin\ReportController;
 use App\Http\Controllers\Web\Admin\SkillManagementController;
 use App\Http\Controllers\Web\Admin\StaffManagementController;
 use App\Http\Controllers\Web\Admin\UserManagementController;
@@ -97,6 +98,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('inventory-intelligence', [InventoryIntelligenceController::class, 'dashboard'])->name('inventory-intelligence.dashboard');
         Route::get('inventory-intelligence/{report}', [InventoryIntelligenceController::class, 'report'])->name('inventory-intelligence.report');
         Route::get('inventory-intelligence/{report}/export', [InventoryIntelligenceController::class, 'export'])->name('inventory-intelligence.export');
+
+        Route::get('reports', [ReportController::class, 'dashboard'])->name('reports.dashboard');
+        Route::get('reports/{report}/export', [ReportController::class, 'export'])->name('reports.export');
+        Route::get('reports/{report}', [ReportController::class, 'report'])->name('reports.show');
 
         Route::get('assets', [AssetMaintenanceController::class, 'assets'])->name('assets.index');
         Route::get('assets/export', [AssetManagementController::class, 'export'])->name('assets.export');

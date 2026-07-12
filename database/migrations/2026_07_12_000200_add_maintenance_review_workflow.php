@@ -26,7 +26,9 @@ return new class extends Migration
         Schema::create('asset_maintenance_review_actions', function (Blueprint $table): void {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignId('asset_maintenance_record_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('asset_maintenance_record_id')
+                ->constrained(indexName: 'asset_maint_review_record_fk')
+                ->cascadeOnDelete();
             $table->string('action');
             $table->string('previous_status')->nullable();
             $table->string('new_status');
