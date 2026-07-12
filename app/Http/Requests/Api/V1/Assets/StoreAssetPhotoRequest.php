@@ -14,7 +14,8 @@ class StoreAssetPhotoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image_path' => ['required', 'string', 'max:255'],
+            'photo' => ['nullable', 'required_without:image_path', 'file', 'mimetypes:image/jpeg,image/png,image/webp', 'max:5120'],
+            'image_path' => ['nullable', 'required_without:photo', 'string', 'max:255'],
             'caption' => ['nullable', 'string', 'max:255'],
             'original_name' => ['nullable', 'string', 'max:255'],
             'mime_type' => ['nullable', 'string', 'max:100'],

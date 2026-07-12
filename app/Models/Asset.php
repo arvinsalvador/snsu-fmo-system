@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Asset extends Model
 {
@@ -17,8 +18,14 @@ class Asset extends Model
 
     public const STATUSES = ['active', 'inactive', 'under_maintenance', 'defective', 'lost', 'disposed', 'retired'];
 
+    protected static function booted(): void
+    {
+        static::creating(fn (Asset $asset) => $asset->qr_token ??= (string) Str::uuid());
+    }
+
     protected $fillable = [
         'uuid',
+        'qr_token',
         'asset_tag',
         'name',
         'asset_category_id',

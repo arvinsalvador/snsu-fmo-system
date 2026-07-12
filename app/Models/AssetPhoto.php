@@ -22,6 +22,11 @@ class AssetPhoto extends Model
         'uploaded_by',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);

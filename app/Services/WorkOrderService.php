@@ -5,10 +5,12 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\WorkOrder;
 use App\Models\WorkOrderApproval;
+use App\Models\WorkOrderAttachment;
 use App\Repositories\WorkOrderRepository;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -78,6 +80,11 @@ class WorkOrderService
     public function delete(WorkOrder $workOrder): void
     {
         DB::transaction(fn () => $this->workOrders->delete($workOrder));
+    }
+
+    public function addAttachment(WorkOrder $workOrder, UploadedFile $file, User $user, ?string $caption = null): WorkOrderAttachment
+    {
+        return DB::transaction(fn () => $workOrder->attachments()->create(['uploaded_by' => $user->id, 'file_path' => $file->store('work-order-attachments/'.$workOrder->uuid, 'local'), 'original_name' => $file->getClientOriginalName(), 'mime_type' => $file->getMimeType(), 'file_size' => $file->getSize(), 'caption' => $caption]));
     }
 
     /**

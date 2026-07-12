@@ -1,0 +1,36 @@
+openapi: 3.0.3
+info:
+  title: SNSU FMO API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths:
+  /auth/login:
+    post:
+      summary: Create a Sanctum device token
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Login'}}}}
+      responses: {'200': {$ref: '#/components/responses/Success'}, '422': {$ref: '#/components/responses/Error'}, '429': {$ref: '#/components/responses/Error'}}
+  /auth/logout: {post: {security: [{bearerAuth: []}], summary: Revoke current token, responses: {'200': {$ref: '#/components/responses/Success'}}}}
+  /auth/logout-all: {post: {security: [{bearerAuth: []}], summary: Revoke all user tokens, responses: {'200': {$ref: '#/components/responses/Success'}}}}
+  /auth/user: {get: {security: [{bearerAuth: []}], summary: Get authenticated user, responses: {'200': {$ref: '#/components/responses/Success'}}}}
+  /profile: {get: {security: [{bearerAuth: []}], summary: Safe user profile, responses: {'200': {$ref: '#/components/responses/Success'}}}, patch: {security: [{bearerAuth: []}], summary: Update allowed profile fields, responses: {'200': {$ref: '#/components/responses/Success'}, '422': {$ref: '#/components/responses/Error'}}}}
+  /mobile/dashboard: {get: {security: [{bearerAuth: []}], summary: Permission-sensitive mobile dashboard, responses: {'200': {$ref: '#/components/responses/Success'}}}}
+  /reference-data: {get: {security: [{bearerAuth: []}], summary: Active mobile form references, responses: {'200': {$ref: '#/components/responses/Success'}}}}
+  /system/info: {get: {summary: Safe API and mobile feature information, responses: {'200': {$ref: '#/components/responses/Success'}}}}
+  /work-orders: {get: {security: [{bearerAuth: []}], summary: Paginated scoped work orders, parameters: [{$ref: '#/components/parameters/Page'}, {$ref: '#/components/parameters/PerPage'}, {$ref: '#/components/parameters/UpdatedAfter'}], responses: {'200': {$ref: '#/components/responses/Success'}}}, post: {security: [{bearerAuth: []}], summary: Create retry-safe work order, parameters: [{$ref: '#/components/parameters/IdempotencyKey'}], responses: {'201': {$ref: '#/components/responses/Success'}}}}
+  /assets/lookup/{identifier}: {get: {security: [{bearerAuth: []}], summary: Authenticated QR/code/UUID asset lookup, parameters: [{name: identifier, in: path, required: true, schema: {type: string}}], responses: {'200': {$ref: '#/components/responses/Success'}, '404': {$ref: '#/components/responses/Error'}}}}
+  /notifications: {get: {security: [{bearerAuth: []}], summary: Paginated own notifications, parameters: [{$ref: '#/components/parameters/Page'}, {$ref: '#/components/parameters/PerPage'}], responses: {'200': {$ref: '#/components/responses/Success'}}}}
+components:
+  securitySchemes: {bearerAuth: {type: http, scheme: bearer}}
+  parameters:
+    Page: {name: page, in: query, schema: {type: integer, minimum: 1}}
+    PerPage: {name: per_page, in: query, schema: {type: integer, minimum: 1, maximum: 100}}
+    UpdatedAfter: {name: updated_after, in: query, schema: {type: string, format: date-time}}
+    IdempotencyKey: {name: Idempotency-Key, in: header, schema: {type: string, maxLength: 100}}
+  schemas:
+    Login: {type: object, required: [email, password], properties: {email: {type: string, format: email}, password: {type: string, format: password}, device_name: {type: string}}}
+    Envelope: {type: object, required: [success, message, data, meta], properties: {success: {type: boolean}, message: {type: string}, data: {}, meta: {nullable: true}}}
+    Error: {type: object, required: [success, message, errors, error_code], properties: {success: {type: boolean, enum: [false]}, message: {type: string}, errors: {type: object}, error_code: {type: string}}}
+  responses:
+    Success: {description: Successful standardized response, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+    Error: {description: Standardized error response, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}

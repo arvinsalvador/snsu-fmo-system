@@ -32,9 +32,9 @@ class WorkOrderRepository
             ->when($filters['requestor_id'] ?? null, fn (Builder $query, int $id) => $query->where('requestor_id', $id))
             ->when($filters['date_from'] ?? null, fn (Builder $query, string $date) => $query->whereDate('requested_at', '>=', $date))
             ->when($filters['date_to'] ?? null, fn (Builder $query, string $date) => $query->whereDate('requested_at', '<=', $date))
-            ->latest('requested_at')
-            ->latest()
-            ->paginate($filters['per_page'] ?? 15);
+            ->when($filters['updated_after'] ?? null, fn (Builder $q, string $v) => $q->where('updated_at', '>', $v))
+            ->orderBy($filters['sort_by'] ?? 'requested_at', $filters['sort_direction'] ?? 'desc')->orderByDesc('id')
+            ->paginate(min(max((int) ($filters['per_page'] ?? 20), 1), 100))->withQueryString();
     }
 
     public function findVisibleTo(User $user, WorkOrder $workOrder): WorkOrder

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\Assets\AssetIndexRequest;
 use App\Http\Requests\Api\V1\Assets\StoreAssetPhotoRequest;
 use App\Http\Requests\Api\V1\Assets\StoreAssetRequest;
 use App\Http\Requests\Api\V1\Assets\UpdateAssetRequest;
@@ -18,10 +19,10 @@ class AssetController extends Controller
 {
     public function __construct(private readonly AssetService $assets) {}
 
-    public function index(Request $request): JsonResponse
+    public function index(AssetIndexRequest $request): JsonResponse
     {
         Gate::authorize('viewAny', Asset::class);
-        $assets = $this->assets->paginate($request->only(['search', 'asset_category_id', 'building_id', 'floor_id', 'room_id', 'status', 'sort', 'direction', 'per_page']));
+        $assets = $this->assets->paginate($request->validated());
 
         return response()->json([
             'success' => true,
@@ -33,6 +34,7 @@ class AssetController extends Controller
                 'total' => $assets->total(),
                 'last_page' => $assets->lastPage(),
             ],
+            'links' => ['first' => $assets->url(1), 'last' => $assets->url($assets->lastPage()), 'prev' => $assets->previousPageUrl(), 'next' => $assets->nextPageUrl()],
         ]);
     }
 

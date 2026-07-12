@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\AssetController;
 use App\Http\Controllers\Api\V1\AssetMaintenanceRecordController;
 use App\Http\Controllers\Api\V1\AssetMaintenanceReviewController;
 use App\Http\Controllers\Api\V1\AssignmentIntelligenceController;
+use App\Http\Controllers\Api\V1\AttachmentController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\InventoryIntelligenceController;
 use App\Http\Controllers\Api\V1\InventoryItemController;
@@ -19,7 +20,9 @@ use App\Http\Controllers\Api\V1\MasterData\PriorityController;
 use App\Http\Controllers\Api\V1\MasterData\RoomController;
 use App\Http\Controllers\Api\V1\MasterData\WorkOrderCategoryController;
 use App\Http\Controllers\Api\V1\MasterData\WorkOrderStatusController;
+use App\Http\Controllers\Api\V1\MobileController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\ProfileController as ApiProfileController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\ReportGenerationController;
 use App\Http\Controllers\Api\V1\SkillController;
@@ -34,16 +37,25 @@ use App\Http\Controllers\Api\V1\WorkOrderUpdateController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
+    Route::get('system/info', [MobileController::class, 'info'])->middleware('throttle:api')->name('system.info');
     Route::prefix('auth')->name('auth.')->group(function () {
-        Route::post('login', [AuthController::class, 'login'])->name('login');
+        Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login');
 
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+            Route::post('logout-all', [AuthController::class, 'logoutAll'])->name('logout-all');
             Route::get('me', [AuthController::class, 'me'])->name('me');
+            Route::get('user', [AuthController::class, 'me'])->name('user');
+            Route::get('permissions', [AuthController::class, 'permissions'])->name('permissions');
         });
     });
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'throttle:api', 'idempotency'])->group(function () {
+        Route::get('profile', [ApiProfileController::class, 'show'])->name('profile.show');
+        Route::patch('profile', [ApiProfileController::class, 'update'])->name('profile.update');
+        Route::post('profile/change-password', [ApiProfileController::class, 'password'])->middleware('throttle:login')->name('profile.password');
+        Route::get('mobile/dashboard', [MobileController::class, 'dashboard'])->name('mobile.dashboard');
+        Route::get('reference-data', [MobileController::class, 'references'])->name('reference-data');
         Route::get('kpi-definitions', [KpiController::class, 'definitions'])->name('kpi-definitions.index');
         Route::get('kpi-definitions/{kpiDefinition}', [KpiController::class, 'definition'])->name('kpi-definitions.show');
         Route::get('kpi-targets', [KpiController::class, 'targets'])->name('kpi-targets.index');
@@ -119,8 +131,11 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('inventory-items/{inventoryItem}/movements', [InventoryItemController::class, 'movements'])->name('inventory-items.movements');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
         Route::patch('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+        Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all.post');
         Route::patch('notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+        Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
         Route::prefix('reports')->name('reports.')->group(function () {
             Route::get('dashboard', [ReportController::class, 'dashboard'])->name('dashboard');
@@ -133,7 +148,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         });
         Route::get('report-templates', [ReportGenerationController::class, 'templates'])->name('report-templates.index');
         Route::get('report-templates/{reportTemplate}', [ReportGenerationController::class, 'template'])->name('report-templates.show');
-        Route::post('reports/generate', [ReportGenerationController::class, 'generate'])->name('reports.generate');
+        Route::post('reports/generate', [ReportGenerationController::class, 'generate'])->middleware('throttle:exports')->name('reports.generate');
         Route::get('generated-reports', [ReportGenerationController::class, 'generated'])->name('generated-reports.index');
         Route::get('generated-reports/{generatedReport}', [ReportGenerationController::class, 'show'])->name('generated-reports.show');
         Route::get('generated-reports/{generatedReport}/download', [ReportGenerationController::class, 'download'])->name('generated-reports.download');
@@ -149,9 +164,11 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('report-schedules/{reportSchedule}/deliveries', [ReportGenerationController::class, 'deliveries'])->name('report-schedules.deliveries');
 
         Route::get('assets/lookup', [AssetController::class, 'lookup'])->name('assets.lookup');
+        Route::get('assets/lookup/{identifier}', [MobileController::class, 'asset'])->middleware('throttle:qr')->name('assets.lookup.identifier');
         Route::get('assets', [AssetController::class, 'index'])->name('assets.index');
         Route::post('assets', [AssetController::class, 'store'])->name('assets.store');
-        Route::post('assets/{asset}/photos', [AssetController::class, 'photos'])->name('assets.photos.store');
+        Route::post('assets/{asset}/photos', [AssetController::class, 'photos'])->middleware('throttle:uploads')->name('assets.photos.store');
+        Route::get('asset-photos/{assetPhoto}/download', [AttachmentController::class, 'assetPhoto'])->name('asset-photos.download');
         Route::get('assets/{asset}/maintenance-history', [AssetMaintenanceRecordController::class, 'assetHistory'])->name('assets.maintenance-history');
         Route::get('assets/{asset}', [AssetController::class, 'show'])->name('assets.show');
         Route::match(['put', 'patch'], 'assets/{asset}', [AssetController::class, 'update'])->name('assets.update');
@@ -176,6 +193,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::apiResource('work-orders', WorkOrderController::class)
             ->only(['index', 'store', 'show', 'update', 'destroy']);
+        Route::post('work-orders/{workOrder}/attachments', [WorkOrderController::class, 'attachment'])->middleware('throttle:uploads')->name('work-orders.attachments.store');
+        Route::get('work-order-attachments/{workOrderAttachment}/download', [AttachmentController::class, 'workOrder'])->name('work-order-attachments.download');
 
         Route::get('work-orders/{workOrder}/materials', [WorkOrderMaterialController::class, 'index'])->name('work-orders.materials.index');
         Route::post('work-orders/{workOrder}/materials', [WorkOrderMaterialController::class, 'store'])->name('work-orders.materials.store');
@@ -209,7 +228,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->name('work-orders.updates.index');
         Route::post('work-orders/{workOrder}/updates', [WorkOrderUpdateController::class, 'store'])
             ->name('work-orders.updates.store');
-        Route::post('work-orders/{workOrder}/updates/{update}/photos', [WorkOrderUpdateController::class, 'photos'])
+        Route::post('work-orders/{workOrder}/updates/{update}/photos', [WorkOrderUpdateController::class, 'photos'])->middleware('throttle:uploads')
             ->name('work-orders.updates.photos.store');
     });
 });

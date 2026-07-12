@@ -43,9 +43,13 @@ use App\Policies\UserPolicy;
 use App\Policies\WorkOrderEvaluationPolicy;
 use App\Policies\WorkOrderPolicy;
 use App\Policies\WorkOrderUpdatePolicy;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -63,6 +67,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Carbon::serializeUsing(fn (Carbon $date): string => $date->copy()->utc()->toIso8601String());
+        RateLimiter::for('api', fn (Request $r) => Limit::perMinute(120)->by($r->user()?->id ?: $r->ip()));
+        RateLimiter::for('login', fn (Request $r) => Limit::perMinute(10)->by($r->ip()));
+        RateLimiter::for('uploads', fn (Request $r) => Limit::perMinute(20)->by($r->user()?->id ?: $r->ip()));
+        RateLimiter::for('exports', fn (Request $r) => Limit::perMinute(10)->by($r->user()?->id ?: $r->ip()));
+        RateLimiter::for('qr', fn (Request $r) => Limit::perMinute(60)->by($r->user()?->id ?: $r->ip()));
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(DatabaseNotification::class, NotificationPolicy::class);
         Gate::policy(StaffProfile::class, StaffProfilePolicy::class);

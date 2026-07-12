@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\WorkOrders\ApproveWorkOrderRequest;
 use App\Http\Requests\Api\V1\WorkOrders\RejectWorkOrderRequest;
+use App\Http\Requests\Api\V1\WorkOrders\StoreWorkOrderAttachmentRequest;
 use App\Http\Requests\Api\V1\WorkOrders\StoreWorkOrderRequest;
 use App\Http\Requests\Api\V1\WorkOrders\UpdateWorkOrderRequest;
+use App\Http\Requests\Api\V1\WorkOrders\WorkOrderIndexRequest;
 use App\Http\Resources\Api\V1\WorkOrderApprovalResource;
+use App\Http\Resources\Api\V1\WorkOrderAttachmentResource;
 use App\Http\Resources\Api\V1\WorkOrderResource;
 use App\Models\WorkOrder;
 use App\Services\WorkOrderService;
@@ -19,25 +22,13 @@ class WorkOrderController extends Controller
 {
     public function __construct(private readonly WorkOrderService $workOrders) {}
 
-    public function index(Request $request): JsonResponse
+    public function index(WorkOrderIndexRequest $request): JsonResponse
     {
         Gate::authorize('viewAny', WorkOrder::class);
 
         $workOrders = $this->workOrders->paginateVisibleTo(
             $request->user(),
-            $request->only([
-                'search',
-                'status_id',
-                'approval_status',
-                'priority_id',
-                'category_id',
-                'department_id',
-                'building_id',
-                'requestor_id',
-                'date_from',
-                'date_to',
-                'per_page',
-            ]),
+            $request->validated(),
         );
 
         return response()->json([
@@ -50,6 +41,7 @@ class WorkOrderController extends Controller
                 'total' => $workOrders->total(),
                 'last_page' => $workOrders->lastPage(),
             ],
+            'links' => ['first' => $workOrders->url(1), 'last' => $workOrders->url($workOrders->lastPage()), 'prev' => $workOrders->previousPageUrl(), 'next' => $workOrders->nextPageUrl()],
         ]);
     }
 
@@ -140,5 +132,13 @@ class WorkOrderController extends Controller
             'message' => 'Work order approvals retrieved successfully.',
             'data' => WorkOrderApprovalResource::collection($this->workOrders->approvals($workOrder)),
         ]);
+    }
+
+    public function attachment(StoreWorkOrderAttachmentRequest $request, WorkOrder $workOrder): JsonResponse
+    {
+        Gate::authorize('update', $workOrder);
+        $record = $this->workOrders->addAttachment($workOrder, $request->file('file'), $request->user(), $request->validated('caption'));
+
+        return response()->json(['success' => true, 'message' => 'Attachment uploaded successfully.', 'data' => new WorkOrderAttachmentResource($record->load('uploader')), 'meta' => null], 201);
     }
 }

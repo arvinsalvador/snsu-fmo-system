@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 class AssetService
@@ -55,6 +56,11 @@ class AssetService
 
     public function addPhoto(Asset $asset, array $data, ?User $user = null): AssetPhoto
     {
+        if (($data['photo'] ?? null) instanceof UploadedFile) {
+            $file = $data['photo'];
+            $data = ['image_path' => $file->store('asset-photos/'.$asset->uuid, 'local'), 'original_name' => $file->getClientOriginalName(), 'mime_type' => $file->getMimeType(), 'size' => $file->getSize(), 'caption' => $data['caption'] ?? null];
+        }
+
         return DB::transaction(fn (): AssetPhoto => $asset->photos()->create([
             ...$data,
             'uploaded_by' => $user?->id,
@@ -87,6 +93,7 @@ class AssetService
             ->when($filters['floor_id'] ?? null, fn (Builder $query, int|string $floorId) => $query->where('floor_id', $floorId))
             ->when($filters['room_id'] ?? null, fn (Builder $query, int|string $roomId) => $query->where('room_id', $roomId))
             ->when($filters['status'] ?? null, fn (Builder $query, string $status) => $query->where('status', $status))
+            ->when($filters['updated_after'] ?? null, fn (Builder $query, string $value) => $query->where('updated_at', '>', $value))
             ->orderBy($sort, $direction);
     }
 
@@ -107,6 +114,6 @@ class AssetService
 
     private function perPage(array $filters): int
     {
-        return min(max((int) ($filters['per_page'] ?? 15), 10), 100);
+        return min(max((int) ($filters['per_page'] ?? 20), 1), 100);
     }
 }

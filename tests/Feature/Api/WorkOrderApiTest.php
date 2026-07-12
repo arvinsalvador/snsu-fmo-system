@@ -43,7 +43,8 @@ class WorkOrderApiTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.work_order.requestor_id', $requestor->id)
             ->assertJsonPath('data.work_order.preferred_staff_id', $preferredStaff->id)
-            ->assertJsonPath('data.work_order.attachments.0.file_path', 'work-orders/sample.jpg');
+            ->assertJsonMissingPath('data.work_order.attachments.0.file_path')
+            ->assertJsonPath('data.work_order.attachments.0.original_name', 'sample.jpg');
 
         $this->assertDatabaseHas('work_orders', [
             'requestor_id' => $requestor->id,

@@ -17,14 +17,14 @@ class WorkOrderAttachmentResource extends JsonResource
             'uuid' => $this->uuid,
             'work_order_id' => $this->work_order_id,
             'uploaded_by' => $this->uploaded_by,
-            'file_path' => $this->file_path,
+            'download_url' => route('api.v1.work-order-attachments.download', $this->resource),
             'original_name' => $this->original_name,
             'mime_type' => $this->mime_type,
             'file_size' => $this->file_size,
             'caption' => $this->caption,
             'uploader' => new UserResource($this->whenLoaded('uploader')),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at?->utc()->toIso8601String(),
+            'updated_at' => $this->updated_at?->utc()->toIso8601String(),
         ];
     }
 }

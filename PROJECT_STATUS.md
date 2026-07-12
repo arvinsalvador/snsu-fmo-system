@@ -18,13 +18,13 @@ Phase-Based Modular Development
 
 **Current Status:**
 
-Phase 10C KPI Targets, Performance Scorecards, and Trend Monitoring Completed
+Phase 11A API and Mobile Readiness Stabilization Completed
 
 ---
 
 # Current Phase
 
-## Phase 10C - KPI Targets, Performance Scorecards, and Trend Monitoring
+## Phase 11A - API and Mobile Readiness Stabilization
 
 **Status:**
 
@@ -1189,6 +1189,62 @@ Includes:
 ---
 
 # Current Priority
+
+## Phase 11A Delivery
+
+Completed:
+
+* Audited 186 `/api/v1` routes, 32 API controllers, 70 Form Requests, 35 pre-existing API Resources, policy registration, uploads, notifications, queues, and scheduler behavior
+* Standardized successful v1 JSON envelopes without changing existing `data` field meanings; standardized validation, authentication, authorization, not-found, conflict, rate-limit, and server-error envelopes
+* Added Sanctum current-device and all-device logout, authorization payloads, safe profile update/password change, active-user rejection, and device token naming
+* Added named general, login, upload, export/report-generation, and QR rate limits
+* Added compact permission-sensitive mobile dashboard, active reference data, safe system/version information, server-controlled mobile feature flags, and UTC ISO 8601 serialization
+* Added non-sequential asset QR tokens and authenticated lookup by QR token, UUID, asset code, or permitted serial number; QR identifiers never grant authorization
+* Added private multipart asset-photo and work-order attachment uploads, server-generated paths, metadata-only resources, and authenticated policy-protected downloads
+* Added notification pagination, unread/type/date filters, unread count, POST/PATCH read-all compatibility, deletion, safe metadata, and own-user enforcement
+* Standardized work-order and asset list pagination at 20 by default and 100 maximum, allowlisted sorting, query validation, pagination links, and `updated_after` incremental reads
+* Added retry-safe `Idempotency-Key` handling for authenticated mutations with user/route/body binding, replay headers, conflict detection, and persistent response records
+* Added forward indexes for asset/work-order incremental queries and a unique QR identifier index
+* Added configurable CORS origins without credentialed wildcards
+* Added `docs/api/README.md`, endpoint inventory, and an OpenAPI 3.0.3 specification for the mobile bootstrap contract
+
+Compatibility:
+
+* Existing `/auth/me`, PATCH notification read-all, search-based asset lookup, response data fields, and all existing web routes remain available.
+* Notification `id` remains as a deprecated alias for `uuid`.
+* Raw attachment storage paths were intentionally removed from API payloads and replaced by authenticated download URLs.
+* No v2 routes, Flutter code, offline synchronization, or Agentic AI were introduced.
+
+Operational contract:
+
+* Mobile clients send `Accept: application/json`, Bearer tokens, ISO 8601 UTC timestamps, and optional `Idempotency-Key` for retryable mutations.
+* QR payload format is `snsu-fmo:asset:<qr-token>`; authentication and policy checks remain mandatory after scanning.
+* General API limit is 120/minute/user, login/password 10/minute/IP, uploads 20/minute/user, QR lookup 60/minute/user, and report generation 10/minute/user.
+* Native mobile clients do not use browser CORS; permitted browser origins come from `CORS_ALLOWED_ORIGINS`.
+
+Verification completed July 13, 2026:
+
+* Phase 11A tests: 6 passed as part of the API suite
+* All API tests: 89 passed, 498 assertions
+* Full Sail suite: 183 passed, 945 assertions
+* Laravel Pint: 406 files passed
+* Vite production build: passed
+* OpenAPI YAML parsed; all 11 documented paths matched actual routes
+* API inventory: 186 v1 routes, 184 Sanctum-protected, 179 idempotency-middleware protected
+* Scheduler and middleware reviews: passed
+* Live migration: passed
+* Permitted `git diff --check`: passed; no other Git operation was performed
+
+Known limitations:
+
+* The application still represents one campus and lacks user-to-building/department scope assignments; policies enforce ownership/assignment/permissions, but multi-campus isolation requires a future schema phase.
+* Incremental retrieval is currently guaranteed for work orders and assets; full tombstone/deleted-record synchronization is deferred to offline sync.
+* OpenAPI documents the mobile bootstrap contract and representative core operations; the full route inventory covers the remaining existing module routes.
+* Legacy metadata-only attachment records may reference files that do not exist in private storage and correctly return 404.
+
+Phase 11A is complete and the backend is ready for Phase 11B planning. Stop and wait for explicit confirmation; do not begin Flutter or offline synchronization.
+
+---
 
 ## Phase 10C Delivery
 

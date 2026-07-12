@@ -55,9 +55,14 @@ class NotificationService
         );
     }
 
-    public function paginate(User $user, int $perPage = 20): LengthAwarePaginator
+    public function paginate(User $user, int $perPage = 20, array $filters = []): LengthAwarePaginator
     {
-        return $user->notifications()->latest('created_at')->latest('id')->paginate(min(max($perPage, 10), 100));
+        return $user->notifications()->when(($filters['unread'] ?? null) !== null, fn ($q) => filter_var($filters['unread'], FILTER_VALIDATE_BOOL) ? $q->whereNull('read_at') : $q->whereNotNull('read_at'))->when($filters['type'] ?? null, fn ($q, $v) => $q->where('data->event', $v))->when($filters['date_from'] ?? null, fn ($q, $v) => $q->whereDate('created_at', '>=', $v))->when($filters['date_to'] ?? null, fn ($q, $v) => $q->whereDate('created_at', '<=', $v))->latest('created_at')->latest('id')->paginate(min(max($perPage, 1), 100));
+    }
+
+    public function delete(User $user, string $id): void
+    {
+        $user->notifications()->findOrFail($id)->delete();
     }
 
     public function markRead(User $user, string $notificationId): DatabaseNotification

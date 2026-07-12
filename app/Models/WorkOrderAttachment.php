@@ -22,6 +22,11 @@ class WorkOrderAttachment extends Model
 {
     use HasUuid, SoftDeletes;
 
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
     public function workOrder(): BelongsTo
     {
         return $this->belongsTo(WorkOrder::class);

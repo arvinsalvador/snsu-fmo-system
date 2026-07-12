@@ -58,7 +58,8 @@ class AssetApiTest extends TestCase
 
         $this->getJson("/api/v1/assets/{$assetId}")
             ->assertOk()
-            ->assertJsonPath('data.asset.photos.0.image_path', 'assets/ACU-001/front.jpg');
+            ->assertJsonMissingPath('data.asset.photos.0.image_path')
+            ->assertJsonPath('data.asset.photos.0.caption', 'Front view');
 
         $this->deleteJson("/api/v1/assets/{$assetId}")->assertOk();
         $this->assertSoftDeleted('assets', ['id' => $assetId]);
